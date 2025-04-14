@@ -3,6 +3,7 @@
 	Matrix4.cpp
 	Scene.cpp
 	Services.cpp
+	Transform.cpp
 	Window.cpp
 	entities/Entity.cpp
 	entities/Sprite.cpp
@@ -17,6 +18,7 @@ set(HEADERS
 	Matrix4.hpp
 	Scene.hpp
 	Services.hpp
+	Transform.hpp
 	Vec2.hpp
 	Window.hpp
 	entities/Entity.hpp

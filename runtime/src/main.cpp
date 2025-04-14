@@ -41,6 +41,7 @@ int main() {
 
     ResourceManager* resourceManager = new ResourceManager();
     resourceManager->AddTexture("cat.png");
+    resourceManager->AddTexture("dog.png");
     
     Services::Provide(resourceManager);
 
@@ -48,9 +49,10 @@ int main() {
 
     resourceManager->AddShaderFromString("main", vertexShaderSource, fragmentShaderSource);
 
-    Texture* catTexture = resourceManager->textures["cat.png"];
-
-    Sprite* cat = new Sprite({16, 32}, catTexture);
+    Sprite* cat = new Sprite(Transform({16, 32}), resourceManager->textures["cat.png"]);
+    Sprite* dog = new Sprite(Transform({64, 64}), resourceManager->textures["dog.png"]);
+    cat->AddChild(dog);
+    
     float x = 0;
     while (!window.shouldClose()) {
         renderer->ClearColor(100, 149, 237, 255);

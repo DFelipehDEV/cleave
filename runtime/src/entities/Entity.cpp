@@ -18,42 +18,32 @@ void Entity::OnRender(Renderer* renderer) {
     }
 }
 
-std::string Entity::GetName() const {
-    return m_name;
-}
+std::string Entity::GetName() const { return m_name; }
+void Entity::SetName(std::string& name) { m_name = name; }
 
-void Entity::SetName(std::string& name) {
-    m_name = name;
-}
+Transform& Entity::GetTransform() { return m_transform; }
+void Entity::SetTransform(Transform& transform) { m_transform = transform; }
 
-Vec2f Entity::GetPosition() const {
-    return m_position;
-}
-
-void Entity::SetPosition(Vec2f& position) {
-    m_position = position;
-}
-
-Vec2f Entity::GetGlobalPosition() const {
-    if (m_parent) return m_position + m_parent->GetGlobalPosition();
-    return m_position;
-}
-
-Entity* Entity::GetParent() const {
-    return m_parent;
-}
-
+Entity* Entity::GetParent() const { return m_parent; }
 void Entity::SetParent(Entity* parent) {
-    m_parent = parent;
+    if (parent) {
+        parent->AddChild(this);
+    } else if (m_parent) {
+        m_parent->RemoveChild(this);
+    }
 }
 
-const std::vector<Entity*>& Entity::GetChildren() const {
-    return m_children;
-}
+const std::vector<Entity*>& Entity::GetChildren() const { return m_children; }
 
 void Entity::AddChild(Entity* child) {
+    // Remove from previous parent
+    if (child->m_parent) {
+        child->m_parent->RemoveChild(child);
+    }
+
     m_children.push_back(child);
-    child->SetParent(this);
+    child->m_parent = this;
+    child->m_transform.SetParent(&this->m_transform);
 }
 
 void Entity::RemoveChild(Entity* child) {
