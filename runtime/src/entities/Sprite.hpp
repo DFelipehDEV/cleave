@@ -4,7 +4,7 @@
 
 class Sprite : public Entity {
 public:
-    Sprite(Transform transform, Texture* texture = nullptr, Vec2f origin = {0.5f, 0.5f}, Vec2f scale = {1.0f, 1.0f});
+    Sprite(Transform transform, Texture* texture = nullptr, Vec2f origin = {0.5f, 0.5f});
     ~Sprite() = default;
 
     void OnRender(Renderer* renderer) override;
@@ -14,10 +14,7 @@ public:
 
     Vec2f GetOrigin() const;
     void SetOrigin(Vec2f origin);
-
-    Vec2f GetScale() const;
-    void SetScale(Vec2f scale);
 private:
     Texture* m_texture = nullptr;
-    Vec2f m_origin, m_scale;
+    Vec2f m_origin;
 };
