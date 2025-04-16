@@ -24,8 +24,10 @@ void OpenGLRenderer::ClearColor(int r, int g, int b, int a) {
 }
 
 void OpenGLRenderer::Draw(Texture* texture, size_t vertexCount, const void* vertexData, const uint32_t* indices, size_t indexCount, Primitive primitive) {
-    glActiveTexture(GL_TEXTURE0);
-    if (texture) texture->Bind();
+    if (texture) {
+        glActiveTexture(GL_TEXTURE0);
+        texture->Bind();
+    } 
 
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -76,4 +78,21 @@ void OpenGLRenderer::DrawTexture(Texture& texture, float x, float y) {
     };
 
     Draw(&texture, 4, vertices, indices, 6, Primitive::Triangle);
+}
+
+void OpenGLRenderer::DrawRect(float x, float y, float w, float h) {
+    float vertices[] = {
+        // Positions    // Texture Coords (flipped to match Y Down)
+        x,     y + h,   0.0f, 1.0f,  // Bottom-left (now maps to texture bottom-left)
+        x + w, y + h,   1.0f, 1.0f,  // Bottom-right
+        x + w, y,       1.0f, 0.0f,  // Top-right
+        x,     y,       0.0f, 0.0f   // Top-left
+    };    
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    Draw(nullptr, 4, vertices, indices, 6, Primitive::Triangle);
 }

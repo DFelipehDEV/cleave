@@ -20,6 +20,7 @@ bool Texture::CreateFromFile(const std::string& path) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     stbi_image_free(data);
+    glBindTexture(GL_TEXTURE_2D, 0);
     return true;
 }
 

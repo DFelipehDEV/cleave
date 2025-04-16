@@ -20,7 +20,7 @@ public:
     virtual void Draw(Texture* texture, size_t vertexCount, const void* vertexData, const uint32_t* indices, size_t indexCount, Primitive primitive = Primitive::Triangle) = 0;
 
     virtual void DrawTexture(Texture& texture, float x, float y) = 0;
-    //virtual void DrawRect(float x, float y, float width, float height) = 0;
+    virtual void DrawRect(float x, float y, float w, float h) = 0;
 };
 
 class OpenGLRenderer : Renderer {
@@ -36,7 +36,7 @@ public:
     void Draw(Texture* texture, size_t vertexCount, const void* vertexData, const uint32_t* indices, size_t indexCount, Primitive primitive = Primitive::Triangle);
     
     void DrawTexture(Texture& texture, float x, float y);
-    //void DrawRect(float x, float y, float width, float height);
+    void DrawRect(float x, float y, float w, float h);
 public:
     glm::mat4 m_projection;
 };
