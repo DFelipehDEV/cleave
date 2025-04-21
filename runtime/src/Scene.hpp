@@ -10,7 +10,7 @@ public:
     void SetRoot(Entity* root);
     
     void Tick();
-    void Render();
+    void Render(Renderer* renderer);
 private:
     Entity* m_root;
 };

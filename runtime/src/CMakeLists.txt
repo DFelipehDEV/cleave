@@ -1,5 +1,4 @@
 ﻿set(SOURCES
-	main.cpp
 	Matrix4.cpp
 	Scene.cpp
 	Services.cpp
@@ -34,6 +33,9 @@ find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 
-add_executable(CleaveRuntime ${SOURCES} ${HEADERS})
+add_library(CleaveRuntime STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(CleaveRuntime PRIVATE GLEW::GLEW glfw glm::glm)
-target_include_directories(CleaveRuntime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(CleaveRuntime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(CleaveRuntimeExe main.cpp)
+target_link_libraries(CleaveRuntimeExe PRIVATE CleaveRuntime GLEW::GLEW glfw glm::glm)

@@ -13,7 +13,7 @@ public:
     virtual void OnRender(Renderer* renderer);
 
     std::string GetName() const;
-    void SetName(std::string& name);
+    void SetName(std::string name);
 
     Transform& GetTransform();
     void SetTransform(Transform& transform);

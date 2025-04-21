@@ -65,11 +65,10 @@ void OpenGLRenderer::DrawTexture(Texture& texture, float x, float y) {
     int h = texture.GetHeight();
 
     float vertices[] = {
-        // Positions    // Texture Coords (flipped to match Y Down)
-        x,     y + h,   0.0f, 1.0f,  // Bottom-left (now maps to texture bottom-left)
-        x + w, y + h,   1.0f, 1.0f,  // Bottom-right
-        x + w, y,       1.0f, 0.0f,  // Top-right
-        x,     y,       0.0f, 0.0f   // Top-left
+        x,     y + h,   0.0f, 1.0f,
+        x + w, y + h,   1.0f, 1.0f,
+        x + w, y,       1.0f, 0.0f,
+        x,     y,       0.0f, 0.0f
     };    
 
     unsigned int indices[] = {
@@ -80,13 +79,13 @@ void OpenGLRenderer::DrawTexture(Texture& texture, float x, float y) {
     Draw(&texture, 4, vertices, indices, 6, Primitive::Triangle);
 }
 
-void OpenGLRenderer::DrawRect(float x, float y, float w, float h) {
+void OpenGLRenderer::DrawRect(float x, float y, float w, float h, Color color) {
+    //TODO: add color
     float vertices[] = {
-        // Positions    // Texture Coords (flipped to match Y Down)
-        x,     y + h,   0.0f, 1.0f,  // Bottom-left (now maps to texture bottom-left)
-        x + w, y + h,   1.0f, 1.0f,  // Bottom-right
-        x + w, y,       1.0f, 0.0f,  // Top-right
-        x,     y,       0.0f, 0.0f   // Top-left
+        x,     y + h,   0.0f, 1.0f,
+        x + w, y + h,   1.0f, 1.0f,
+        x + w, y,       1.0f, 0.0f,
+        x,     y,       0.0f, 0.0f
     };    
 
     unsigned int indices[] = {

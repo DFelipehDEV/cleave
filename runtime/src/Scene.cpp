@@ -18,9 +18,10 @@ void Scene::Tick() {
     if (m_root) {
         m_root->OnTick(16.6666f);
     }
+
 }
-void Scene::Render() {
+void Scene::Render(Renderer* renderer) {
     if (m_root) {
-        m_root->OnRender(nullptr);
+        m_root->OnRender(renderer);
     }
 }
