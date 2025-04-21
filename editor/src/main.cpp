@@ -15,6 +15,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <Scene.hpp>
 #include <algorithm>
+#include <Editor.hpp>
 const char* vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec2 aPos;
@@ -62,27 +63,6 @@ void main()
 }
 )";
 
-void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-    if (entity == selectedEntity) {
-        flags |= ImGuiTreeNodeFlags_Selected;
-    }
-
-    std::string label = " ";
-    label += entity->GetName().c_str();
-    bool opened = ImGui::TreeNodeEx(label.c_str(), flags);
-    if (ImGui::IsItemClicked()) {
-        selectedEntity = entity;
-    }
-
-    if (opened) {
-        for (Entity* child : entity->GetChildren()) {
-            ShowEntityHierarchy(child, selectedEntity);
-        }
-        ImGui::TreePop();
-    }
-}
-
 int main() {
     Window window(512, 288, "CleaveRT!");
 
@@ -111,11 +91,8 @@ int main() {
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window.getGLFWwindow(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
-
-    Scene scene;
-    Entity* root = new Entity(Transform({ 0, 0 }));
-    root->SetName("Root");
-    scene.SetRoot(root);
+    Editor editor = Editor();
+    Scene* scene = editor.GetScene();
 
     Sprite* cat = new Sprite(Transform({ 16, 32 }), resourceManager->textures["cat.png"]);
     cat->SetName("Carlos Gato");
@@ -124,9 +101,7 @@ int main() {
     dog->SetName("Roberto Cao");
     cat->AddChild(dog);
 
-    root->AddChild(cat);
-
-    Entity* selectedEntity = nullptr;
+    scene->GetRoot()->AddChild(cat);
     
     while (!window.shouldClose()) {
         renderer->ClearColor(100, 149, 237, 255);
@@ -136,7 +111,7 @@ int main() {
         resourceManager->shaders["main"]->Use();
         resourceManager->shaders["main"]->SetUniformInt("tex", 0);
         resourceManager->shaders["main"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->m_projection));
-        scene.Render((Renderer*)renderer);
+        scene->Render((Renderer*)renderer);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -144,15 +119,11 @@ int main() {
         {
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
             ImGui::SetNextWindowSize(ImVec2(200, window.GetHeight()), ImGuiCond_Once);
-            ImGui::Begin("Entities", nullptr, ImGuiWindowFlags_NoCollapse);
+            ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse);
 
+            editor.GetHierarchy()->OnRender();
             static float entitiesPanelHeight = 200.0f;
-
-            // Entities list
-            ImGui::BeginChild("EntitiesList", ImVec2(0, entitiesPanelHeight), true);
-            ShowEntityHierarchy(root, selectedEntity);
-            ImGui::EndChild();
-
+            
             // Splitter
             ImGui::InvisibleButton("Splitter", ImVec2(-1, 4.0f));
             if (ImGui::IsItemActive()) {
@@ -164,6 +135,7 @@ int main() {
 
             ImGui::Text("Properties");
 
+            Entity* selectedEntity = editor.GetHierarchy()->GetSelectedEntity();
             if (selectedEntity) {
                 ImGui::Text(selectedEntity->GetName().c_str());
                 ImGui::Text("Name:");

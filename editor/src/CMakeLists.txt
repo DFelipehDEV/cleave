@@ -1,8 +1,12 @@
 ﻿set(SOURCES
 	main.cpp
+	Editor.cpp
+	Hierarchy.cpp
 )
 
 set(HEADERS
+	Editor.hpp
+	Hierarchy.hpp
 )
 
 find_package(GLEW REQUIRED)
