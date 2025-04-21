@@ -21,8 +21,8 @@ void Sprite::OnRender(Renderer* renderer) {
     Matrix4 model;
     model.Translate(globalPosition);
     model.Translate(-offset);
-    model.Rotate(GetTransform().GetRotation());
-    model.Scale(GetTransform().GetScale());
+    model.Rotate(GetTransform().GetWorldRotation());
+    model.Scale(GetTransform().GetWorldScale());
 
     Services::GetResourceManager()->shaders["sprite"]->Use();
     Services::GetResourceManager()->shaders["sprite"]->SetUniformInt("tex", 0);

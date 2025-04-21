@@ -79,8 +79,8 @@ float Matrix4::GetRotation() const {
     return std::atan2(m[1][0], m[0][0]);
 }
 
-float Matrix4::GetRotationRadians() const {
-    return GetRotation() * M_PI / 180.0f;
+float Matrix4::GetRotationDegrees() const {
+    return GetRotation() * (180.0f / M_PI);
 }
 
 void Matrix4::SetRotation(float radians) {

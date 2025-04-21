@@ -17,3 +17,16 @@ Vec2f Transform::GetWorldPosition() const {
         return GetPosition();
 }
 
+Vec2f Transform::GetWorldScale() const {
+    if (m_parent)
+        return m_parent->GetWorldScale() * GetScale();
+    else
+        return GetScale();
+}
+
+float Transform::GetWorldRotation() const {
+    if (m_parent)
+        return m_parent->GetWorldRotation() + GetRotation();
+    else
+        return GetRotation();
+}

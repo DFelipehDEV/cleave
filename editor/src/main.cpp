@@ -62,6 +62,27 @@ void main()
 }
 )";
 
+void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+    if (entity == selectedEntity) {
+        flags |= ImGuiTreeNodeFlags_Selected;
+    }
+
+    std::string label = " ";
+    label += entity->GetName().c_str();
+    bool opened = ImGui::TreeNodeEx(label.c_str(), flags);
+    if (ImGui::IsItemClicked()) {
+        selectedEntity = entity;
+    }
+
+    if (opened) {
+        for (Entity* child : entity->GetChildren()) {
+            ShowEntityHierarchy(child, selectedEntity);
+        }
+        ImGui::TreePop();
+    }
+}
+
 int main() {
     Window window(512, 288, "CleaveRT!");
 
@@ -93,6 +114,7 @@ int main() {
 
     Scene scene;
     Entity* root = new Entity(Transform({ 0, 0 }));
+    root->SetName("Root");
     scene.SetRoot(root);
 
     Sprite* cat = new Sprite(Transform({ 16, 32 }), resourceManager->textures["cat.png"]);
@@ -100,7 +122,7 @@ int main() {
 
     Sprite* dog = new Sprite(Transform({ 128, 128 }), resourceManager->textures["dog.png"]);
     dog->SetName("Roberto Cao");
-    root->AddChild(dog);
+    cat->AddChild(dog);
 
     root->AddChild(cat);
 
@@ -128,11 +150,7 @@ int main() {
 
             // Entities list
             ImGui::BeginChild("EntitiesList", ImVec2(0, entitiesPanelHeight), true);
-            for (Entity* child : root->GetChildren()) {
-                if (ImGui::Selectable(child->GetName().c_str(), selectedEntity == child)) {
-                    selectedEntity = child;
-                }
-            }
+            ShowEntityHierarchy(root, selectedEntity);
             ImGui::EndChild();
 
             // Splitter
@@ -173,7 +191,7 @@ int main() {
                 }
 
                 ImGui::Text("Rotation:");
-                float rotation = entityTransform.GetRotation();
+                float rotation = entityTransform.GetRotationDegrees();
                 if (ImGui::InputFloat("##Rotation", &rotation)) {
                     selectedEntity->GetTransform().SetRotationDegrees(rotation);
                 }

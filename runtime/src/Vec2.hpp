@@ -22,6 +22,17 @@ struct Vec2f {
         return Vec2f {x - other.x, y - other.y};
     }
 
+    Vec2f operator*(const Vec2f& other) const {
+        return Vec2f(x * other.x, y * other.y);
+    }
+
+    Vec2f operator/(const Vec2f& other) const {
+        if (other.x != 0 && other.y != 0) {
+            return Vec2f(x / other.x, y / other.y);
+        }
+        return Vec2f::Zero();
+    }
+
     Vec2f operator*(float scalar) const {
         return Vec2f(x * scalar, y * scalar);
     }
@@ -44,6 +55,21 @@ struct Vec2f {
         x -= other.x;
         y -= other.y;
         return *this;
+    }
+
+    Vec2f& operator*=(const Vec2f& other) {
+        x *= other.x;
+        y *= other.y;
+        return *this;
+    }
+
+    Vec2f& operator/=(const Vec2f& other) {
+        if (other.x != 0 && other.y != 0) {
+            x /= other.x;
+            y /= other.y;
+            return *this;
+        }
+        return Vec2f::Zero();
     }
 
     Vec2f& operator*=(float scalar) {

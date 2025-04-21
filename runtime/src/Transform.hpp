@@ -11,6 +11,8 @@ public:
     void SetParent(Transform* transform);
 
     Vec2f GetWorldPosition() const;
+    Vec2f GetWorldScale() const;
+    float GetWorldRotation() const;
 private:
     Transform* m_parent;
 };

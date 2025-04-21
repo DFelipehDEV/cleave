@@ -26,7 +26,7 @@ public:
     void SetScale(Vec2f scale);
 
     float GetRotation() const;
-    float GetRotationRadians() const;
+    float GetRotationDegrees() const;
     void SetRotation(float radians);
     void SetRotationDegrees(float degrees);
 };
