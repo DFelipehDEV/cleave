@@ -38,6 +38,30 @@ void main()
 }
 )";
 
+const char* spriteVertexShaderSource = R"(
+#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoord;
+out vec2 TexCoord;
+uniform mat4 projection;
+uniform mat4 model;
+void main() {
+    gl_Position = projection * model * vec4(aPos, 0.0, 1.0);
+    TexCoord = aTexCoord;
+}
+)";
+
+const char* spriteFragmentShaderSource = R"(
+#version 330 core
+out vec4 FragColor;
+in vec2 TexCoord;
+uniform sampler2D tex;
+void main()
+{
+    FragColor = texture(tex, TexCoord);
+}
+)";
+
 int main() {
     Window window(512, 288, "CleaveRT!");
 
@@ -53,6 +77,7 @@ int main() {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
 
     resourceManager->AddShaderFromString("main", vertexShaderSource, fragmentShaderSource);
+    resourceManager->AddShaderFromString("sprite", spriteVertexShaderSource, spriteFragmentShaderSource);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -150,7 +175,7 @@ int main() {
                 ImGui::Text("Rotation:");
                 float rotation = entityTransform.GetRotation();
                 if (ImGui::InputFloat("##Rotation", &rotation)) {
-                    selectedEntity->GetTransform().SetRotation(rotation);
+                    selectedEntity->GetTransform().SetRotationDegrees(rotation);
                 }
             }
 

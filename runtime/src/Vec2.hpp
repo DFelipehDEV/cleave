@@ -9,6 +9,10 @@ struct Vec2f {
 
     static Vec2f Zero() { return {0.0f, 0.0f}; }
 
+    Vec2f operator-() const {
+        return Vec2f{ -x, -y };
+    }
+
     // Arithmetic operators
     Vec2f operator+(const Vec2f& other) const {
         return Vec2f {x + other.x, y + other.y };

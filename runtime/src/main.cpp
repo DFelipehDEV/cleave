@@ -33,6 +33,30 @@ void main()
 }
 )";
 
+const char* spriteVertexShaderSource = R"(
+#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoord;
+out vec2 TexCoord;
+uniform mat4 projection;
+uniform mat4 model;
+void main() {
+    gl_Position = projection * model * vec4(aPos, 0.0, 1.0);
+    TexCoord = aTexCoord;
+}
+)";
+
+const char* spriteFragmentShaderSource = R"(
+#version 330 core
+out vec4 FragColor;
+in vec2 TexCoord;
+uniform sampler2D tex;
+void main()
+{
+    FragColor = texture(tex, TexCoord);
+}
+)";
+
 int main() {
     Window window(512, 288, "CleaveRT!");
 
@@ -48,6 +72,7 @@ int main() {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
 
     resourceManager->AddShaderFromString("main", vertexShaderSource, fragmentShaderSource);
+    resourceManager->AddShaderFromString("sprite", spriteVertexShaderSource, spriteFragmentShaderSource);
 
     Sprite* cat = new Sprite(Transform({16, 32}), resourceManager->textures["cat.png"]);
     Sprite* dog = new Sprite(Transform({64, 64}), resourceManager->textures["dog.png"]);

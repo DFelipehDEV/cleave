@@ -1,15 +1,9 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "Matrix4.hpp"
 
 Matrix4 Matrix4::Identity() {
     return Matrix4();
-}
-
-Matrix4 Matrix4::CreateTransform(Vec2f position, float rotation, Vec2f scale) {
-    Matrix4 mat;
-    mat.Translate(position);
-    mat.Rotate(rotation);
-    mat.Scale(scale);
-    return mat;
 }
 
 Matrix4 Matrix4::operator*(const Matrix4& other) const {
@@ -30,6 +24,13 @@ void Matrix4::Translate(Vec2f translation) {
     m[3][1] += translation.y;
 }
 
+void Matrix4::Scale(Vec2f scale) {
+    Matrix4 scaling;
+    scaling.m[0][0] = scale.x;
+    scaling.m[1][1] = scale.y;
+    *this = *this * scaling;
+}
+
 void Matrix4::Rotate(float radians) {
     float c = std::cos(radians);
     float s = std::sin(radians);
@@ -41,19 +42,12 @@ void Matrix4::Rotate(float radians) {
     *this = *this * rotation;
 }
 
-void Matrix4::Scale(Vec2f scale) {
-    Matrix4 scaling;
-    scaling.m[0][0] = scale.x;
-    scaling.m[1][1] = scale.y;
-    *this = *this * scaling;
-}
-
 Vec2f Matrix4::GetPosition() const {
     return Vec2f(m[3][0], m[3][1]);
 }
-
-float Matrix4::GetRotation() const {
-    return std::atan2(m[1][0], m[0][0]);
+void Matrix4::SetPosition(Vec2f position) {
+    m[3][0] = position.x;
+    m[3][1] = position.y;
 }
 
 Vec2f Matrix4::GetScale() const {
@@ -61,4 +55,45 @@ Vec2f Matrix4::GetScale() const {
         std::sqrt(m[0][0] * m[0][0] + m[1][0] * m[1][0]),
         std::sqrt(m[0][1] * m[0][1] + m[1][1] * m[1][1])
     );
+}
+
+void Matrix4::SetScale(Vec2f scale) {
+    float currentScaleX = std::sqrt(m[0][0] * m[0][0] + m[1][0] * m[1][0]);
+    float currentScaleY = std::sqrt(m[0][1] * m[0][1] + m[1][1] * m[1][1]);
+    if (currentScaleX != 0.0f) {
+        m[0][0] /= currentScaleX;
+        m[1][0] /= currentScaleX;
+    }
+    if (currentScaleY != 0.0f) {
+        m[0][1] /= currentScaleY;
+        m[1][1] /= currentScaleY;
+    }
+
+    m[0][0] *= scale.x;
+    m[1][0] *= scale.x;
+    m[0][1] *= scale.y;
+    m[1][1] *= scale.y;
+}
+
+float Matrix4::GetRotation() const {
+    return std::atan2(m[1][0], m[0][0]);
+}
+
+float Matrix4::GetRotationRadians() const {
+    return GetRotation() * M_PI / 180.0f;
+}
+
+void Matrix4::SetRotation(float radians) {
+    Vec2f scale = GetScale();
+    float c = std::cos(radians);
+    float s = std::sin(radians);
+
+    m[0][0] = c * scale.x;
+    m[0][1] = -s * scale.y;
+    m[1][0] = s * scale.x;
+    m[1][1] = c * scale.y;
+}
+
+void Matrix4::SetRotationDegrees(float degrees) {
+    SetRotation(degrees * (M_PI / 180.0f));
 }
