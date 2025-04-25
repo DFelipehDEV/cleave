@@ -1,5 +1,6 @@
 #include "Editor.hpp"
 #include "imgui.h"
+#include <iostream>
 
 Editor::Editor() {
 	m_scene = std::make_shared<Scene>();
@@ -24,6 +25,7 @@ void Editor::OnRender(Renderer *renderer) {
 	ImGui::End();
 
 	ImGui::Begin("Game View", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		m_gameView->OnUpdate();
 		m_gameView->OnRender((Renderer*)renderer);
 	ImGui::End();
 }

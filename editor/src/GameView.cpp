@@ -1,5 +1,6 @@
 #include "GameView.hpp"
 #include "imgui.h"
+#include <algorithm>
 
 void CreateGameFramebuffer(int width, int height, uint32_t& framebuffer, uint32_t& framebufferTexture) {
     glGenFramebuffers(1, &framebuffer);
@@ -21,6 +22,21 @@ GameView::GameView(Scene* scene) : m_scene(scene) {
     CreateGameFramebuffer(512, 288, m_frameBuffer, m_frameBufferTexture);
 }
 
+void GameView::OnUpdate() {
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.MouseWheel != 0.0f) {
+        ImVec2 panelMin = ImGui::GetCursorScreenPos();
+        ImVec2 mousePosInPanel = ImVec2(io.MousePos.x - panelMin.x, io.MousePos.y - panelMin.y);
+
+        float oldZoom = m_zoom;
+        m_zoom /= 1.0f - io.MouseWheel * 0.1f;
+        SetZoom(m_zoom); // this is to clamp the value
+    
+        m_cameraPos.x += (mousePosInPanel.x / oldZoom) - (mousePosInPanel.x / m_zoom);
+        m_cameraPos.y += (mousePosInPanel.y / oldZoom) - (mousePosInPanel.y / m_zoom);
+    }
+}
+
 void GameView::OnRender(Renderer* renderer) {
     static ImVec2 lastSize = { 512, 288 };
     ImVec2 contentSize = ImGui::GetContentRegionAvail();
@@ -34,12 +50,16 @@ void GameView::OnRender(Renderer* renderer) {
         CreateGameFramebuffer(static_cast<uint32_t>(contentSize.x), static_cast<uint32_t>(contentSize.y), m_frameBuffer, m_frameBufferTexture);
         
         renderer->SetViewPort(Rect4f(0.0f, 0.0f, contentSize.x, contentSize.y));
-        renderer->SetProjection(glm::ortho(
-            0.0f, contentSize.x,
-            contentSize.y, 0.0f,
-            -1.0f, 1.0f
-        ));
     }
+
+    float width = contentSize.x / m_zoom;
+    float height = contentSize.y / m_zoom;
+    
+    renderer->SetProjection(glm::ortho(
+        m_cameraPos.x, m_cameraPos.x + width,
+        m_cameraPos.y + height, m_cameraPos.y,
+        -1.0f, 1.0f
+    ));
 
     // Render scene to framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
@@ -50,3 +70,6 @@ void GameView::OnRender(Renderer* renderer) {
     
     ImGui::Image((ImTextureID)(intptr_t)m_frameBufferTexture, contentSize, ImVec2(0, 1), ImVec2(1, 0));
 }
+
+float GameView::GetZoom() const { return m_zoom; }
+void GameView::SetZoom(float zoom) { m_zoom = std::clamp(zoom, 0.1f, 3.0f); }
