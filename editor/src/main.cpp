@@ -97,9 +97,6 @@ int main() {
     ImGui_ImplOpenGL3_Init();
     Editor editor = Editor();
     Scene* scene = editor.GetScene();
-    Properties properties = Properties();
-    properties.SetEntity(editor.GetHierarchy()->GetSelectedEntity());
-    GameView gameView = GameView(scene);
 
     Sprite* cat = new Sprite(Transform({ 16, 32 }), resourceManager->textures["cat.png"]);
     cat->SetName("Carlos Gato");
