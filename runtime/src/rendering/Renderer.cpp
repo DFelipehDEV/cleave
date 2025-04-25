@@ -19,6 +19,15 @@ void OpenGLRenderer::Terminate() {
 
 }
 
+glm::mat4 OpenGLRenderer::GetProjection() const { return m_projection; }
+void OpenGLRenderer::SetProjection(glm::mat4 projection) { m_projection = projection; }
+
+Rect4f OpenGLRenderer::GetViewPort() const { return m_viewport; }
+void OpenGLRenderer::SetViewPort(Rect4f viewport) { 
+    m_viewport = viewport; 
+    glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+}
+
 void OpenGLRenderer::ClearColor(int r, int g, int b, int a) {
     glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }

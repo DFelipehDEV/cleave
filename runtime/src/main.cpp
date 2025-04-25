@@ -85,7 +85,7 @@ int main() {
 
         resourceManager->shaders["main"]->Use();
         resourceManager->shaders["main"]->SetUniformInt("tex", 0);
-        resourceManager->shaders["main"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->m_projection));
+        resourceManager->shaders["main"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
         cat->OnRender((Renderer*) renderer);
 
         window.swapBuffers();

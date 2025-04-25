@@ -26,7 +26,7 @@ void Sprite::OnRender(Renderer* renderer) {
 
     Services::GetResourceManager()->shaders["sprite"]->Use();
     Services::GetResourceManager()->shaders["sprite"]->SetUniformInt("tex", 0);
-    Services::GetResourceManager()->shaders["sprite"]->SetUniformMatrix4("projection", glm::value_ptr(((OpenGLRenderer*)renderer)->m_projection));
+    Services::GetResourceManager()->shaders["sprite"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
     Services::GetResourceManager()->shaders["sprite"]->SetUniformMatrix4("model", (float*)model.m);
 
     renderer->DrawTexture(*m_texture, globalPosition.x, globalPosition.y);

@@ -15,6 +15,7 @@
 
 set(HEADERS
 	Matrix4.hpp
+	Rect4.hpp
 	Scene.hpp
 	Services.hpp
 	Transform.hpp
