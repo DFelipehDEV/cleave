@@ -1,6 +1,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
+#include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
+
 #include "Window.hpp"
 #include "Services.hpp"
 #include "rendering/Renderer.hpp"
@@ -8,14 +15,10 @@
 #include "resources/ResourceManager.hpp"
 #include "entities/Sprite.hpp"
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "Editor.hpp"
+#include "GameView.hpp"
+#include "Scene.hpp"
 
-#include <glm/gtc/type_ptr.hpp>
-#include <Scene.hpp>
-#include <algorithm>
-#include <Editor.hpp>
 const char* vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec2 aPos;
@@ -63,28 +66,6 @@ void main()
 }
 )";
 
-GLuint framebuffer;
-GLuint framebufferTexture;
-
-void CreateGameFramebuffer(int width, int height) {
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-    glGenTextures(1, &framebufferTexture);
-    glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferTexture, 0);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "Framebuffer not complete!" << std::endl;
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 int main() {
     Window window(512, 288, "CleaveRT!");
 
@@ -98,7 +79,6 @@ int main() {
     Services::Provide(resourceManager);
 
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
-    CreateGameFramebuffer(window.GetWidth(), window.GetHeight());
 
     resourceManager->AddShaderFromString("main", vertexShaderSource, fragmentShaderSource);
     resourceManager->AddShaderFromString("sprite", spriteVertexShaderSource, spriteFragmentShaderSource);
@@ -116,6 +96,7 @@ int main() {
     ImGui_ImplOpenGL3_Init();
     Editor editor = Editor();
     Scene* scene = editor.GetScene();
+    GameView gameView = GameView(scene);
 
     Sprite* cat = new Sprite(Transform({ 16, 32 }), resourceManager->textures["cat.png"]);
     cat->SetName("Carlos Gato");
@@ -131,12 +112,8 @@ int main() {
         resourceManager->shaders["main"]->Use();
         resourceManager->shaders["main"]->SetUniformInt("tex", 0);
         resourceManager->shaders["main"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
-        // Clear and render game
+        // Clear
         {
-            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-            renderer->ClearColor(100, 149, 237, 255);
-            glClear(GL_COLOR_BUFFER_BIT);
-            scene->Render((Renderer*)renderer);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -203,26 +180,7 @@ int main() {
             ImGui::End();
             ImGui::Begin("Game View", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-            static ImVec2 lastSize = { 512, 288 };
-            ImVec2 contentSize = ImGui::GetContentRegionAvail();
-
-            if (contentSize.x != lastSize.x || contentSize.y != lastSize.y) {
-                lastSize = contentSize;
-            
-                // Recreate the framebuffer with the new size
-                glDeleteTextures(1, &framebufferTexture);
-                glDeleteFramebuffers(1, &framebuffer);
-                CreateGameFramebuffer(static_cast<uint32_t>(contentSize.x), static_cast<uint32_t>(contentSize.y));
-                
-                renderer->SetViewPort(Rect4f(0.0f, 0.0f, contentSize.x, contentSize.y));
-                renderer->SetProjection(glm::ortho(
-                    0.0f, contentSize.x,
-                    contentSize.y, 0.0f,
-                    -1.0f, 1.0f
-                ));
-            }
-            
-            ImGui::Image((ImTextureID)(intptr_t)framebufferTexture, contentSize, ImVec2(0, 1), ImVec2(1, 0));
+            gameView.OnRender((Renderer*)renderer);
 
             ImGui::End();
         }

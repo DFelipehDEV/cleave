@@ -1,11 +1,13 @@
 ﻿set(SOURCES
 	main.cpp
 	Editor.cpp
+	GameView.cpp
 	Hierarchy.cpp
 )
 
 set(HEADERS
 	Editor.hpp
+	GameView.hpp
 	Hierarchy.hpp
 )
 
