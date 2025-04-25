@@ -3,12 +3,14 @@
 	Editor.cpp
 	GameView.cpp
 	Hierarchy.cpp
+	Properties.cpp
 )
 
 set(HEADERS
 	Editor.hpp
 	GameView.hpp
 	Hierarchy.hpp
+	Properties.hpp
 )
 
 find_package(GLEW REQUIRED)

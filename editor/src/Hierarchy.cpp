@@ -26,6 +26,14 @@ void Hierarchy::OnRender() {
     ImGui::BeginChild("Hierarchy", ImVec2(0, 200), true);
     ShowEntityHierarchy(m_root, m_selectedEntity);
     ImGui::EndChild();
+
+    static float entitiesPanelHeight = 200.0f;
+            
+    // Splitter
+    ImGui::InvisibleButton("Splitter", ImVec2(-1, 4.0f));
+    if (ImGui::IsItemActive()) {
+        entitiesPanelHeight += ImGui::GetIO().MouseDelta.y;
+    }
 }
 
 Entity* Hierarchy::GetRoot() { return m_root; }

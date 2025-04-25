@@ -18,6 +18,7 @@
 #include "Editor.hpp"
 #include "GameView.hpp"
 #include "Scene.hpp"
+#include "Properties.hpp"
 
 const char* vertexShaderSource = R"(
 #version 330 core
@@ -96,6 +97,8 @@ int main() {
     ImGui_ImplOpenGL3_Init();
     Editor editor = Editor();
     Scene* scene = editor.GetScene();
+    Properties properties = Properties();
+    properties.SetEntity(editor.GetHierarchy()->GetSelectedEntity());
     GameView gameView = GameView(scene);
 
     Sprite* cat = new Sprite(Transform({ 16, 32 }), resourceManager->textures["cat.png"]);
@@ -123,66 +126,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
-            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
-            ImGui::SetNextWindowSize(ImVec2(200, window.GetHeight()), ImGuiCond_Once);
-
-            ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse);
-
-            editor.GetHierarchy()->OnRender();
-            static float entitiesPanelHeight = 200.0f;
-            
-            // Splitter
-            ImGui::InvisibleButton("Splitter", ImVec2(-1, 4.0f));
-            if (ImGui::IsItemActive()) {
-                entitiesPanelHeight += ImGui::GetIO().MouseDelta.y;
-            }
-
-            // Properties panel
-            ImGui::BeginChild("PropertiesPanel", ImVec2(0, 0), true);
-
-            ImGui::Text("Properties");
-
-            Entity* selectedEntity = editor.GetHierarchy()->GetSelectedEntity();
-            if (selectedEntity) {
-                ImGui::Text(selectedEntity->GetName().c_str());
-                ImGui::Text("Name:");
-                char nameBuffer[32];
-                strncpy(nameBuffer, selectedEntity->GetName().c_str(), sizeof(nameBuffer));
-                nameBuffer[sizeof(nameBuffer) - 1] = '\0';
-
-                if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer))) {
-                    selectedEntity->SetName(nameBuffer);
-                }
-
-                ImGui::Text("Transform:");
-                Transform entityTransform = selectedEntity->GetTransform();
-
-                ImGui::Text("Position:");
-                Vec2f position = entityTransform.GetPosition();
-                if (ImGui::InputFloat2("##Position", &position.x)) {
-                    selectedEntity->GetTransform().SetPosition(position);
-                }
-
-                ImGui::Text("Scale:");
-                Vec2f scale = entityTransform.GetScale();
-                if (ImGui::InputFloat2("##Scale", &scale.x)) {
-                    selectedEntity->GetTransform().SetScale(scale);
-                }
-
-                ImGui::Text("Rotation:");
-                float rotation = entityTransform.GetRotationDegrees();
-                if (ImGui::InputFloat("##Rotation", &rotation)) {
-                    selectedEntity->GetTransform().SetRotationDegrees(rotation);
-                }
-            }
-
-            ImGui::EndChild();
-            ImGui::End();
-            ImGui::Begin("Game View", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-            gameView.OnRender((Renderer*)renderer);
-
-            ImGui::End();
+            editor.OnRender((Renderer*) renderer);
         }
 
         ImGui::Render();
