@@ -4,7 +4,7 @@
 
 class Sprite : public Entity {
 public:
-    Sprite(Transform transform, Texture* texture = nullptr, Vec2f origin = {0.5f, 0.5f});
+    Sprite(Transform transform = Transform(), Texture* texture = nullptr, Vec2f origin = {0.5f, 0.5f});
     ~Sprite() = default;
 
     void OnRender(Renderer* renderer) override;

@@ -1,5 +1,6 @@
 #include "Hierarchy.hpp"
 #include "imgui.h"
+#include "entities/Sprite.hpp"
 
 void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
@@ -25,6 +26,21 @@ void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
 void Hierarchy::OnRender() {
     ImGui::BeginChild("Hierarchy", ImVec2(0, 200), true);
     ShowEntityHierarchy(m_root, m_selectedEntity);
+    if (ImGui::BeginPopupContextWindow("HierarchyContextMenu", ImGuiPopupFlags_MouseButtonRight)) {
+        static int entityCount = 0;
+        if (ImGui::Selectable("New Entity")) {
+            Entity* newEntity = new Entity();
+            newEntity->SetName("Entity" + std::to_string(entityCount++));
+            m_selectedEntity->AddChild(newEntity);
+        }
+        if (ImGui::Selectable("New Sprite")) {
+            Sprite* newSprite = new Sprite();
+            newSprite->SetName("Sprite" + std::to_string(entityCount++));
+            m_selectedEntity->AddChild(newSprite);
+        }
+
+        ImGui::EndPopup();
+    }
     ImGui::EndChild();
 
     static float entitiesPanelHeight = 200.0f;

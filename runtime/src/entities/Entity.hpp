@@ -6,7 +6,7 @@
 
 class Entity {
 public:
-    Entity(Transform transform) : m_transform(transform) {}
+    Entity(Transform transform = Transform()) : m_transform(transform) {}
     virtual ~Entity();
 
     virtual void OnTick(float deltaTime);
