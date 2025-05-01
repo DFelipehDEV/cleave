@@ -6,6 +6,14 @@ Entity::~Entity() {
     }
 }
 
+void Entity::Init(const std::unordered_map<std::string, std::string>& properties) {
+    if (properties.find("name") != properties.end()) SetName(properties.at("name"));
+
+    if (properties.find("position") != properties.end()) m_transform.SetPosition(Vec2f::FromString(properties.at("position")));
+    if (properties.find("scale") != properties.end()) m_transform.SetScale(Vec2f::FromString(properties.at("scale")));
+    if (properties.find("rotation") != properties.end()) m_transform.SetRotation(std::stof(properties.at("rotation")));
+}
+
 void Entity::OnTick(float deltaTime) {
     for (Entity* child : m_children) {
         child->OnTick(deltaTime);
@@ -15,6 +23,14 @@ void Entity::OnTick(float deltaTime) {
 void Entity::OnRender(Renderer* renderer) {
     for (Entity* child : m_children) {
         child->OnRender(renderer);
+    }
+}
+
+EntityID Entity::GetID() const { return m_id; }
+void Entity::SetID(EntityID id) {
+    m_id = id;
+    if (id >= NEXT_ENTITY_ID) {
+        NEXT_ENTITY_ID = id + 1;
     }
 }
 
