@@ -1,9 +1,9 @@
 ﻿set(SOURCES
-	JsonSceneSerializer.cpp
-	Matrix4.cpp
-	Scene.cpp
+	scene/JsonSceneSerializer.cpp
+	math/Matrix4.cpp
+	scene/Scene.cpp
 	Services.cpp
-	Transform.cpp
+	math/Transform.cpp
 	Window.cpp
 	entities/Entity.cpp
 	entities/Sprite.cpp
@@ -15,14 +15,14 @@
 )
 
 set(HEADERS
-	JsonSceneSerializer.hpp
-	Matrix4.hpp
-	Rect4.hpp
-	EntityRegistry.hpp
-	Scene.hpp
+	scene/JsonSceneSerializer.hpp
+	math/Matrix4.hpp
+	math/Rect4.hpp
+	scene/EntityRegistry.hpp
+	scene/Scene.hpp
 	Services.hpp
-	Transform.hpp
-	Vec2.hpp
+	math/Transform.hpp
+	math/Vec2.hpp
 	Window.hpp
 	entities/Entity.hpp
 	entities/Sprite.hpp

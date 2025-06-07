@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "rendering/Renderer.hpp"
-#include "Scene.hpp"
+#include "scene/Scene.hpp"
 
 class GameView {
 public:

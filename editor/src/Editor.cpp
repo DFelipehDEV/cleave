@@ -12,7 +12,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "Services.hpp"
-#include "JsonSceneSerializer.hpp"
+#include "scene/JsonSceneSerializer.hpp"
 
 Editor::Editor(Window* window) : m_window(window) {
 	m_gameView = std::make_shared<GameView>(std::make_shared<Scene>(std::make_unique<Entity>(Transform({ 0, 0 }), "root")));

@@ -1,6 +1,6 @@
 #pragma once
-#include "Vec2.hpp"
-#include "Matrix4.hpp"
+#include "math/Vec2.hpp"
+#include "math/Matrix4.hpp"
 
 class Transform : public Matrix4 {
 public:

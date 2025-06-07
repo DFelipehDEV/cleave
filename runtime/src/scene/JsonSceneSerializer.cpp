@@ -1,11 +1,11 @@
-#include "JsonSceneSerializer.hpp"
+#include "scene/JsonSceneSerializer.hpp"
 #include <fstream>
 #include <iostream>
 #include <functional>
 #include <nlohmann/json.hpp>
 
 #include "entities/Entity.hpp"
-#include "Scene.hpp"
+#include "scene/Scene.hpp"
 #include "EntityRegistry.hpp"
 
  std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {

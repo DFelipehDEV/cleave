@@ -1,7 +1,7 @@
 #include "GameView.hpp"
-#include "imgui.h"
 #include <algorithm>
-#include <JsonSceneSerializer.hpp>
+#include <imgui.h>
+#include "scene/JsonSceneSerializer.hpp"
 
 void CreateGameFramebuffer(int width, int height, uint32_t& framebuffer, uint32_t& framebufferTexture) {
     glGenFramebuffers(1, &framebuffer);

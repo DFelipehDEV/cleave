@@ -1,5 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "thirdparty/stb_image.h"
 
 #include <algorithm>
 
@@ -12,9 +12,9 @@
 
 #include "Editor.hpp"
 #include "GameView.hpp"
-#include "Scene.hpp"
+#include "scene/Scene.hpp"
 #include "Properties.hpp"
-#include "EntityRegistry.hpp"
+#include "scene/EntityRegistry.hpp"
 
 const char* vertexShaderSource = R"(
 #version 330 core

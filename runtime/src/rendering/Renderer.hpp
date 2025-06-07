@@ -3,10 +3,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Color.hpp"
-#include "../Rect4.hpp"
-#include "../Window.hpp"
-#include "../resources/Texture.hpp"
+#include "rendering/Color.hpp"
+#include "math/Rect4.hpp"
+#include "Window.hpp"
+#include "resources/Texture.hpp"
 
 class Renderer {
 public:

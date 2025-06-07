@@ -2,7 +2,7 @@
 #include "Services.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec3.hpp>
-#include "../Matrix4.hpp"
+#include "math/Matrix4.hpp"
 
 Sprite::Sprite(Transform transform, Texture* texture, Vec2f origin) : Entity(transform), m_texture(texture), m_origin(origin) { }
 

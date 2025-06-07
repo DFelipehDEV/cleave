@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include "../Vec2.hpp"
-#include "../rendering/Renderer.hpp"
-#include "../Transform.hpp"
+#include "math/Vec2.hpp"
+#include "rendering/Renderer.hpp"
+#include "math/Transform.hpp"
 
 typedef uint64_t EntityID;
 static EntityID NEXT_ENTITY_ID = 0;

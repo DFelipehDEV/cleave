@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#include "Scene.hpp"
+#include "scene/Scene.hpp"
 #include "Hierarchy.hpp"
 #include "Properties.hpp"
 #include "GameView.hpp"

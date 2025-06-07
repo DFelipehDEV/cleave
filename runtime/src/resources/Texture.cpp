@@ -1,5 +1,5 @@
 #include "Texture.hpp"
-#include "../stb_image.h"
+#include "thirdparty/stb_image.h"
 #include <iostream>
 
 bool Texture::CreateFromFile(const std::string& path) {

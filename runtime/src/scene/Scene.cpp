@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include "scene/Scene.hpp"
 
 std::unique_ptr<Entity> Scene::ReleaseRoot() {
     return std::move(m_root);
