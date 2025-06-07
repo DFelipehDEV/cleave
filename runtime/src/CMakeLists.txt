@@ -43,3 +43,10 @@ target_include_directories(CleaveRuntime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(CleaveRuntimeExe main.cpp)
 target_link_libraries(CleaveRuntimeExe PRIVATE CleaveRuntime GLEW::GLEW glfw glm::glm)
+
+option(BUILD_EDITOR "Build the Editor module" ON)
+if(BUILD_EDITOR)
+    add_subdirectory(editor)
+    target_link_libraries(CleaveRuntimeExe PRIVATE CleaveEditor)
+    target_compile_definitions(CleaveRuntimeExe PRIVATE CLEAVE_EDITOR_ENABLED)
+endif()
