@@ -6,15 +6,19 @@ find_package(nlohmann_json 3.11.3 REQUIRED)
 
 set(EDITOR_SOURCES
 	Editor.cpp
+	FileExplorer.cpp
 	GameView.cpp
 	Hierarchy.cpp
+	MainMenuBar.cpp
 	Properties.cpp
 )
 
 set(EDITOR_HEADERS
 	Editor.hpp
+	FileExplorer.hpp
 	GameView.hpp
 	Hierarchy.hpp
+	MainMenuBar.hpp
 	Properties.hpp
 )
 

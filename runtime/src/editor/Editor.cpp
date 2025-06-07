@@ -15,8 +15,10 @@
 #include "scene/JsonSceneSerializer.hpp"
 
 Editor::Editor(Window* window) : m_window(window) {
+    m_menuBar = std::make_shared<MainMenuBar>();
 	m_gameView = std::make_shared<GameView>(std::make_shared<Scene>(std::make_unique<Entity>(Transform({ 0, 0 }), "root")));
 	m_hierarchy = std::make_shared<Hierarchy>(m_gameView);
+    m_fileExplorer = std::make_shared<FileExplorer>(std::filesystem::current_path());
 	m_properties = std::make_shared<Properties>();
 }
 
@@ -50,6 +52,7 @@ void Editor::Run(Renderer *renderer) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
+            m_menuBar->OnRender();
 			ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse);
 				m_hierarchy->OnRender();
 				m_properties->SetEntity(m_hierarchy->GetSelectedEntity());
@@ -58,6 +61,10 @@ void Editor::Run(Renderer *renderer) {
 				ImGui::BeginChild("PropertiesPanel", ImVec2(0, 0), true);
 					m_properties->OnRender();
 				ImGui::EndChild();
+			ImGui::End();
+
+            ImGui::Begin("File Explorer", nullptr, ImGuiWindowFlags_NoCollapse);
+				m_fileExplorer->OnRender();
 			ImGui::End();
 
 			ImGui::Begin("Game View", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
@@ -78,6 +85,8 @@ void Editor::Run(Renderer *renderer) {
 }
 
 Hierarchy* Editor::GetHierarchy() { return m_hierarchy.get(); }
+
+FileExplorer *Editor::GetFileExplorer(){ return m_fileExplorer.get(); }
 
 Properties* Editor::GetProperties() { return m_properties.get(); }
 
