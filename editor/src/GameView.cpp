@@ -1,6 +1,7 @@
 #include "GameView.hpp"
 #include "imgui.h"
 #include <algorithm>
+#include <JsonSceneSerializer.hpp>
 
 void CreateGameFramebuffer(int width, int height, uint32_t& framebuffer, uint32_t& framebufferTexture) {
     glGenFramebuffers(1, &framebuffer);
@@ -18,7 +19,7 @@ void CreateGameFramebuffer(int width, int height, uint32_t& framebuffer, uint32_
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-GameView::GameView(Scene* scene) : m_scene(scene) {
+GameView::GameView(std::shared_ptr<Scene> scene) : m_scene(std::move(scene)) {
     CreateGameFramebuffer(512, 288, m_frameBuffer, m_frameBufferTexture);
 }
 
@@ -38,6 +39,17 @@ void GameView::OnUpdate() {
 }
 
 void GameView::OnRender(Renderer* renderer) {
+    if (ImGui::Button("Save Scene")) {
+        JsonSceneSerializer::Save("SavedScene.json", GetScene());
+    }
+    if (ImGui::Button("Load Scene")) {
+        auto scene = JsonSceneSerializer::Load("SavedScene.json");
+        if (scene) {
+            m_scene->Clear();
+            m_scene->SetRoot(scene->ReleaseRoot());
+        }
+        scene.reset();
+    }
     static ImVec2 lastSize = { 512, 288 };
     ImVec2 contentSize = ImGui::GetContentRegionAvail();
 
@@ -73,3 +85,6 @@ void GameView::OnRender(Renderer* renderer) {
 
 float GameView::GetZoom() const { return m_zoom; }
 void GameView::SetZoom(float zoom) { m_zoom = std::clamp(zoom, 0.1f, 3.0f); }
+
+Scene* GameView::GetScene() const { return m_scene.get(); }
+void GameView::SetScene(std::shared_ptr<Scene> scene) { m_scene = std::move(scene); }

@@ -6,6 +6,19 @@
 
 Sprite::Sprite(Transform transform, Texture* texture, Vec2f origin) : Entity(transform), m_texture(texture), m_origin(origin) { }
 
+void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
+    Entity::Init(properties);
+    if (properties.find("origin") != properties.end()) m_origin = Vec2f::FromString(properties.at("origin").value);
+    if (properties.find("texture") != properties.end()) m_texture = Services::GetResourceManager()->textures[properties.at("texture").value];
+}
+
+const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() const { 
+    auto properties = Entity::GetProperties();
+    properties["origin"] = {GetOrigin().ToString(), Entity::Property::Types::Vec2f};
+    properties["texture"] = {GetTexture()->GetName(), Entity::Property::Types::String};
+    return properties; 
+}
+
 Texture* Sprite::GetTexture() const { return m_texture; }
 void Sprite::SetTexture(Texture* texture) { m_texture = texture; }
 

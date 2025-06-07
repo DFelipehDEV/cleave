@@ -16,6 +16,7 @@ bool Texture::CreateFromFile(const std::string& path) {
         std::cerr << "Failed to load texture from file: " << path << std::endl;
         return false;
     }
+    SetName(path);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 

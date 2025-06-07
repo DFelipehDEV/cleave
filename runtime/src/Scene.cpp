@@ -1,17 +1,16 @@
 #include "Scene.hpp"
 
-Scene::~Scene() {
-    if (m_root) {
-        delete m_root;
-    }
+std::unique_ptr<Entity> Scene::ReleaseRoot() {
+    return std::move(m_root);
 }
 
-Entity* Scene::GetRoot() const { return m_root; }
-void Scene::SetRoot(Entity* root) {
-    if (m_root) {
-        delete m_root;
-    }
-    m_root = root;
+Entity* Scene::GetRoot() const { return m_root.get(); }
+void Scene::SetRoot(std::unique_ptr<Entity> root) {
+    m_root = std::move(root);
+}
+
+void Scene::Clear() {
+    m_root.release();
 }
 
 void Scene::Tick() {

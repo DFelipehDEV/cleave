@@ -1,4 +1,5 @@
 #include "Entity.hpp"
+#include <iostream>
 
 Entity::~Entity() {
     if (m_parent) {
@@ -6,12 +7,13 @@ Entity::~Entity() {
     }
 }
 
-void Entity::Init(const std::unordered_map<std::string, std::string>& properties) {
-    if (properties.find("name") != properties.end()) SetName(properties.at("name"));
+void Entity::Init(const std::unordered_map<std::string, Property> properties) {
+    if (properties.find("id") != properties.end()) SetID(std::stoi(properties.at("id").value));
+    if (properties.find("name") != properties.end()) SetName(properties.at("name").value);
 
-    if (properties.find("position") != properties.end()) m_transform.SetPosition(Vec2f::FromString(properties.at("position")));
-    if (properties.find("scale") != properties.end()) m_transform.SetScale(Vec2f::FromString(properties.at("scale")));
-    if (properties.find("rotation") != properties.end()) m_transform.SetRotation(std::stof(properties.at("rotation")));
+    if (properties.find("position") != properties.end()) m_transform.SetPosition(Vec2f::FromString(properties.at("position").value));
+    if (properties.find("scale") != properties.end()) m_transform.SetScale(Vec2f::FromString(properties.at("scale").value));
+    if (properties.find("rotation") != properties.end()) m_transform.SetRotationDegrees(std::stof(properties.at("rotation").value));
 }
 
 void Entity::OnTick(float deltaTime) {
@@ -24,6 +26,18 @@ void Entity::OnRender(Renderer* renderer) {
     for (Entity* child : m_children) {
         child->OnRender(renderer);
     }
+}
+
+const std::unordered_map<std::string, Entity::Property> Entity::GetProperties() const { 
+    std::unordered_map<std::string, Property> properties;
+    properties["type"] = {GetType(), Entity::Property::Types::Hidden};
+    properties["id"] = {std::to_string(m_id), Entity::Property::Types::Hidden};
+
+    properties["name"] = {m_name, Entity::Property::Types::String};
+    properties["position"] =  {m_transform.GetPosition().ToString(), Entity::Property::Types::Vec2f};
+    properties["scale"] = {m_transform.GetScale().ToString(), Entity::Property::Types::Vec2f};
+    properties["rotation"] = {std::to_string(m_transform.GetRotation()), Entity::Property::Types::Float};
+    return properties; 
 }
 
 EntityID Entity::GetID() const { return m_id; }
@@ -77,6 +91,21 @@ Entity* Entity::GetChild(const std::string& name, bool recursive) const {
         }
         if (recursive) {
             Entity* found = child->GetChild(name, true);
+            if (found) {
+                return found;
+            }
+        }
+    }
+    return nullptr;
+}
+
+Entity *Entity::GetChild(EntityID id, bool recursive) const {
+    for (Entity* child : m_children) {
+        if (child->m_id == id) {
+            return child;
+        }
+        if (recursive) {
+            Entity* found = child->GetChild(id, true);
             if (found) {
                 return found;
             }

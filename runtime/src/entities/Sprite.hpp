@@ -2,15 +2,17 @@
 #include "Entity.hpp"
 #include "../resources/Texture.hpp"
 
-// @prop origin : Vec2f
 class Sprite : public Entity {
 public:
     Sprite(Transform transform = Transform(), Texture* texture = nullptr, Vec2f origin = {0.5f, 0.5f});
     ~Sprite() = default;
 
+    void Init(const std::unordered_map<std::string, Property> properties) override;
     void OnRender(Renderer* renderer) override;
 
     std::string GetType() const override { return "cleave::Sprite"; }
+
+    const std::unordered_map<std::string, Property> GetProperties() const override; 
 
     Texture* GetTexture() const;
     void SetTexture(Texture* texture);

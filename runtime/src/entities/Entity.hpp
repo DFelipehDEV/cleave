@@ -10,15 +10,37 @@ static EntityID NEXT_ENTITY_ID = 0;
 
 class Entity {
 public:
-    Entity(Transform transform = Transform()) : m_transform(transform), m_id(NEXT_ENTITY_ID++) {}
+    Entity(Transform transform = Transform(), const std::string& name = "") : m_transform(transform), m_name(name), m_id(NEXT_ENTITY_ID++) {}
+    Entity(const Entity& other) 
+        : m_id(other.m_id)
+        , m_name(other.m_name)
+        , m_transform(other.m_transform)
+        , m_parent(other.m_parent)
+        , m_children(other.m_children) { }
     virtual ~Entity();
 
-    virtual void Init(const std::unordered_map<std::string, std::string>& properties);
+    struct Property {
+        enum class Types {
+            Int,
+            Float,
+            Double,
+            Bool,
+            String,
+            Vec2f,
+            Hidden,
+        };
+        std::string value;
+        Types type;
+    };
+
+    virtual void Init(const std::unordered_map<std::string, Property> properties);
 
     virtual void OnTick(float deltaTime);
     virtual void OnRender(Renderer* renderer);
 
     virtual std::string GetType() const { return "cleave::Entity"; }
+
+    virtual const std::unordered_map<std::string, Property> GetProperties() const; 
 
     EntityID GetID() const;
     void SetID(EntityID id);
@@ -37,6 +59,7 @@ public:
     void RemoveChild(Entity* child);
 
     Entity* GetChild(const std::string& name, bool recursive = false) const;
+    Entity* GetChild(EntityID id, bool recursive = false) const;
 
     Entity* GetRoot();
 private:

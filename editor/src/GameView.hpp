@@ -1,19 +1,23 @@
 #pragma once
 #include <stdint.h>
+#include <memory>
 
 #include "rendering/Renderer.hpp"
 #include "Scene.hpp"
 
 class GameView {
 public:
-    GameView(Scene* scene);
+    GameView(std::shared_ptr<Scene> scene);
     void OnUpdate();
     void OnRender(Renderer* renderer);
 
     float GetZoom() const;
     void SetZoom(float zoom);
+    
+    Scene* GetScene() const;
+    void SetScene(std::shared_ptr<Scene> scene);
 private:
-    Scene* m_scene;
+    std::shared_ptr<Scene> m_scene;
     uint32_t m_frameBuffer;
     uint32_t m_frameBufferTexture;
 

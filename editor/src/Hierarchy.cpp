@@ -3,6 +3,7 @@
 #include "entities/Sprite.hpp"
 
 void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
+    if (!entity) return;
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
     if (entity == selectedEntity) {
         flags |= ImGuiTreeNodeFlags_Selected;
@@ -25,7 +26,8 @@ void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
 
 void Hierarchy::OnRender() {
     ImGui::BeginChild("Hierarchy", ImVec2(0, 200), true);
-    ShowEntityHierarchy(m_root, m_selectedEntity);
+    if (GetScene() && GetScene()->GetRoot())
+        ShowEntityHierarchy(GetScene()->GetRoot(), m_selectedEntity);
     if (ImGui::BeginPopupContextWindow("HierarchyContextMenu", ImGuiPopupFlags_MouseButtonRight)) {
         static int entityCount = 0;
         if (ImGui::Selectable("New Entity")) {
@@ -52,7 +54,12 @@ void Hierarchy::OnRender() {
     }
 }
 
-Entity* Hierarchy::GetRoot() { return m_root; }
-void Hierarchy::SetRoot(Entity* root) { m_root = root; }
+Scene* Hierarchy::GetScene() { return m_gameView->GetScene(); }
+void Hierarchy::SetScene(std::shared_ptr<Scene> scene) {
+    if (m_gameView && scene) {
+        m_gameView->SetScene(scene);
+        m_selectedEntity = scene->GetRoot();
+    }
+}
 
 Entity* Hierarchy::GetSelectedEntity() { return m_selectedEntity; }

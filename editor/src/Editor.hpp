@@ -8,15 +8,16 @@
 
 class Editor {
 public:
-	Editor();
+	Editor(Window* window);
 	~Editor() = default;
-	void OnRender(Renderer* renderer);
+	void Run(Renderer* renderer);
 
 	Scene* GetScene();
 	Hierarchy* GetHierarchy();
 	Properties* GetProperties();
 	GameView* GetGameView();
 private:
+	Window* m_window;
 	std::shared_ptr<Scene> m_scene;
 	std::shared_ptr<Hierarchy> m_hierarchy;
 	std::shared_ptr<Properties> m_properties;

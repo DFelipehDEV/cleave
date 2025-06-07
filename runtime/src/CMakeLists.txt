@@ -1,4 +1,5 @@
 ﻿set(SOURCES
+	JsonSceneSerializer.cpp
 	Matrix4.cpp
 	Scene.cpp
 	Services.cpp
@@ -14,8 +15,10 @@
 )
 
 set(HEADERS
+	JsonSceneSerializer.hpp
 	Matrix4.hpp
 	Rect4.hpp
+	EntityRegistry.hpp
 	Scene.hpp
 	Services.hpp
 	Transform.hpp
