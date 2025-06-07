@@ -1,5 +1,6 @@
 #include "MainMenuBar.hpp"
 #include <imgui.h>
+#include <cstdlib>
 
 void MainMenuBar::OnRender() {
     if (ImGui::BeginMainMenuBar()) {
@@ -13,6 +14,7 @@ void MainMenuBar::OnRender() {
             if (ImGui::MenuItem("Save as..")) { 
             }
             if (ImGui::MenuItem("Exit")) { 
+                exit(0);
             }
             ImGui::EndMenu();
         }
