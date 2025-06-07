@@ -1,4 +1,8 @@
-﻿set(SOURCES
+﻿if(WIN32)
+	set(PLATFORM win32)
+endif()
+
+set(SOURCES
 	scene/JsonSceneSerializer.cpp
 	math/Matrix4.cpp
 	scene/Scene.cpp
@@ -7,6 +11,7 @@
 	Window.cpp
 	entities/Entity.cpp
 	entities/Sprite.cpp
+	platform/${PLATFORM}/FileDialog.cpp
 	rendering/Renderer.cpp
 	resources/Resource.cpp	
 	resources/Shader.cpp
@@ -26,6 +31,7 @@ set(HEADERS
 	Window.hpp
 	entities/Entity.hpp
 	entities/Sprite.hpp
+	platform/FileDialog.hpp
 	rendering/Renderer.hpp
 	resources/Resource.hpp
 	resources/Shader.hpp
