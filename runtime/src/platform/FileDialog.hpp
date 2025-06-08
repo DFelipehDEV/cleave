@@ -11,4 +11,7 @@ public:
         const char* filter,
         const char* initialDir = ""
     );
+    static std::string OpenFolder(
+        const char* initialDir = ""
+    );
 };

@@ -4,10 +4,31 @@
 #include <windows.h>
 #include <commdlg.h>
 #include <tchar.h>
+#include <shobjidl.h>
+#include <atlbase.h>
+
+std::string FileDialog::SaveFile(const char *filter, const char *initialDir) {
+    OPENFILENAME ofn = { 0 };
+    TCHAR szFile[MAX_PATH] = { 0 };
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = filter;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrInitialDir = initialDir;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetSaveFileName(&ofn) == TRUE) {
+        return std::string(ofn.lpstrFile);
+    }
+
+    return "";
+}
 
 std::string FileDialog::OpenFile(const char* filter, const char* initialDir) {
     OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
+    TCHAR szFile[MAX_PATH] = { 0 };
 
     ofn.lStructSize = sizeof(ofn);
     ofn.lpstrFile = szFile;
@@ -24,23 +45,36 @@ std::string FileDialog::OpenFile(const char* filter, const char* initialDir) {
     return "";
 }
 
-std::string FileDialog::SaveFile(const char *filter, const char *initialDir) {
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
+std::string FileDialog::OpenFolder(const char* initialDir) {
+    CoInitialize(nullptr);
 
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = filter;
-    ofn.nFilterIndex = 1;
-    ofn.lpstrInitialDir = initialDir;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    CComPtr<IFileOpenDialog> pFolderDlg;
+    pFolderDlg.CoCreateInstance(CLSID_FileOpenDialog);
 
-    if (GetSaveFileName(&ofn) == TRUE) {
-        return std::string(ofn.lpstrFile);
+    FILEOPENDIALOGOPTIONS opt{};
+    pFolderDlg->GetOptions(&opt);
+    pFolderDlg->SetOptions(opt | FOS_PICKFOLDERS | FOS_PATHMUSTEXIST | FOS_FORCEFILESYSTEM);
+
+    
+    if( SUCCEEDED( pFolderDlg->Show( nullptr ) ) )
+    {
+        CComPtr<IShellItem> pSelectedItem;
+        pFolderDlg->GetResult(&pSelectedItem);
+
+        CComHeapPtr<wchar_t> pPath;
+        pSelectedItem->GetDisplayName(SIGDN_FILESYSPATH, &pPath);
+
+        char path[MAX_PATH];
+        size_t i;
+        wcstombs_s(&i, path, MAX_PATH, pPath.m_pData, MAX_PATH);
+
+        CoUninitialize();
+        return std::string(path);
     }
 
+    CoUninitialize();
     return "";
 }
+
 
 #endif
