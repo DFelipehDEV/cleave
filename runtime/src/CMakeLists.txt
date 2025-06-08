@@ -12,6 +12,7 @@ set(SOURCES
 	entities/Entity.cpp
 	entities/Sprite.cpp
 	platform/${PLATFORM}/FileDialog.cpp
+	platform/${PLATFORM}/MessageBox.cpp
 	rendering/Renderer.cpp
 	resources/Resource.cpp	
 	resources/Shader.cpp
@@ -32,6 +33,7 @@ set(HEADERS
 	entities/Entity.hpp
 	entities/Sprite.hpp
 	platform/FileDialog.hpp
+	platform/MessageBox.hpp
 	rendering/Renderer.hpp
 	resources/Resource.hpp
 	resources/Shader.hpp

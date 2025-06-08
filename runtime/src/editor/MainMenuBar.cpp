@@ -5,6 +5,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include "platform/MessageBox.hpp"
 
 void MainMenuBar::OnRender() {
     if (ImGui::BeginMainMenuBar()) {
@@ -34,9 +35,12 @@ void MainMenuBar::OnRender() {
         }
         if (ImGui::BeginMenu("Help")) {
             if (ImGui::MenuItem("About", "F1")) { 
+                std::string specs = "Cleave\nVersion: 0.0.1\nBuild date: " __DATE__ __TIME__;
+                MessageBox::Show("About Cleave", specs.c_str());
             }
             ImGui::EndMenu();
         }
+        
         ImGui::EndMainMenuBar();
     }
 }
