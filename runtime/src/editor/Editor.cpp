@@ -15,10 +15,10 @@
 #include "scene/JsonSceneSerializer.hpp"
 
 Editor::Editor(Window* window) : m_window(window) {
-    m_menuBar = std::make_shared<MainMenuBar>();
 	m_gameView = std::make_shared<GameView>(std::make_shared<Scene>(std::make_unique<Entity>(Transform({ 0, 0 }), "root")));
 	m_hierarchy = std::make_shared<Hierarchy>(m_gameView);
     m_fileExplorer = std::make_shared<FileExplorer>(std::filesystem::current_path());
+    m_menuBar = std::make_shared<MainMenuBar>(m_fileExplorer.get());
 	m_properties = std::make_shared<Properties>();
 }
 

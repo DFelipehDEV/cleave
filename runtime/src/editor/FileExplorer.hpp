@@ -11,6 +11,9 @@ public:
 
     void OnRender();
 
+    std::filesystem::path GetDirectory() const;
+    void SetDirectory(std::filesystem::path directory);
+    
 private:
     std::filesystem::path m_directory;
     std::filesystem::path m_selectedDirectory;

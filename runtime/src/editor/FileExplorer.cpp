@@ -64,3 +64,9 @@ void FileExplorer::OnRender() {
     ImGui::TextUnformatted(m_directory.filename().string().c_str());
     ShowDirectory(m_directory);
 }
+
+std::filesystem::path FileExplorer::GetDirectory() const { return m_directory; }
+void FileExplorer::SetDirectory(std::filesystem::path directory) { 
+    m_directory = directory; 
+    m_selectedDirectory = "";
+}

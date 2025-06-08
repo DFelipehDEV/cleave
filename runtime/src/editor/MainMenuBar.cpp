@@ -11,7 +11,9 @@ void MainMenuBar::OnRender() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open Folder", "Ctrl+O")) { 
-                std::cout << FileDialog::OpenFolder() << std::endl;
+                std::filesystem::path folder = FileDialog::OpenFolder();
+                if (folder != "")
+                    m_explorer->SetDirectory(folder);
             }
 
             if (ImGui::MenuItem("Save", "Ctrl+S")) {
