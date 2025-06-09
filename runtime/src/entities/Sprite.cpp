@@ -15,7 +15,12 @@ void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
 const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() const { 
     auto properties = Entity::GetProperties();
     properties["origin"] = {GetOrigin().ToString(), Entity::Property::Types::Vec2f};
-    properties["texture"] = {GetTexture()->GetName(), Entity::Property::Types::String};
+    std::string texturePath;
+    if (m_texture != nullptr)
+        texturePath = GetTexture()->GetName();
+    else
+        texturePath = "";
+    properties["texture"] = {texturePath, Entity::Property::Types::String};
     return properties; 
 }
 

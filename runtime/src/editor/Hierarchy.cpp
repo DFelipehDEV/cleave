@@ -1,6 +1,7 @@
 #include "Hierarchy.hpp"
 #include "imgui.h"
 #include "entities/Sprite.hpp"
+#include <scene/EntityRegistry.hpp>
 
 void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
     if (!entity) return;
@@ -35,10 +36,13 @@ void Hierarchy::OnRender() {
             newEntity->SetName("Entity" + std::to_string(entityCount++));
             m_selectedEntity->AddChild(newEntity);
         }
-        if (ImGui::Selectable("New Sprite")) {
-            Sprite* newSprite = new Sprite();
-            newSprite->SetName("Sprite" + std::to_string(entityCount++));
-            m_selectedEntity->AddChild(newSprite);
+
+        for (auto registry : Registry::typeMap()) {
+            if (ImGui::Selectable(("New " + registry.first).c_str())) {
+                Entity* entity = (registry.second)();
+                entity->SetName(registry.first + std::to_string(entityCount++));
+                m_selectedEntity->AddChild(entity);
+            }
         }
 
         ImGui::EndPopup();
