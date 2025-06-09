@@ -10,6 +10,8 @@ public:
     Shader() {}
     ~Shader() override { Destroy(); }
 
+    std::string GetType() const override { return "cleave::Shader"; }
+
     // Create shader program from file paths
     void CreateFromFile(const std::string& vertexPath, const std::string& fragmentPath);
 

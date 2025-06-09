@@ -3,8 +3,8 @@
 #include <iostream>
 
 bool Texture::CreateFromFile(const std::string& path) {
-    glGenTextures(1, &m_id);
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    glGenTextures(1, &m_textureId);
+    glBindTexture(GL_TEXTURE_2D, m_textureId);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -27,13 +27,13 @@ bool Texture::CreateFromFile(const std::string& path) {
 
 void Texture::Bind(GLenum textureUnit) const {
     glActiveTexture(textureUnit);
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    glBindTexture(GL_TEXTURE_2D, m_textureId);
 }
 
 void Texture::Destroy()  {
-    if (m_id) {
-        glDeleteTextures(1, &m_id);
-        m_id = 0;
+    if (m_textureId) {
+        glDeleteTextures(1, &m_textureId);
+        m_textureId = 0;
     }
 }
 

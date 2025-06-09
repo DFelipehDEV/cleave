@@ -9,6 +9,8 @@ public:
         Destroy();
     }
 
+    std::string GetType() const override { return "cleave::Texture"; }
+
     bool CreateFromFile(const std::string& path);
 
     void Bind(GLenum textureUnit = GL_TEXTURE0) const;
@@ -19,5 +21,6 @@ public:
 
     int GetHeight() const;
 private:
+    uint32_t m_textureId;
     int m_width, m_height;
 };

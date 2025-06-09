@@ -5,7 +5,7 @@ class Resource {
 public:
     virtual ~Resource() = default;
 
-    virtual std::string GetType() const { return "Resource"; }
+    virtual std::string GetType() const = 0;
     
     std::string GetPath() const;
     void SetPath(const std::string path);
