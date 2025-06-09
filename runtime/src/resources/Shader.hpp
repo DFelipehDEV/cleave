@@ -7,9 +7,7 @@
 
 class Shader : public Resource {
 public:
-    GLuint id;
-
-    Shader() : id(0) {}
+    Shader() {}
     ~Shader() override { Destroy(); }
 
     // Create shader program from file paths

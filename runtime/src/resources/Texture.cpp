@@ -3,8 +3,8 @@
 #include <iostream>
 
 bool Texture::CreateFromFile(const std::string& path) {
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_2D, m_id);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -16,7 +16,7 @@ bool Texture::CreateFromFile(const std::string& path) {
         std::cerr << "Failed to load texture from file: " << path << std::endl;
         return false;
     }
-    SetName(path);
+    SetPath(path);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
@@ -27,13 +27,13 @@ bool Texture::CreateFromFile(const std::string& path) {
 
 void Texture::Bind(GLenum textureUnit) const {
     glActiveTexture(textureUnit);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glBindTexture(GL_TEXTURE_2D, m_id);
 }
 
 void Texture::Destroy()  {
-    if (id) {
-        glDeleteTextures(1, &id);
-        id = 0;
+    if (m_id) {
+        glDeleteTextures(1, &m_id);
+        m_id = 0;
     }
 }
 

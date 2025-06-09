@@ -4,9 +4,7 @@
 
 class Texture : public Resource {
 public:
-    unsigned int id = 0;
-
-    Texture() : id(0), m_width(1), m_height(1) {};
+    Texture() : m_width(1), m_height(1) {};
     ~Texture() {
         Destroy();
     }

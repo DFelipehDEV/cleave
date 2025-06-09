@@ -85,7 +85,7 @@ void Shader::CreateFromFile(const std::string& vertexPath, const std::string& fr
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    id = program;
+    SetId(program);
 }
 
 void Shader::CreateFromString(const std::string& vertexSource, const std::string& fragmentSource) {
@@ -142,26 +142,26 @@ void Shader::CreateFromString(const std::string& vertexSource, const std::string
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    id = program;
+    SetId(program);
 }
 
 void Shader::Destroy() {
-    if (id != 0) {
-        glDeleteProgram(id);
-        id = 0;
+    if (m_id != 0) {
+        glDeleteProgram(m_id);
+        m_id = 0;
     }
 }
 
 void Shader::Use() const {
-    if (id != 0) {
-        glUseProgram(id);
+    if (m_id != 0) {
+        glUseProgram(m_id);
     } else {
         std::cerr << "ERROR::SHADER::USE::PROGRAM_NOT_CREATED\n";
     }
 }
 
 void Shader::SetUniformInt(const std::string& name, int value) const {
-    GLint location = glGetUniformLocation(id, name.c_str());
+    GLint location = glGetUniformLocation(m_id, name.c_str());
     if (location == -1) {
         std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
         return;
@@ -170,7 +170,7 @@ void Shader::SetUniformInt(const std::string& name, int value) const {
 }
 
 void Shader::SetUniformFloat(const std::string& name, float value) const {
-    GLint location = glGetUniformLocation(id, name.c_str());
+    GLint location = glGetUniformLocation(m_id, name.c_str());
     if (location == -1) {
         std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
         return;
@@ -179,7 +179,7 @@ void Shader::SetUniformFloat(const std::string& name, float value) const {
 }
 
 void Shader::SetUniformVector2f(const std::string& name, float x, float y) const {
-    GLint location = glGetUniformLocation(id, name.c_str());
+    GLint location = glGetUniformLocation(m_id, name.c_str());
     if (location == -1) {
         std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
         return;
@@ -188,7 +188,7 @@ void Shader::SetUniformVector2f(const std::string& name, float x, float y) const
 }
 
 void Shader::SetUniformVector3f(const std::string& name, float x, float y, float z) const {
-    GLint location = glGetUniformLocation(id, name.c_str());
+    GLint location = glGetUniformLocation(m_id, name.c_str());
     if (location == -1) {
         std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
         return;
@@ -197,7 +197,7 @@ void Shader::SetUniformVector3f(const std::string& name, float x, float y, float
 }
 
 void Shader::SetUniformVector4f(const std::string& name, float x, float y, float z, float w) const {
-    GLint location = glGetUniformLocation(id, name.c_str());
+    GLint location = glGetUniformLocation(m_id, name.c_str());
     if (location == -1) {
         std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
         return;
@@ -206,7 +206,7 @@ void Shader::SetUniformVector4f(const std::string& name, float x, float y, float
 }
 
 void Shader::SetUniformMatrix4(const std::string& name, const float* matrix) const {
-    GLint location = glGetUniformLocation(id, name.c_str());
+    GLint location = glGetUniformLocation(m_id, name.c_str());
     if (location == -1) {
         std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
         return;

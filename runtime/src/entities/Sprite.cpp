@@ -17,7 +17,7 @@ const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() 
     properties["origin"] = {GetOrigin().ToString(), Entity::Property::Types::Vec2f};
     std::string texturePath;
     if (m_texture != nullptr)
-        texturePath = GetTexture()->GetName();
+        texturePath = GetTexture()->GetPath();
     else
         texturePath = "";
     properties["texture"] = {texturePath, Entity::Property::Types::String};
