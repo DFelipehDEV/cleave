@@ -37,9 +37,9 @@ void Hierarchy::OnRender() {
             m_selectedEntity->AddChild(newEntity);
         }
 
-        for (auto registry : Registry::typeMap()) {
+        for (auto registry : Registry::GetAllTypes()) {
             if (ImGui::Selectable(("New " + registry.first).c_str())) {
-                Entity* entity = (registry.second)();
+                Entity* entity = Registry::CreateEntity(registry.first);
                 entity->SetName(registry.first + std::to_string(entityCount++));
                 m_selectedEntity->AddChild(entity);
             }

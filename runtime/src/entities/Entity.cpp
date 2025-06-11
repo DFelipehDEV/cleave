@@ -40,6 +40,10 @@ const std::unordered_map<std::string, Entity::Property> Entity::GetProperties() 
     return properties; 
 }
 
+Entity* Entity::Create() {
+    return new Entity();
+}
+
 EntityID Entity::GetID() const { return m_id; }
 void Entity::SetID(EntityID id) {
     m_id = id;

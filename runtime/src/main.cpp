@@ -78,16 +78,14 @@ int main() {
     resourceManager->AddTexture("dog.png");
     resourceManager->AddShaderFromString("main", vertexShaderSource, fragmentShaderSource);
     resourceManager->AddShaderFromString("sprite", spriteVertexShaderSource, spriteFragmentShaderSource);
-    Services::Provide(resourceManager);
+    Services::Provide<ResourceManager>("ResMgr", resourceManager);
 
     glViewport(0, 0, window->GetWidth(), window->GetHeight());
 
-    const TypeRegistry registries[] = {
-        {"cleave::Sprite", []() { return new Sprite(); }},
-    };
-    for (const TypeRegistry& registry : registries) {
-        Registry::RegisterType(registry);
-    }
+    Registry::RegisterType<Entity>();
+    Registry::RegisterType<Sprite>();
+    
+    Services::Provide<Registry>("registry", std::make_shared<Registry>());
 
     Sprite* cat = new Sprite(Transform({ 16, 32 }), resourceManager->textures["cat.png"]);
     cat->SetName("Carlos Gato");

@@ -33,9 +33,9 @@
                 properties[key].value = value.get<std::string>();
             }
         }
-        auto factory = Registry::typeMap().find(jsonData["type"]);
-        if (factory != Registry::typeMap().end()) {
-            Entity* entity = (factory->second)();
+        auto factory = Registry::GetAllTypes().find(jsonData["type"]);
+        if (factory != Registry::GetAllTypes().end()) {
+            Entity* entity = Registry::CreateEntity(factory->first);
 
             pendingInits.push_back({entity, properties});
             

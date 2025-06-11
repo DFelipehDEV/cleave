@@ -1,6 +1,6 @@
 #pragma once
 #include "Entity.hpp"
-#include "../resources/Texture.hpp"
+#include "resources/Texture.hpp"
 
 class Sprite : public Entity {
 public:
@@ -10,9 +10,11 @@ public:
     void Init(const std::unordered_map<std::string, Property> properties) override;
     void OnRender(Renderer* renderer) override;
 
-    std::string GetTypeName() const override { return "cleave::Sprite"; }
+    static const char* GetTypeName() { return "cleave::Sprite"; }
 
     const std::unordered_map<std::string, Property> GetProperties() const override; 
+
+    static Entity* Create();
 
     Texture* GetTexture() const;
     void SetTexture(Texture* texture);

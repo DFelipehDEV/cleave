@@ -3,13 +3,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec3.hpp>
 #include "math/Matrix4.hpp"
+#include "resources/ResourceManager.hpp"
 
 Sprite::Sprite(Transform transform, Texture* texture, Vec2f origin) : Entity(transform), m_texture(texture), m_origin(origin) { }
 
 void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
     Entity::Init(properties);
     if (properties.find("origin") != properties.end()) m_origin = Vec2f::FromString(properties.at("origin").value);
-    if (properties.find("texture") != properties.end()) m_texture = Services::GetResourceManager()->textures[properties.at("texture").value];
+    if (properties.find("texture") != properties.end()) m_texture = GET_RESMGR()->textures[properties.at("texture").value];
 }
 
 const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() const { 
@@ -22,6 +23,10 @@ const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() 
         texturePath = "";
     properties["texture"] = {texturePath, Entity::Property::Types::String};
     return properties; 
+}
+
+Entity* Sprite::Create() {
+    return new Sprite();
 }
 
 Texture* Sprite::GetTexture() const { return m_texture; }
@@ -42,10 +47,11 @@ void Sprite::OnRender(Renderer* renderer) {
     model.Rotate(GetTransform().GetWorldRotation());
     model.Scale(GetTransform().GetWorldScale());
 
-    Services::GetResourceManager()->shaders["sprite"]->Use();
-    Services::GetResourceManager()->shaders["sprite"]->SetUniformInt("tex", 0);
-    Services::GetResourceManager()->shaders["sprite"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
-    Services::GetResourceManager()->shaders["sprite"]->SetUniformMatrix4("model", (float*)model.m);
+    auto resourceManager = GET_RESMGR();
+    resourceManager->shaders["sprite"]->Use();
+    resourceManager->shaders["sprite"]->SetUniformInt("tex", 0);
+    resourceManager->shaders["sprite"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
+    resourceManager->shaders["sprite"]->SetUniformMatrix4("model", (float*)model.m);
 
     renderer->DrawTexture(*m_texture, globalPosition.x, globalPosition.y);
 

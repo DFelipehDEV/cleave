@@ -13,6 +13,7 @@
 
 #include "Services.hpp"
 #include "scene/JsonSceneSerializer.hpp"
+#include "resources/ResourceManager.hpp"
 
 Editor::Editor(Window* window) : m_window(window) {
 	m_gameView = std::make_shared<GameView>(std::make_shared<Scene>(std::make_unique<Entity>(Transform({ 0, 0 }), "root")));
@@ -37,7 +38,7 @@ void Editor::Run(Renderer *renderer) {
 
 	while (!m_window->shouldClose()) {
         m_window->pollEvents();
-		auto resourceManager = Services::GetResourceManager();
+		auto resourceManager = GET_RESMGR();
         resourceManager->shaders["main"]->Use();
         resourceManager->shaders["main"]->SetUniformInt("tex", 0);
         resourceManager->shaders["main"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));

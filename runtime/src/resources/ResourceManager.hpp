@@ -5,6 +5,8 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 
+#define GET_RESMGR() Services::Get<ResourceManager>("ResMgr")
+
 class ResourceManager {
 public:
     ResourceManager() {};
