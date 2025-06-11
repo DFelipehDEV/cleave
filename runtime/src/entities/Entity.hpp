@@ -38,7 +38,7 @@ public:
     virtual void OnTick(float deltaTime);
     virtual void OnRender(Renderer* renderer);
 
-    virtual std::string GetType() const { return "cleave::Entity"; }
+    virtual std::string GetTypeName() const { return "cleave::Entity"; }
 
     virtual const std::unordered_map<std::string, Property> GetProperties() const; 
 

@@ -30,7 +30,7 @@ void Entity::OnRender(Renderer* renderer) {
 
 const std::unordered_map<std::string, Entity::Property> Entity::GetProperties() const { 
     std::unordered_map<std::string, Property> properties;
-    properties["type"] = {GetType(), Entity::Property::Types::Hidden};
+    properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
     properties["id"] = {std::to_string(m_id), Entity::Property::Types::Hidden};
 
     properties["name"] = {m_name, Entity::Property::Types::String};

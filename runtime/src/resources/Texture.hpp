@@ -9,7 +9,7 @@ public:
         Destroy();
     }
 
-    std::string GetType() const override { return "cleave::Texture"; }
+    std::string GetTypeName() const override { return "cleave::Texture"; }
 
     bool CreateFromFile(const std::string& path);
 

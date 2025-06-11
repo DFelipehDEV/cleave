@@ -10,7 +10,7 @@ public:
     void Init(const std::unordered_map<std::string, Property> properties) override;
     void OnRender(Renderer* renderer) override;
 
-    std::string GetType() const override { return "cleave::Sprite"; }
+    std::string GetTypeName() const override { return "cleave::Sprite"; }
 
     const std::unordered_map<std::string, Property> GetProperties() const override; 
 
