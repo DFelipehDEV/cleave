@@ -10,6 +10,8 @@
 #include "platform/FileDialog.hpp"
 #include "platform/MessageBox.hpp"
 
+namespace Cleave {
+namespace Editor {
 void MainMenuBar::OnRender() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
@@ -51,3 +53,5 @@ void MainMenuBar::OnRender() {
         ImGui::EndMainMenuBar();
     }
 }
+}  // namespace Editor
+}  // namespace Cleave

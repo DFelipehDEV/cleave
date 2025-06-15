@@ -3,7 +3,7 @@
 
 #include "Resource.hpp"
 
-
+namespace Cleave {
 class Texture : public Resource {
 public:
     Texture() : m_width(1), m_height(1) {};
@@ -25,3 +25,4 @@ private:
     uint32_t m_textureId;
     int m_width, m_height;
 };
+}  // namespace Cleave

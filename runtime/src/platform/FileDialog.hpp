@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+namespace Cleave {
 class FileDialog {
 public:
     static std::string SaveFile(const char* filter,
@@ -9,3 +10,4 @@ public:
                                 const char* initialDir = "");
     static std::string OpenFolder(const char* initialDir = "");
 };
+}  // namespace Cleave

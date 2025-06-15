@@ -7,6 +7,7 @@
 #include "math/Matrix4.hpp"
 #include "resources/ResourceManager.hpp"
 
+namespace Cleave {
 Sprite::Sprite(Transform transform, Texture* texture, Vec2f origin)
     : Entity(transform), m_texture(texture), m_origin(origin) {}
 
@@ -65,3 +66,4 @@ void Sprite::OnRender(Renderer* renderer) {
 
     Entity::OnRender(renderer);
 }
+}  // namespace Cleave

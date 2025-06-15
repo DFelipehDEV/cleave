@@ -6,6 +6,7 @@
 
 #include "Resource.hpp"
 
+namespace Cleave {
 class Shader : public Resource {
 public:
     Shader() {}
@@ -37,3 +38,4 @@ public:
                             float w) const;
     void SetUniformMatrix4(const std::string& name, const float* matrix) const;
 };
+}  // namespace Cleave

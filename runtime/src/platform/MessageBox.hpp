@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 
+namespace Cleave {
 class MessageBox {
 public:
     enum ButtonFlags {
@@ -19,3 +20,4 @@ public:
     static int Show(const char* title, const char* content,
                     uint32_t flags = ButtonFlags::Ok | IconFlags::Information);
 };
+}  // namespace Cleave

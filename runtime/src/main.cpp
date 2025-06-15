@@ -11,10 +11,13 @@
 #include "scene/Scene.hpp"
 #include "thirdparty/stb_image.h"
 
+using namespace Cleave;
+
 #ifdef CLEAVE_EDITOR_ENABLED
 #include "editor/Editor.hpp"
 #include "editor/GameView.hpp"
 #include "editor/Properties.hpp"
+using namespace Cleave::Editor;
 #endif
 #include <glm/gtc/type_ptr.hpp>
 
@@ -96,7 +99,7 @@ int main() {
     dog->SetName("Roberto Cao");
     cat->AddChild(dog);
 #ifdef CLEAVE_EDITOR_ENABLED
-    Editor editor = Editor(window);
+    Cleave::Editor::Editor editor = Cleave::Editor::Editor(window);
     Scene* scene = editor.GetGameView()->GetScene();
 
     scene->GetRoot()->AddChild(cat);

@@ -7,6 +7,7 @@
 
 #define GET_RESMGR() Services::Get<ResourceManager>("ResMgr")
 
+namespace Cleave {
 class ResourceManager {
 public:
     ResourceManager() {};
@@ -20,3 +21,4 @@ public:
                                 const std::string& vertexSource,
                                 const std::string& fragmentSource);
 };
+}  // namespace Cleave

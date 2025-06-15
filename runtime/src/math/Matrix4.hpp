@@ -1,8 +1,9 @@
 #pragma once
 #include <cmath>
 
-#include "Vec2.hpp"
+#include "math/Vec2.hpp"
 
+namespace Cleave {
 class Matrix4 {
 public:
     float m[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
@@ -26,3 +27,4 @@ public:
     void SetRotation(float radians);
     void SetRotationDegrees(float degrees);
 };
+}  // namespace Cleave

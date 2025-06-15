@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+namespace Cleave {
 Entity::~Entity() {
     if (m_parent) {
         m_parent->RemoveChild(this);
@@ -135,3 +136,4 @@ Entity* Entity::GetRoot() {
     }
     return current;
 }
+}  // namespace Cleave

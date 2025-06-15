@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+namespace Cleave {
 Matrix4 Matrix4::Identity() { return Matrix4(); }
 
 Matrix4 Matrix4::operator*(const Matrix4& other) const {
@@ -90,3 +91,4 @@ void Matrix4::SetRotation(float radians) {
 void Matrix4::SetRotationDegrees(float degrees) {
     SetRotation(degrees * (M_PI / 180.0f));
 }
+}  // namespace Cleave

@@ -8,6 +8,7 @@
 #include "rendering/Color.hpp"
 #include "resources/Texture.hpp"
 
+namespace Cleave {
 class Renderer {
 public:
     enum Primitive { Triangle };
@@ -60,3 +61,4 @@ private:
     glm::mat4 m_projection;
     Rect4f m_viewport;
 };
+}  // namespace Cleave

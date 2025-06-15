@@ -8,6 +8,8 @@
 #include "editor/Properties.hpp"
 #include "scene/Scene.hpp"
 
+namespace Cleave {
+namespace Editor {
 class Editor {
 public:
     Editor(Window* window);
@@ -29,3 +31,5 @@ private:
     std::shared_ptr<Properties> m_properties;
     std::shared_ptr<GameView> m_gameView;
 };
+}  // namespace Editor
+}  // namespace Cleave

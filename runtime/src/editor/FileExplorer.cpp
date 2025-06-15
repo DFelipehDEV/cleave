@@ -8,6 +8,8 @@
 #include <windows.h>
 #endif
 
+namespace Cleave {
+namespace Editor {
 void FileExplorer::ShowDirectory(std::filesystem::path dir) {
     for (const auto& file : std::filesystem::directory_iterator(dir)) {
         const auto& path = file.path();
@@ -80,3 +82,5 @@ void FileExplorer::SetDirectory(std::filesystem::path directory) {
     m_directory = directory;
     m_selectedDirectory = "";
 }
+}  // namespace Editor
+}  // namespace Cleave

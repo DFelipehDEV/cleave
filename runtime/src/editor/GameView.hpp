@@ -6,6 +6,8 @@
 #include "rendering/Renderer.hpp"
 #include "scene/Scene.hpp"
 
+namespace Cleave {
+namespace Editor {
 class GameView {
 public:
     GameView(std::shared_ptr<Scene> scene);
@@ -26,3 +28,5 @@ private:
     float m_zoom = 1.0f;
     Vec2f m_cameraPos = {0, 0};
 };
+}  // namespace Editor
+}  // namespace Cleave

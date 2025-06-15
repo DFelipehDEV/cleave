@@ -4,6 +4,7 @@
 
 #undef MessageBox
 
+namespace Cleave {
 int MessageBox::Show(const char* title, const char* content, uint32_t flags) {
     wchar_t* wTitle = new wchar_t[4096];
     wchar_t* wContent = new wchar_t[4096];
@@ -15,3 +16,4 @@ int MessageBox::Show(const char* title, const char* content, uint32_t flags) {
 
     return 0;
 }
+}  // namespace Cleave

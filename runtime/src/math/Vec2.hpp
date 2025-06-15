@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 
+namespace Cleave {
 struct Vec2f {
     float x, y;
 
@@ -135,3 +136,4 @@ struct Vec2f {
         }
     }
 };
+}  // namespace Cleave

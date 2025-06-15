@@ -7,6 +7,7 @@
 #include "ResourceManager.hpp"
 #include "Texture.hpp"
 
+namespace Cleave {
 GLuint CreateMissingTexture() {
     constexpr int width = 2;
     constexpr int height = 2;
@@ -83,3 +84,4 @@ Shader* ResourceManager::AddShaderFromString(
     shaders[name] = shader;
     return shader;
 }
+}  // namespace Cleave

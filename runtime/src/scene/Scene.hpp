@@ -3,6 +3,7 @@
 
 #include "entities/Entity.hpp"
 
+namespace Cleave {
 class Scene {
 public:
     Scene(std::unique_ptr<Entity> root = nullptr) : m_root(std::move(root)) {}
@@ -20,3 +21,4 @@ public:
 private:
     std::unique_ptr<Entity> m_root;
 };
+}  // namespace Cleave

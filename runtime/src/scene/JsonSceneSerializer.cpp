@@ -9,6 +9,7 @@
 #include "entities/Entity.hpp"
 #include "scene/Scene.hpp"
 
+namespace Cleave {
 std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
@@ -106,3 +107,4 @@ bool JsonSceneSerializer::Save(const std::string& path, Scene* scene) {
 
     return true;
 }
+}  // namespace Cleave

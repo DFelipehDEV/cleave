@@ -1,6 +1,8 @@
 #pragma once
 #include "entities/Entity.hpp"
 
+namespace Cleave {
+namespace Editor {
 class Properties {
 public:
     Properties() = default;
@@ -15,3 +17,5 @@ public:
 private:
     Entity* m_entity;
 };
+}  // namespace Editor
+}  // namespace Cleave

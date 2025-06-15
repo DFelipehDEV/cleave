@@ -4,6 +4,7 @@
 
 #include "thirdparty/stb_image.h"
 
+namespace Cleave {
 bool Texture::CreateFromFile(const std::string& path) {
     glGenTextures(1, &m_textureId);
     glBindTexture(GL_TEXTURE_2D, m_textureId);
@@ -44,3 +45,4 @@ void Texture::Destroy() {
 int Texture::GetWidth() const { return m_width; }
 
 int Texture::GetHeight() const { return m_height; }
+}  // namespace Cleave

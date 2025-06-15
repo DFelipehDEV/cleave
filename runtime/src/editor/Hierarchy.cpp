@@ -5,6 +5,8 @@
 #include "entities/Sprite.hpp"
 #include "imgui.h"
 
+namespace Cleave {
+namespace Editor {
 void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
     if (!entity) return;
     ImGuiTreeNodeFlags flags =
@@ -71,3 +73,5 @@ void Hierarchy::SetScene(std::shared_ptr<Scene> scene) {
 }
 
 Entity* Hierarchy::GetSelectedEntity() { return m_selectedEntity; }
+}  // namespace Editor
+}  // namespace Cleave

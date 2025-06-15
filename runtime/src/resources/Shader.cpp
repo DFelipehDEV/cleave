@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 
+namespace Cleave {
 std::string LoadFile(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
@@ -230,3 +231,4 @@ void Shader::SetUniformMatrix4(const std::string& name,
     }
     glUniformMatrix4fv(location, 1, false, matrix);
 }
+}  // namespace Cleave

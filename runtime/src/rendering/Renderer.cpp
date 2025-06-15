@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
+namespace Cleave {
 OpenGLRenderer::~OpenGLRenderer() { Terminate(); }
 
 void OpenGLRenderer::Initialize(Window& window) {
@@ -96,3 +97,4 @@ void OpenGLRenderer::DrawRect(float x, float y, float w, float h, Color color) {
 
     Draw(nullptr, 4, vertices, indices, 6, Primitive::Triangle);
 }
+}  // namespace Cleave

@@ -1,5 +1,6 @@
 #include "scene/Scene.hpp"
 
+namespace Cleave {
 std::unique_ptr<Entity> Scene::ReleaseRoot() { return std::move(m_root); }
 
 Entity* Scene::GetRoot() const { return m_root.get(); }
@@ -17,3 +18,4 @@ void Scene::Render(Renderer* renderer) {
         m_root->OnRender(renderer);
     }
 }
+}  // namespace Cleave

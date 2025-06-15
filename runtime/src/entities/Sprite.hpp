@@ -2,6 +2,7 @@
 #include "Entity.hpp"
 #include "resources/Texture.hpp"
 
+namespace Cleave {
 class Sprite : public Entity {
 public:
     Sprite(Transform transform = Transform(), Texture* texture = nullptr,
@@ -29,3 +30,4 @@ private:
     Texture* m_texture = nullptr;
     Vec2f m_origin;
 };
+}  // namespace Cleave

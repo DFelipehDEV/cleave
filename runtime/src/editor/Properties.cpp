@@ -7,6 +7,8 @@
 
 #include "imgui.h"
 
+namespace Cleave {
+namespace Editor {
 void Properties::OnRender() {
     if (!m_entity) return;
 
@@ -88,3 +90,5 @@ Entity *Properties::GetEntity() const { return m_entity; }
 void Properties::SetEntity(Entity *entity) { m_entity = entity; }
 
 void Properties::Clear() { m_entity = nullptr; }
+}  // namespace Editor
+}  // namespace Cleave

@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+namespace Cleave {
 Window::Window(int width, int height, const char* title) {
     if (!glfwInit()) {
         std::cerr << "GLFW Init Failed\n";
@@ -46,3 +47,4 @@ int Window::GetHeight() const {
 }
 
 GLFWwindow* Window::getGLFWwindow() const { return window; }
+}  // namespace Cleave

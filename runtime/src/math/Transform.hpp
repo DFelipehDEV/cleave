@@ -2,6 +2,7 @@
 #include "math/Matrix4.hpp"
 #include "math/Vec2.hpp"
 
+namespace Cleave {
 class Transform : public Matrix4 {
 public:
     Transform(const Vec2f position = {0.0f, 0.0f},
@@ -19,3 +20,4 @@ public:
 private:
     Transform* m_parent;
 };
+}  // namespace Cleave

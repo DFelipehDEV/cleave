@@ -15,6 +15,8 @@
 #include "resources/ResourceManager.hpp"
 #include "scene/JsonSceneSerializer.hpp"
 
+namespace Cleave {
+namespace Editor {
 Editor::Editor(Window* window) : m_window(window) {
     m_gameView = std::make_shared<GameView>(std::make_shared<Scene>(
         std::make_unique<Entity>(Transform({0, 0}), "root")));
@@ -102,3 +104,5 @@ FileExplorer* Editor::GetFileExplorer() { return m_fileExplorer.get(); }
 Properties* Editor::GetProperties() { return m_properties.get(); }
 
 GameView* Editor::GetGameView() { return m_gameView.get(); }
+}  // namespace Editor
+}  // namespace Cleave

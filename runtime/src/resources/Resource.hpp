@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+namespace Cleave {
 class Resource {
 public:
     virtual ~Resource() = default;
@@ -17,3 +18,4 @@ protected:
     uint32_t m_id = 0;
     std::string m_path;
 };
+}  // namespace Cleave

@@ -8,6 +8,7 @@
 #include <tchar.h>
 #include <windows.h>
 
+namespace Cleave {
 std::string FileDialog::SaveFile(const char* filter, const char* initialDir) {
     OPENFILENAME ofn = {0};
     TCHAR szFile[MAX_PATH] = {0};
@@ -75,5 +76,5 @@ std::string FileDialog::OpenFolder(const char* initialDir) {
     CoUninitialize();
     return "";
 }
-
+}  // namespace Cleave
 #endif

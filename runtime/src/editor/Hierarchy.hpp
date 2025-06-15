@@ -4,6 +4,8 @@
 #include "GameView.hpp"
 #include "entities/Entity.hpp"
 
+namespace Cleave {
+namespace Editor {
 class Hierarchy {
 public:
     Hierarchy(std::shared_ptr<GameView> gameView)
@@ -24,3 +26,5 @@ private:
     std::shared_ptr<GameView> m_gameView;
     Entity* m_selectedEntity;
 };
+}  // namespace Editor
+}  // namespace Cleave

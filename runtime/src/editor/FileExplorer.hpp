@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <string>
 
+namespace Cleave {
+namespace Editor {
 class FileExplorer {
 public:
     FileExplorer(const std::filesystem::path& directory)
@@ -19,3 +21,5 @@ private:
     std::filesystem::path m_directory;
     std::filesystem::path m_selectedDirectory;
 };
+}  // namespace Editor
+}  // namespace Cleave

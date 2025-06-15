@@ -6,6 +6,8 @@
 
 #include "scene/JsonSceneSerializer.hpp"
 
+namespace Cleave {
+namespace Editor {
 void CreateGameFramebuffer(int width, int height, uint32_t& framebuffer,
                            uint32_t& framebufferTexture) {
     glGenFramebuffers(1, &framebuffer);
@@ -100,3 +102,5 @@ Scene* GameView::GetScene() const { return m_scene.get(); }
 void GameView::SetScene(std::shared_ptr<Scene> scene) {
     m_scene = std::move(scene);
 }
+}  // namespace Editor
+}  // namespace Cleave

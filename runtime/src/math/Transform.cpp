@@ -1,5 +1,6 @@
 #include "Transform.hpp"
 
+namespace Cleave {
 Transform::Transform(const Vec2f position, const Vec2f scale, float rotation,
                      Transform* parent)
     : m_parent(parent) {
@@ -31,3 +32,4 @@ float Transform::GetWorldRotation() const {
     else
         return GetRotation();
 }
+}  // namespace Cleave

@@ -9,6 +9,7 @@
 typedef uint64_t EntityID;
 static EntityID NEXT_ENTITY_ID = 0;
 
+namespace Cleave {
 class Entity {
 public:
     Entity(Transform transform = Transform(), const std::string& name = "")
@@ -76,3 +77,4 @@ private:
     Entity* m_parent = nullptr;
     std::vector<Entity*> m_children;
 };
+}  // namespace Cleave

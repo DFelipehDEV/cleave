@@ -3,6 +3,7 @@
 
 #include "entities/Entity.hpp"
 
+namespace Cleave {
 class Registry {
 private:
     using EntityFactory = std::function<Entity*()>;
@@ -32,3 +33,4 @@ public:
         return GetFactories();
     }
 };
+}  // namespace Cleave
