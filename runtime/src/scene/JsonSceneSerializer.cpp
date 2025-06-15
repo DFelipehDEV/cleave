@@ -1,14 +1,15 @@
 #include "scene/JsonSceneSerializer.hpp"
+
 #include <fstream>
-#include <iostream>
 #include <functional>
+#include <iostream>
 #include <nlohmann/json.hpp>
 
+#include "EntityRegistry.hpp"
 #include "entities/Entity.hpp"
 #include "scene/Scene.hpp"
-#include "EntityRegistry.hpp"
 
- std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
+std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open: " << path << std::endl;
@@ -23,31 +24,35 @@
         return nullptr;
     }
 
-    auto scene = std::make_shared<Scene>(std::make_unique<Entity>(Transform(), "root"));
+    auto scene =
+        std::make_shared<Scene>(std::make_unique<Entity>(Transform(), "root"));
 
-    std::vector<std::pair<Entity*, std::unordered_map<std::string, Entity::Property>>> pendingInits;
-    std::function<void(const nlohmann::json&, Entity*)> deserialize = [&](const nlohmann::json& jsonData, Entity* parent) {
-        std::unordered_map<std::string, Entity::Property> properties;
-        for (const auto& [key, value] : jsonData.items()) {
-            if (key != "children") {
-                properties[key].value = value.get<std::string>();
-            }
-        }
-        auto factory = Registry::GetAllTypes().find(jsonData["type"]);
-        if (factory != Registry::GetAllTypes().end()) {
-            Entity* entity = Registry::CreateEntity(factory->first);
-
-            pendingInits.push_back({entity, properties});
-            
-            parent->AddChild(entity);
-
-            if (jsonData.contains("children")) {
-                for (const auto& child : jsonData["children"]) {
-                    deserialize(child, entity);
+    std::vector<
+        std::pair<Entity*, std::unordered_map<std::string, Entity::Property>>>
+        pendingInits;
+    std::function<void(const nlohmann::json&, Entity*)> deserialize =
+        [&](const nlohmann::json& jsonData, Entity* parent) {
+            std::unordered_map<std::string, Entity::Property> properties;
+            for (const auto& [key, value] : jsonData.items()) {
+                if (key != "children") {
+                    properties[key].value = value.get<std::string>();
                 }
             }
-        }
-    };
+            auto factory = Registry::GetAllTypes().find(jsonData["type"]);
+            if (factory != Registry::GetAllTypes().end()) {
+                Entity* entity = Registry::CreateEntity(factory->first);
+
+                pendingInits.push_back({entity, properties});
+
+                parent->AddChild(entity);
+
+                if (jsonData.contains("children")) {
+                    for (const auto& child : jsonData["children"]) {
+                        deserialize(child, entity);
+                    }
+                }
+            }
+        };
 
     try {
         if (json.contains("children")) {
@@ -76,23 +81,24 @@ bool JsonSceneSerializer::Save(const std::string& path, Scene* scene) {
 
     nlohmann::json json;
 
-    std::function<void(Entity*, nlohmann::json&)> serialize = [&serialize](Entity* entity, nlohmann::json& jsonOut) {
-        const auto& properties = entity->GetProperties();
-        for (const auto& [key, prop] : properties) {
-            jsonOut[key] = prop.value;
-        }
-
-        const auto& children = entity->GetChildren();
-        if (!children.empty()) {
-            nlohmann::json childrenArray = nlohmann::json::array();
-            for (const auto& child : children) {
-                nlohmann::json childJson;
-                serialize(child, childJson);
-                childrenArray.push_back(childJson);
+    std::function<void(Entity*, nlohmann::json&)> serialize =
+        [&serialize](Entity* entity, nlohmann::json& jsonOut) {
+            const auto& properties = entity->GetProperties();
+            for (const auto& [key, prop] : properties) {
+                jsonOut[key] = prop.value;
             }
-            jsonOut["children"] = childrenArray;
-        }
-    };
+
+            const auto& children = entity->GetChildren();
+            if (!children.empty()) {
+                nlohmann::json childrenArray = nlohmann::json::array();
+                for (const auto& child : children) {
+                    nlohmann::json childJson;
+                    serialize(child, childJson);
+                    childrenArray.push_back(childJson);
+                }
+                jsonOut["children"] = childrenArray;
+            }
+        };
 
     serialize(scene->GetRoot(), json);
 

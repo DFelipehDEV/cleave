@@ -1,7 +1,8 @@
 #pragma once
-#include <string>
-#include <iostream>
 #include <GL/glew.h>
+
+#include <iostream>
+#include <string>
 
 #include "Resource.hpp"
 
@@ -13,10 +14,12 @@ public:
     std::string GetTypeName() const override { return "cleave::Shader"; }
 
     // Create shader program from file paths
-    void CreateFromFile(const std::string& vertexPath, const std::string& fragmentPath);
+    void CreateFromFile(const std::string& vertexPath,
+                        const std::string& fragmentPath);
 
     // Create shader program from shader source code strings
-    void CreateFromString(const std::string& vertexSource, const std::string& fragmentSource);
+    void CreateFromString(const std::string& vertexSource,
+                          const std::string& fragmentSource);
 
     // Cleanup resources
     void Destroy();
@@ -28,7 +31,9 @@ public:
     void SetUniformInt(const std::string& name, int value) const;
     void SetUniformFloat(const std::string& name, float value) const;
     void SetUniformVector2f(const std::string& name, float x, float y) const;
-    void SetUniformVector3f(const std::string& name, float x, float y, float z) const;
-    void SetUniformVector4f(const std::string& name, float x, float y, float z, float w) const;
+    void SetUniformVector3f(const std::string& name, float x, float y,
+                            float z) const;
+    void SetUniformVector4f(const std::string& name, float x, float y, float z,
+                            float w) const;
     void SetUniformMatrix4(const std::string& name, const float* matrix) const;
 };

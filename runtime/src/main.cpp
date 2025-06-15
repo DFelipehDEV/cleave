@@ -1,17 +1,15 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include "thirdparty/stb_image.h"
-
 #include <algorithm>
 
-#include "Window.hpp"
 #include "Services.hpp"
-#include "rendering/Renderer.hpp"
-#include "resources/Texture.hpp"
-#include "resources/ResourceManager.hpp"
+#include "Window.hpp"
 #include "entities/Sprite.hpp"
-
-#include "scene/Scene.hpp"
+#include "rendering/Renderer.hpp"
+#include "resources/ResourceManager.hpp"
+#include "resources/Texture.hpp"
 #include "scene/EntityRegistry.hpp"
+#include "scene/Scene.hpp"
+#include "thirdparty/stb_image.h"
 
 #ifdef CLEAVE_EDITOR_ENABLED
 #include "editor/Editor.hpp"
@@ -76,43 +74,48 @@ int main() {
     ResourceManager* resourceManager = new ResourceManager();
     resourceManager->AddTexture("cat.png");
     resourceManager->AddTexture("dog.png");
-    resourceManager->AddShaderFromString("main", vertexShaderSource, fragmentShaderSource);
-    resourceManager->AddShaderFromString("sprite", spriteVertexShaderSource, spriteFragmentShaderSource);
+    resourceManager->AddShaderFromString("main", vertexShaderSource,
+                                         fragmentShaderSource);
+    resourceManager->AddShaderFromString("sprite", spriteVertexShaderSource,
+                                         spriteFragmentShaderSource);
     Services::Provide<ResourceManager>("ResMgr", resourceManager);
 
     glViewport(0, 0, window->GetWidth(), window->GetHeight());
 
     Registry::RegisterType<Entity>();
     Registry::RegisterType<Sprite>();
-    
+
     Services::Provide<Registry>("registry", std::make_shared<Registry>());
 
-    Sprite* cat = new Sprite(Transform({ 16, 32 }), resourceManager->textures["cat.png"]);
+    Sprite* cat =
+        new Sprite(Transform({16, 32}), resourceManager->textures["cat.png"]);
     cat->SetName("Carlos Gato");
 
-    Sprite* dog = new Sprite(Transform({ 128, 128 }), resourceManager->textures["dog.png"]);
+    Sprite* dog =
+        new Sprite(Transform({128, 128}), resourceManager->textures["dog.png"]);
     dog->SetName("Roberto Cao");
     cat->AddChild(dog);
-    #ifdef CLEAVE_EDITOR_ENABLED
-        Editor editor = Editor(window);
-        Scene* scene = editor.GetGameView()->GetScene();
+#ifdef CLEAVE_EDITOR_ENABLED
+    Editor editor = Editor(window);
+    Scene* scene = editor.GetGameView()->GetScene();
 
-        scene->GetRoot()->AddChild(cat);
-        
-        editor.Run((Renderer*)renderer);
-    #else
-        while (!window->shouldClose()) {
-            renderer->ClearColor(100, 149, 237, 255);
-            glClear(GL_COLOR_BUFFER_BIT);
+    scene->GetRoot()->AddChild(cat);
 
-            resourceManager->shaders["main"]->Use();
-            resourceManager->shaders["main"]->SetUniformInt("tex", 0);
-            resourceManager->shaders["main"]->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
-            cat->OnRender((Renderer*) renderer);
+    editor.Run((Renderer*)renderer);
+#else
+    while (!window->shouldClose()) {
+        renderer->ClearColor(100, 149, 237, 255);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-            window->swapBuffers();
-            window->pollEvents();
-        }
-    #endif
+        resourceManager->shaders["main"]->Use();
+        resourceManager->shaders["main"]->SetUniformInt("tex", 0);
+        resourceManager->shaders["main"]->SetUniformMatrix4(
+            "projection", glm::value_ptr(renderer->GetProjection()));
+        cat->OnRender((Renderer*)renderer);
+
+        window->swapBuffers();
+        window->pollEvents();
+    }
+#endif
     return 0;
 }

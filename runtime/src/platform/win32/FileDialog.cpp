@@ -1,15 +1,16 @@
 #ifdef _WIN32
 
 #include "platform/FileDialog.hpp"
-#include <windows.h>
-#include <commdlg.h>
-#include <tchar.h>
-#include <shobjidl.h>
-#include <atlbase.h>
 
-std::string FileDialog::SaveFile(const char *filter, const char *initialDir) {
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[MAX_PATH] = { 0 };
+#include <atlbase.h>
+#include <commdlg.h>
+#include <shobjidl.h>
+#include <tchar.h>
+#include <windows.h>
+
+std::string FileDialog::SaveFile(const char* filter, const char* initialDir) {
+    OPENFILENAME ofn = {0};
+    TCHAR szFile[MAX_PATH] = {0};
 
     ofn.lStructSize = sizeof(ofn);
     ofn.lpstrFile = szFile;
@@ -27,8 +28,8 @@ std::string FileDialog::SaveFile(const char *filter, const char *initialDir) {
 }
 
 std::string FileDialog::OpenFile(const char* filter, const char* initialDir) {
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[MAX_PATH] = { 0 };
+    OPENFILENAME ofn = {0};
+    TCHAR szFile[MAX_PATH] = {0};
 
     ofn.lStructSize = sizeof(ofn);
     ofn.lpstrFile = szFile;
@@ -53,11 +54,10 @@ std::string FileDialog::OpenFolder(const char* initialDir) {
 
     FILEOPENDIALOGOPTIONS opt{};
     pFolderDlg->GetOptions(&opt);
-    pFolderDlg->SetOptions(opt | FOS_PICKFOLDERS | FOS_PATHMUSTEXIST | FOS_FORCEFILESYSTEM);
+    pFolderDlg->SetOptions(opt | FOS_PICKFOLDERS | FOS_PATHMUSTEXIST |
+                           FOS_FORCEFILESYSTEM);
 
-    
-    if( SUCCEEDED( pFolderDlg->Show( nullptr ) ) )
-    {
+    if (SUCCEEDED(pFolderDlg->Show(nullptr))) {
         CComPtr<IShellItem> pSelectedItem;
         pFolderDlg->GetResult(&pSelectedItem);
 
@@ -75,6 +75,5 @@ std::string FileDialog::OpenFolder(const char* initialDir) {
     CoUninitialize();
     return "";
 }
-
 
 #endif

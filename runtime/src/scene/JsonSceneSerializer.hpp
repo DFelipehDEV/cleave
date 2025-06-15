@@ -1,6 +1,7 @@
 #pragma once
-#include <string>
 #include <memory>
+#include <string>
+
 class Scene;
 class Properties;
 
@@ -9,4 +10,3 @@ public:
     static std::shared_ptr<Scene> Load(const std::string& path);
     static bool Save(const std::string& path, Scene* scene);
 };
-    

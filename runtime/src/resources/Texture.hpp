@@ -1,13 +1,13 @@
 #pragma once
-#include "Resource.hpp"
 #include <GL/glew.h>
+
+#include "Resource.hpp"
+
 
 class Texture : public Resource {
 public:
     Texture() : m_width(1), m_height(1) {};
-    ~Texture() {
-        Destroy();
-    }
+    ~Texture() { Destroy(); }
 
     std::string GetTypeName() const override { return "cleave::Texture"; }
 
@@ -20,6 +20,7 @@ public:
     int GetWidth() const;
 
     int GetHeight() const;
+
 private:
     uint32_t m_textureId;
     int m_width, m_height;

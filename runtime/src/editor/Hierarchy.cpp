@@ -1,11 +1,14 @@
 #include "Hierarchy.hpp"
-#include "imgui.h"
-#include "entities/Sprite.hpp"
+
 #include <scene/EntityRegistry.hpp>
+
+#include "entities/Sprite.hpp"
+#include "imgui.h"
 
 void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
     if (!entity) return;
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+    ImGuiTreeNodeFlags flags =
+        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
     if (entity == selectedEntity) {
         flags |= ImGuiTreeNodeFlags_Selected;
     }
@@ -29,7 +32,8 @@ void Hierarchy::OnRender() {
     ImGui::BeginChild("Hierarchy", ImVec2(0, 200), true);
     if (GetScene() && GetScene()->GetRoot())
         ShowEntityHierarchy(GetScene()->GetRoot(), m_selectedEntity);
-    if (ImGui::BeginPopupContextWindow("HierarchyContextMenu", ImGuiPopupFlags_MouseButtonRight)) {
+    if (ImGui::BeginPopupContextWindow("HierarchyContextMenu",
+                                       ImGuiPopupFlags_MouseButtonRight)) {
         static int entityCount = 0;
         if (ImGui::Selectable("New Entity")) {
             Entity* newEntity = new Entity();
@@ -50,7 +54,7 @@ void Hierarchy::OnRender() {
     ImGui::EndChild();
 
     static float entitiesPanelHeight = 200.0f;
-            
+
     // Splitter
     ImGui::InvisibleButton("Splitter", ImVec2(-1, 4.0f));
     if (ImGui::IsItemActive()) {

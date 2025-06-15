@@ -1,5 +1,3 @@
 #include "Button.hpp"
 
-void Button::OnRender(Renderer *renderer) {
-    
-}
+void Button::OnRender(Renderer *renderer) {}

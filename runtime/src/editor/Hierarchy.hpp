@@ -1,20 +1,26 @@
 #pragma once
-#include "entities/Entity.hpp"
-#include "GameView.hpp"
 #include <memory>
+
+#include "GameView.hpp"
+#include "entities/Entity.hpp"
 
 class Hierarchy {
 public:
-	Hierarchy(std::shared_ptr<GameView> gameView) : m_gameView(gameView), m_selectedEntity(gameView && gameView->GetScene() ? gameView->GetScene()->GetRoot() : nullptr) {}
-	~Hierarchy() = default;
+    Hierarchy(std::shared_ptr<GameView> gameView)
+        : m_gameView(gameView),
+          m_selectedEntity(gameView && gameView->GetScene()
+                               ? gameView->GetScene()->GetRoot()
+                               : nullptr) {}
+    ~Hierarchy() = default;
 
-	void OnRender();
+    void OnRender();
 
-	Scene* GetScene();
-	void SetScene(std::shared_ptr<Scene> scene);
+    Scene* GetScene();
+    void SetScene(std::shared_ptr<Scene> scene);
 
-	Entity* GetSelectedEntity();
+    Entity* GetSelectedEntity();
+
 private:
-	std::shared_ptr<GameView> m_gameView;
-	Entity* m_selectedEntity;
+    std::shared_ptr<GameView> m_gameView;
+    Entity* m_selectedEntity;
 };

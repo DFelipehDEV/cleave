@@ -1,4 +1,5 @@
 #include "Window.hpp"
+
 #include <iostream>
 
 Window::Window(int width, int height, const char* title) {
@@ -26,32 +27,22 @@ Window::~Window() {
     glfwTerminate();
 }
 
-bool Window::shouldClose() const {
-    return glfwWindowShouldClose(window);
-}
+bool Window::shouldClose() const { return glfwWindowShouldClose(window); }
 
-void Window::pollEvents() const {
-    glfwPollEvents();
-}
+void Window::pollEvents() const { glfwPollEvents(); }
 
-void Window::swapBuffers() const {
-    glfwSwapBuffers(window);
-}
+void Window::swapBuffers() const { glfwSwapBuffers(window); }
 
-int Window::GetWidth() const
-{
+int Window::GetWidth() const {
     int w;
     glfwGetWindowSize(getGLFWwindow(), &w, nullptr);
     return w;
 }
 
-int Window::GetHeight() const
-{
+int Window::GetHeight() const {
     int h;
     glfwGetWindowSize(getGLFWwindow(), nullptr, &h);
     return h;
 }
 
-GLFWwindow* Window::getGLFWwindow() const {
-    return window;
-}
+GLFWwindow* Window::getGLFWwindow() const { return window; }

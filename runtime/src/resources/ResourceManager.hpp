@@ -14,6 +14,9 @@ public:
     std::unordered_map<std::string, Texture*> textures;
 
     Texture* AddTexture(const std::string& file);
-    Shader* AddShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath);
-    Shader* AddShaderFromString(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
+    Shader* AddShader(const std::string& name, const std::string& vertexPath,
+                      const std::string& fragmentPath);
+    Shader* AddShaderFromString(const std::string& name,
+                                const std::string& vertexSource,
+                                const std::string& fragmentSource);
 };

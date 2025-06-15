@@ -11,6 +11,7 @@ public:
     void SetEntity(Entity* entity);
 
     void Clear();
+
 private:
     Entity* m_entity;
 };

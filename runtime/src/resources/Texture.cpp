@@ -1,6 +1,8 @@
 #include "Texture.hpp"
-#include "thirdparty/stb_image.h"
+
 #include <iostream>
+
+#include "thirdparty/stb_image.h"
 
 bool Texture::CreateFromFile(const std::string& path) {
     glGenTextures(1, &m_textureId);
@@ -11,14 +13,16 @@ bool Texture::CreateFromFile(const std::string& path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, nullptr, STBI_rgb_alpha);
+    unsigned char* data =
+        stbi_load(path.c_str(), &m_width, &m_height, nullptr, STBI_rgb_alpha);
     if (!data) {
         std::cerr << "Failed to load texture from file: " << path << std::endl;
         return false;
     }
     SetPath(path);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, data);
 
     stbi_image_free(data);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -30,17 +34,13 @@ void Texture::Bind(GLenum textureUnit) const {
     glBindTexture(GL_TEXTURE_2D, m_textureId);
 }
 
-void Texture::Destroy()  {
+void Texture::Destroy() {
     if (m_textureId) {
         glDeleteTextures(1, &m_textureId);
         m_textureId = 0;
     }
 }
 
-int Texture::GetWidth() const {
-    return m_width;
-}
+int Texture::GetWidth() const { return m_width; }
 
-int Texture::GetHeight() const {
-    return m_height;
-}
+int Texture::GetHeight() const { return m_height; }

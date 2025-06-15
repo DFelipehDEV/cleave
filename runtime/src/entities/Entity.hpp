@@ -1,22 +1,24 @@
 #pragma once
-#include <vector>
 #include <unordered_map>
+#include <vector>
+
+#include "math/Transform.hpp"
 #include "math/Vec2.hpp"
 #include "rendering/Renderer.hpp"
-#include "math/Transform.hpp"
 
 typedef uint64_t EntityID;
 static EntityID NEXT_ENTITY_ID = 0;
 
 class Entity {
 public:
-    Entity(Transform transform = Transform(), const std::string& name = "") : m_transform(transform), m_name(name), m_id(NEXT_ENTITY_ID++) {}
-    Entity(const Entity& other) 
-        : m_id(other.m_id)
-        , m_name(other.m_name)
-        , m_transform(other.m_transform)
-        , m_parent(other.m_parent)
-        , m_children(other.m_children) { }
+    Entity(Transform transform = Transform(), const std::string& name = "")
+        : m_transform(transform), m_name(name), m_id(NEXT_ENTITY_ID++) {}
+    Entity(const Entity& other)
+        : m_id(other.m_id),
+          m_name(other.m_name),
+          m_transform(other.m_transform),
+          m_parent(other.m_parent),
+          m_children(other.m_children) {}
     virtual ~Entity();
 
     struct Property {
@@ -33,14 +35,16 @@ public:
         Types type;
     };
 
-    virtual void Init(const std::unordered_map<std::string, Property> properties);
+    virtual void Init(
+        const std::unordered_map<std::string, Property> properties);
 
     virtual void OnTick(float deltaTime);
     virtual void OnRender(Renderer* renderer);
 
     static const char* GetTypeName() { return "cleave::Entity"; }
 
-    virtual const std::unordered_map<std::string, Property> GetProperties() const; 
+    virtual const std::unordered_map<std::string, Property> GetProperties()
+        const;
 
     static Entity* Create();
 
@@ -64,6 +68,7 @@ public:
     Entity* GetChild(EntityID id, bool recursive = false) const;
 
     Entity* GetRoot();
+
 private:
     EntityID m_id;
     std::string m_name = "";

@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+
 #include <memory>
 
 #include "rendering/Renderer.hpp"
@@ -13,9 +14,10 @@ public:
 
     float GetZoom() const;
     void SetZoom(float zoom);
-    
+
     Scene* GetScene() const;
     void SetScene(std::shared_ptr<Scene> scene);
+
 private:
     std::shared_ptr<Scene> m_scene;
     uint32_t m_frameBuffer;

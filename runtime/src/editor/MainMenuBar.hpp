@@ -7,6 +7,7 @@ public:
     ~MainMenuBar() = default;
 
     void OnRender();
+
 private:
     FileExplorer* m_explorer;
 };

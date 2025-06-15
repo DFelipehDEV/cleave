@@ -1,7 +1,8 @@
 #include "Transform.hpp"
 
-
-Transform::Transform(const Vec2f position, const Vec2f scale, float rotation, Transform* parent) : m_parent(parent) {
+Transform::Transform(const Vec2f position, const Vec2f scale, float rotation,
+                     Transform* parent)
+    : m_parent(parent) {
     Translate(position);
     Rotate(rotation);
     Scale(scale);

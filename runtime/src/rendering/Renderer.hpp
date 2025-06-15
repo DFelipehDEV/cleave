@@ -1,18 +1,16 @@
 #pragma once
-#include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 
-#include "rendering/Color.hpp"
-#include "math/Rect4.hpp"
 #include "Window.hpp"
+#include "math/Rect4.hpp"
+#include "rendering/Color.hpp"
 #include "resources/Texture.hpp"
 
 class Renderer {
 public:
-    enum Primitive {
-        Triangle
-    };
+    enum Primitive { Triangle };
 
     virtual void Initialize(Window& window) = 0;
     virtual void Terminate() = 0;
@@ -25,7 +23,10 @@ public:
 
     virtual void ClearColor(int r, int g, int b, int a) = 0;
 
-    virtual void Draw(Texture* texture, size_t vertexCount, const void* vertexData, const uint32_t* indices, size_t indexCount, Primitive primitive = Primitive::Triangle) = 0;
+    virtual void Draw(Texture* texture, size_t vertexCount,
+                      const void* vertexData, const uint32_t* indices,
+                      size_t indexCount,
+                      Primitive primitive = Primitive::Triangle) = 0;
 
     virtual void DrawTexture(Texture& texture, float x, float y) = 0;
     virtual void DrawRect(float x, float y, float w, float h, Color color) = 0;
@@ -34,7 +35,8 @@ public:
 class OpenGLRenderer : Renderer {
 public:
     OpenGLRenderer::OpenGLRenderer()
-    : m_projection(glm::ortho(0.0f, 512.0f, 288.0f, 0.0f, -1.0f, 1.0f)), m_viewport(0.0f, 0.0f, 512.0f, 288.0f) {}
+        : m_projection(glm::ortho(0.0f, 512.0f, 288.0f, 0.0f, -1.0f, 1.0f)),
+          m_viewport(0.0f, 0.0f, 512.0f, 288.0f) {}
     OpenGLRenderer::~OpenGLRenderer();
     void Initialize(Window& window);
     void Terminate();
@@ -47,10 +49,13 @@ public:
 
     void ClearColor(int r, int g, int b, int a);
 
-    void Draw(Texture* texture, size_t vertexCount, const void* vertexData, const uint32_t* indices, size_t indexCount, Primitive primitive = Primitive::Triangle);
-    
+    void Draw(Texture* texture, size_t vertexCount, const void* vertexData,
+              const uint32_t* indices, size_t indexCount,
+              Primitive primitive = Primitive::Triangle);
+
     void DrawTexture(Texture& texture, float x, float y);
     void DrawRect(float x, float y, float w, float h, Color color);
+
 private:
     glm::mat4 m_projection;
     Rect4f m_viewport;

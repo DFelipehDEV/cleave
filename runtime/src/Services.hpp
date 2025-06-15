@@ -1,27 +1,28 @@
 #pragma once
-#include <unordered_map>
-#include <string>
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 class Services {
 private:
-    static std::unordered_map<std::string, std::shared_ptr<void>>& GetServices() {
+    static std::unordered_map<std::string, std::shared_ptr<void>>&
+    GetServices() {
         static std::unordered_map<std::string, std::shared_ptr<void>> services;
         return services;
     }
 
 public:
-    template<typename T>
+    template <typename T>
     static void Provide(const std::string& name, std::shared_ptr<T> service) {
         GetServices()[name] = std::static_pointer_cast<void>(service);
     }
-    
-    template<typename T>
+
+    template <typename T>
     static void Provide(const std::string& name, T* service) {
         GetServices()[name] = std::shared_ptr<void>(service, [](void*) {});
     }
-    
-    template<typename T>
+
+    template <typename T>
     static T* Get(const std::string& name) {
         auto& services = GetServices();
         auto it = services.find(name);
@@ -30,8 +31,8 @@ public:
         }
         return static_cast<T*>(it->second.get());
     }
-    
-    template<typename T>
+
+    template <typename T>
     static std::shared_ptr<T> GetShared(const std::string& name) {
         auto& services = GetServices();
         auto it = services.find(name);
@@ -40,16 +41,12 @@ public:
         }
         return std::static_pointer_cast<T>(it->second);
     }
-    
+
     static bool IsProvided(const std::string& name) {
         return GetServices().find(name) != GetServices().end();
     }
-    
-    static void Remove(const std::string& name) {
-        GetServices().erase(name);
-    }
-    
-    static void Clear() {
-        GetServices().clear();
-    }
+
+    static void Remove(const std::string& name) { GetServices().erase(name); }
+
+    static void Clear() { GetServices().clear(); }
 };

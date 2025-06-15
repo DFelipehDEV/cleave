@@ -16,5 +16,6 @@ public:
         Information = 64,
     };
 
-    static int Show(const char* title, const char* content, uint32_t flags = ButtonFlags::Ok | IconFlags::Information);
+    static int Show(const char* title, const char* content,
+                    uint32_t flags = ButtonFlags::Ok | IconFlags::Information);
 };
