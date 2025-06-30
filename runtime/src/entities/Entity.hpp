@@ -65,7 +65,7 @@ public:
     void AddChild(Entity* child);
     void RemoveChild(Entity* child);
 
-    Entity* GetChild(const std::string& name, bool recursive = false) const;
+    Entity* GetChild(const std::string_view name, bool recursive = false) const;
     Entity* GetChild(EntityID id, bool recursive = false) const;
 
     Entity* GetRoot();

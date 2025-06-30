@@ -99,7 +99,7 @@ void Entity::RemoveChild(Entity* child) {
     }
 }
 
-Entity* Entity::GetChild(const std::string& name, bool recursive) const {
+Entity* Entity::GetChild(const std::string_view name, bool recursive) const {
     for (Entity* child : m_children) {
         if (child->m_name == name) {
             return child;
