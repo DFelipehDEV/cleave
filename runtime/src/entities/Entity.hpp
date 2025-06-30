@@ -53,7 +53,7 @@ public:
     void SetID(EntityID id);
 
     std::string GetName() const;
-    void SetName(std::string name);
+    void SetName(std::string_view name);
 
     Transform& GetTransform();
     void SetTransform(Transform& transform);

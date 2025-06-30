@@ -64,7 +64,7 @@ void Entity::SetID(EntityID id) {
 }
 
 std::string Entity::GetName() const { return m_name; }
-void Entity::SetName(std::string name) { m_name = name; }
+void Entity::SetName(std::string_view name) { m_name = name; }
 
 Transform& Entity::GetTransform() { return m_transform; }
 void Entity::SetTransform(Transform& transform) { m_transform = transform; }
