@@ -3,11 +3,7 @@
 #include <iostream>
 
 namespace Cleave {
-Entity::~Entity() {
-    if (m_parent) {
-        m_parent->RemoveChild(this);
-    }
-}
+Entity::~Entity() {}
 
 void Entity::Init(const std::unordered_map<std::string, Property> properties) {
     if (properties.find("id") != properties.end())
@@ -26,13 +22,13 @@ void Entity::Init(const std::unordered_map<std::string, Property> properties) {
 }
 
 void Entity::OnTick(float deltaTime) {
-    for (Entity* child : m_children) {
+    for (const auto& child : m_children) {
         child->OnTick(deltaTime);
     }
 }
 
 void Entity::OnRender(Renderer* renderer) {
-    for (Entity* child : m_children) {
+    for (const auto& child : m_children) {
         child->OnRender(renderer);
     }
 }
@@ -71,42 +67,51 @@ void Entity::SetTransform(Transform& transform) { m_transform = transform; }
 
 Entity* Entity::GetParent() const { return m_parent; }
 void Entity::SetParent(Entity* parent) {
+    m_parent = parent;
     if (parent) {
-        parent->AddChild(this);
-    } else if (m_parent) {
-        m_parent->RemoveChild(this);
+        m_transform.SetParent(&parent->m_transform);
+    } else {
+        m_transform.SetParent(nullptr);
     }
 }
 
-const std::vector<Entity*>& Entity::GetChildren() const { return m_children; }
+std::vector<Entity*> Entity::GetChildren() const {
+    std::vector<Entity*> children;
+    children.reserve(m_children.size());
+    for (const auto& child_ptr : m_children) {
+        children.push_back(child_ptr.get());
+    }
+    return children;
+}
 
-void Entity::AddChild(Entity* child) {
+void Entity::AddChild(std::unique_ptr<Entity> child) {
+    if (!child) return;
+
     // Remove from previous parent
     if (child->m_parent) {
-        child->m_parent->RemoveChild(child);
+        child->m_parent = nullptr;
     }
 
-    m_children.push_back(child);
-    child->m_parent = this;
-    child->m_transform.SetParent(&this->m_transform);
+    child->SetParent(this);
+    m_children.push_back(std::move(child));
 }
 
 void Entity::RemoveChild(Entity* child) {
-    auto it = std::remove(m_children.begin(), m_children.end(), child);
-    if (it != m_children.end()) {
-        m_children.erase(it, m_children.end());
-        child->m_parent = nullptr;
-    }
+    m_children.erase(
+        std::remove_if(m_children.begin(), m_children.end(),
+                       [child](const std::unique_ptr<Entity>& ptr) {
+                           return ptr.get() == child;
+                       }),
+        m_children.end());
 }
 
-Entity* Entity::GetChild(const std::string_view name, bool recursive) const {
-    for (Entity* child : m_children) {
+Entity* Entity::GetChild(std::string_view name, bool recursive) const {
+    for (const auto& child : m_children) {
         if (child->m_name == name) {
-            return child;
+            return child.get();
         }
         if (recursive) {
-            Entity* found = child->GetChild(name, true);
-            if (found) {
+            if (Entity* found = child->GetChild(name, true)) {
                 return found;
             }
         }
@@ -115,13 +120,12 @@ Entity* Entity::GetChild(const std::string_view name, bool recursive) const {
 }
 
 Entity* Entity::GetChild(EntityID id, bool recursive) const {
-    for (Entity* child : m_children) {
+    for (const auto& child : m_children) {
         if (child->m_id == id) {
-            return child;
+            return child.get();
         }
         if (recursive) {
-            Entity* found = child->GetChild(id, true);
-            if (found) {
+            if (Entity* found = child->GetChild(id, true)) {
                 return found;
             }
         }

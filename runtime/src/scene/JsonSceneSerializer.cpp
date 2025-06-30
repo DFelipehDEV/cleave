@@ -41,15 +41,19 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
             }
             auto factory = Registry::GetAllTypes().find(jsonData["type"]);
             if (factory != Registry::GetAllTypes().end()) {
-                Entity* entity = Registry::CreateEntity(factory->first);
+                std::unique_ptr<Entity> entity =
+                    Registry::CreateEntity(factory->first);
 
-                pendingInits.push_back({entity, properties});
+                pendingInits.push_back({entity.get(), properties});
 
-                parent->AddChild(entity);
+                parent->AddChild(std::move(entity));
+
+                // The last added child is the one we just moved
+                Entity* childEntity = parent->GetChildren().back();
 
                 if (jsonData.contains("children")) {
                     for (const auto& child : jsonData["children"]) {
-                        deserialize(child, entity);
+                        deserialize(child, childEntity);
                     }
                 }
             }

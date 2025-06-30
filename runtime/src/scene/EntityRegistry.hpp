@@ -6,7 +6,7 @@
 namespace Cleave {
 class Registry {
 private:
-    using EntityFactory = std::function<Entity*()>;
+    using EntityFactory = std::function<std::unique_ptr<Entity>()>;
     static std::unordered_map<std::string, EntityFactory>& GetFactories() {
         static std::unordered_map<std::string, EntityFactory> factories;
         return factories;
@@ -20,10 +20,12 @@ public:
         static_assert(std::is_default_constructible_v<T>,
                       "T must be default constructible");
 
-        GetFactories()[T::GetTypeName()] = []() { return new T(); };
+        GetFactories()[T::GetTypeName()] = []() {
+            return std::make_unique<T>();
+        };
     }
 
-    static Entity* CreateEntity(const std::string& typeName) {
+    static std::unique_ptr<Entity> CreateEntity(const std::string& typeName) {
         auto& factories = GetFactories();
         auto it = factories.find(typeName);
         return it != factories.end() ? it->second() : nullptr;

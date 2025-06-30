@@ -90,19 +90,19 @@ int main() {
 
     Services::Provide<Registry>("registry", std::make_shared<Registry>());
 
-    Sprite* cat =
-        new Sprite(Transform({16, 32}), resourceManager->textures["cat.png"]);
+    std::unique_ptr<Sprite> cat =
+        std::make_unique<Sprite>(Transform({16, 32}), resourceManager->textures["cat.png"]);
     cat->SetName("Carlos Gato");
 
-    Sprite* dog =
-        new Sprite(Transform({128, 128}), resourceManager->textures["dog.png"]);
+    std::unique_ptr<Sprite> dog = std::make_unique<Sprite>(
+        Transform({128, 128}), resourceManager->textures["dog.png"]);
     dog->SetName("Roberto Cao");
-    cat->AddChild(dog);
+    cat->AddChild(std::move(dog));
 #ifdef CLEAVE_EDITOR_ENABLED
     Cleave::Editor::Editor editor = Cleave::Editor::Editor(window);
     Scene* scene = editor.GetGameView()->GetScene();
 
-    scene->GetRoot()->AddChild(cat);
+    scene->GetRoot()->AddChild(std::move(cat));
 
     editor.Run((Renderer*)renderer);
 #else

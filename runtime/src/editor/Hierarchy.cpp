@@ -38,16 +38,16 @@ void Hierarchy::OnRender() {
                                        ImGuiPopupFlags_MouseButtonRight)) {
         static int entityCount = 0;
         if (ImGui::Selectable("New Entity")) {
-            Entity* newEntity = new Entity();
+            std::unique_ptr<Entity> newEntity = std::make_unique<Entity>();
             newEntity->SetName("Entity" + std::to_string(entityCount++));
-            m_selectedEntity->AddChild(newEntity);
+            m_selectedEntity->AddChild(std::move(newEntity));
         }
 
         for (auto registry : Registry::GetAllTypes()) {
             if (ImGui::Selectable(("New " + registry.first).c_str())) {
-                Entity* entity = Registry::CreateEntity(registry.first);
+                std::unique_ptr<Entity> entity = Registry::CreateEntity(registry.first);
                 entity->SetName(registry.first + std::to_string(entityCount++));
-                m_selectedEntity->AddChild(entity);
+                m_selectedEntity->AddChild(std::move(entity));
             }
         }
 
