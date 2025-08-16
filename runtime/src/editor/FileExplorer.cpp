@@ -70,6 +70,24 @@ void FileExplorer::OnRender() {
             std::filesystem::remove(m_selectedDirectory);
         }
 
+        if (ImGui::MenuItem("Copy Relative Path")) {
+            std::string relPath = std::filesystem::relative(
+                m_selectedDirectory, m_directory)
+                                      .string();
+            #ifdef _WIN32
+            std::replace(relPath.begin(), relPath.end(), '\\', '/');
+            #endif
+            ImGui::SetClipboardText(relPath.c_str());
+        }
+
+        if (ImGui::MenuItem("Copy Path")) {
+            std::string path = m_selectedDirectory.string();
+            #ifdef _WIN32
+            std::replace(path.begin(), path.end(), '\\', '/');
+            #endif
+            ImGui::SetClipboardText(path.c_str());
+        }
+
         ImGui::EndPopup();
     }
 
