@@ -38,13 +38,27 @@ void Hierarchy::OnRender() {
                                        ImGuiPopupFlags_MouseButtonRight)) {
         static int entityCount = 0;
 
-        for (auto registry : Registry::GetAllTypes()) {
-            if (ImGui::Selectable(("New " + registry.first).c_str())) {
-                std::unique_ptr<Entity> entity = Registry::CreateEntity(registry.first);
-                entity->SetName(registry.first + std::to_string(entityCount++));
-                m_selectedEntity->AddChild(std::move(entity));
+        if (ImGui::BeginMenu("Create")) {
+            for (auto registry : Registry::GetAllTypes()) {
+                if (ImGui::Selectable(("New " + registry.first).c_str())) {
+                    std::unique_ptr<Entity> entity = Registry::CreateEntity(registry.first);
+                    entity->SetName(registry.first + std::to_string(entityCount++));
+                    m_selectedEntity->AddChild(std::move(entity));
+                }
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Selectable("Delete Entity")) {
+            if (m_selectedEntity && m_selectedEntity->GetParent()) {
+                m_selectedEntity->GetParent()->RemoveChild(m_selectedEntity);
+                m_selectedEntity = nullptr;
             }
         }
+        
+
 
         ImGui::EndPopup();
     }
