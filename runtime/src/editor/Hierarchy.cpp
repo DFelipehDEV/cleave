@@ -55,8 +55,9 @@ void Hierarchy::OnRender() {
 
         if (ImGui::Selectable("Delete Entity")) {
             if (m_selectedEntity && m_selectedEntity->GetParent()) {
+                Entity* parent = m_selectedEntity->GetParent();
                 m_selectedEntity->GetParent()->RemoveChild(m_selectedEntity);
-                m_selectedEntity = nullptr;
+                m_selectedEntity = parent;
             }
         }
 
