@@ -71,12 +71,9 @@ void Properties::OnRender() {
                     char buffer[256];
                     strncpy_s(buffer, prop.value.c_str(), sizeof(buffer));
                     buffer[sizeof(buffer) - 1] = '\0';
-                    if (ImGui::InputText(name.c_str(), buffer,
-                                         sizeof(buffer))) {
-                        if (buffer[0] != NULL && prop.value != "") {
-                            newProperties[name].value = buffer;
-                            changed = true;
-                        }
+                    if (ImGui::InputText(name.c_str(), buffer, sizeof(buffer))) {
+                        newProperties[name].value = buffer;
+                        changed = true;
                     }
                 }
             }
