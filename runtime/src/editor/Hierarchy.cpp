@@ -41,8 +41,10 @@ void Hierarchy::OnRender() {
         if (ImGui::BeginMenu("Create")) {
             for (auto registry : Registry::GetAllTypes()) {
                 if (ImGui::Selectable(("New " + registry.first).c_str())) {
-                    std::unique_ptr<Entity> entity = Registry::CreateEntity(registry.first);
-                    entity->SetName(registry.first + std::to_string(entityCount++));
+                    std::unique_ptr<Entity> entity =
+                        Registry::CreateEntity(registry.first);
+                    entity->SetName(registry.first +
+                                    std::to_string(entityCount++));
                     m_selectedEntity->AddChild(std::move(entity));
                 }
             }
@@ -57,8 +59,6 @@ void Hierarchy::OnRender() {
                 m_selectedEntity = nullptr;
             }
         }
-        
-
 
         ImGui::EndPopup();
     }
