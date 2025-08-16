@@ -17,8 +17,16 @@ void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
     Entity::Init(properties);
     if (properties.find("origin") != properties.end())
         m_origin = Vec2f::FromString(properties.at("origin").value);
-    if (properties.find("texture") != properties.end())
-        m_texture = GET_RESMGR()->Get<Texture>(properties.at("texture").value);
+
+    if (properties.find("texture") != properties.end()) {
+        const std::string& texturePath = properties.at("texture").value;
+        if (!texturePath.empty()) {
+            auto tex = GET_RESMGR()->Get<Texture>(texturePath);
+            m_texture = tex ? tex : nullptr; // Only assign if valid, else clear
+        } else {
+            m_texture = nullptr;
+        }
+    }
 }
 
 const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties()
@@ -47,27 +55,29 @@ Vec2f Sprite::GetOrigin() const { return m_origin; }
 void Sprite::SetOrigin(Vec2f origin) { m_origin = origin; }
 
 void Sprite::OnRender(Renderer* renderer) {
-    if (!m_texture || !renderer) return;
+    if (!renderer) return;
 
-    Vec2f globalPosition = GetTransform().GetWorldPosition();
-    Vec2f offset = Vec2f(m_texture->GetWidth() * m_origin.x,
-                         m_texture->GetHeight() * m_origin.y);
+    if (m_texture) {
+        Vec2f globalPosition = GetTransform().GetWorldPosition();
+        Vec2f offset = Vec2f(m_texture->GetWidth() * m_origin.x,
+                            m_texture->GetHeight() * m_origin.y);
 
-    Matrix4 model;
-    model.Translate(globalPosition);
-    model.Translate(-offset);
-    model.Rotate(GetTransform().GetWorldRotation());
-    model.Scale(GetTransform().GetWorldScale());
+        Matrix4 model;
+        model.Translate(globalPosition);
+        model.Translate(-offset);
+        model.Rotate(GetTransform().GetWorldRotation());
+        model.Scale(GetTransform().GetWorldScale());
 
-    auto resourceManager = GET_RESMGR();
-    auto shader = resourceManager->Get<Shader>("sprite");
-    shader->Use();
-    shader->SetUniformInt("tex", 0);
-    shader->SetUniformMatrix4("projection",
-                              glm::value_ptr(renderer->GetProjection()));
-    shader->SetUniformMatrix4("model", (float*)model.m);
+        auto resourceManager = GET_RESMGR();
+        auto shader = resourceManager->Get<Shader>("shaders/sprite.vert");
+        shader->Use();
+        shader->SetUniformInt("tex", 0);
+        shader->SetUniformMatrix4("projection",
+                                glm::value_ptr(renderer->GetProjection()));
+        shader->SetUniformMatrix4("model", (float*)model.m);
 
-    renderer->DrawTexture(*m_texture, globalPosition.x, globalPosition.y);
+        renderer->DrawTexture(*m_texture, globalPosition.x, globalPosition.y);
+    }
 
     Entity::OnRender(renderer);
 }

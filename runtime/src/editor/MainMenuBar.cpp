@@ -10,6 +10,8 @@
 #include "platform/FileDialog.hpp"
 #include "platform/MessageBox.hpp"
 
+#include "editor/EditorContext.hpp"
+
 namespace Cleave {
 namespace Editor {
 void MainMenuBar::OnRender() {
@@ -38,6 +40,18 @@ void MainMenuBar::OnRender() {
             if (ImGui::MenuItem("Undo", "Ctrl+Z")) {
             }
             if (ImGui::MenuItem("Redo", "Ctrl+Y")) {
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Tools")) {
+            if (ImGui::MenuItem("Hierarchy", nullptr, m_editor->IsHierarchyVisible())) {
+                m_editor->SetHierarchyVisible(!m_editor->IsHierarchyVisible());
+            }
+            if (ImGui::MenuItem("File Explorer", nullptr, m_editor->IsFileExplorerVisible())) {
+                m_editor->SetFileExplorerVisible(!m_editor->IsFileExplorerVisible());
+            }
+            if (ImGui::MenuItem("Game View", nullptr, m_editor->IsGameViewVisible())) {
+                m_editor->SetGameViewVisible(!m_editor->IsGameViewVisible());
             }
             ImGui::EndMenu();
         }

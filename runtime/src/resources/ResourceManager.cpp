@@ -1,6 +1,8 @@
 #include "resources/ResourceManager.hpp"
 
+#include <algorithm>
 #include <filesystem>
+#include <iostream>
 
 namespace Cleave {
 
@@ -22,8 +24,10 @@ void ResourceManager::ScanResources(const std::string& path) {
                 if (loader->CanLoad(extension)) {
                     auto resource = loader->Load(entry.path().string());
                     if (resource) {
-                        std::string name = entry.path().stem().string();
-                        m_resources[name] = resource;
+                        std::string relPath = std::filesystem::relative(entry.path(), m_resourceRoot).string();
+                        std::replace(relPath.begin(), relPath.end(), '\\', '/');
+                        m_resources[relPath] = resource;
+                        std::cout << "Loaded resource: " << relPath << std::endl;
                     }
                     break;
                 }

@@ -5,7 +5,7 @@ find_package(imgui REQUIRED)
 find_package(nlohmann_json 3.11.3 REQUIRED)
 
 set(EDITOR_SOURCES
-	Editor.cpp
+	EditorContext.cpp
 	FileExplorer.cpp
 	GameView.cpp
 	Hierarchy.cpp
@@ -14,7 +14,7 @@ set(EDITOR_SOURCES
 )
 
 set(EDITOR_HEADERS
-	Editor.hpp
+	EditorContext.hpp
 	FileExplorer.hpp
 	GameView.hpp
 	Hierarchy.hpp

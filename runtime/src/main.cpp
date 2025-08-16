@@ -18,7 +18,7 @@
 using namespace Cleave;
 
 #ifdef CLEAVE_EDITOR_ENABLED
-#include "editor/Editor.hpp"
+#include "editor/EditorContext.hpp"
 #include "editor/GameView.hpp"
 #include "editor/Properties.hpp"
 using namespace Cleave::Editor;
@@ -38,8 +38,6 @@ int main() {
 
     resourceManager->ScanResources();
 
-    auto texture = resourceManager->Get<Texture>("cat");
-
     Services::Provide<ResourceManager>("ResMgr", resourceManager);
 
     glViewport(0, 0, window->GetWidth(), window->GetHeight());
@@ -50,15 +48,15 @@ int main() {
     Services::Provide<Registry>("registry", std::make_shared<Registry>());
 
     std::unique_ptr<Sprite> cat = std::make_unique<Sprite>(
-        Transform({16, 32}), resourceManager->Get<Texture>("cat"));
+        Transform({16, 32}), resourceManager->Get<Texture>("textures/cat.png"));
     cat->SetName("Carlos Gato");
 
     std::unique_ptr<Sprite> dog = std::make_unique<Sprite>(
-        Transform({128, 128}), resourceManager->Get<Texture>("dog"));
+        Transform({128, 128}), resourceManager->Get<Texture>("textures/dog.png"));
     dog->SetName("Roberto Cao");
     cat->AddChild(std::move(dog));
 #ifdef CLEAVE_EDITOR_ENABLED
-    Cleave::Editor::Editor editor = Cleave::Editor::Editor(window);
+    Cleave::Editor::EditorContext editor = Cleave::Editor::EditorContext(window);
     Scene* scene = editor.GetGameView()->GetScene();
 
     scene->GetRoot()->AddChild(std::move(cat));
@@ -69,9 +67,9 @@ int main() {
         renderer->ClearColor(100, 149, 237, 255);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        resourceManager->Get<Shader>("main")->Use();
-        resourceManager->Get<Shader>("main")->SetUniformInt("tex", 0);
-        resourceManager->Get<Shader>("main")->SetUniformMatrix4(
+        resourceManager->Get<Shader>("shaders/main")->Use();
+        resourceManager->Get<Shader>("shaders/main")->SetUniformInt("tex", 0);
+        resourceManager->Get<Shader>("shaders/main")->SetUniformMatrix4(
             "projection", glm::value_ptr(renderer->GetProjection()));
         cat->OnRender((Renderer*)renderer);
 
