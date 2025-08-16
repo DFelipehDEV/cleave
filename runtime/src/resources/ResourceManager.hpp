@@ -1,24 +1,36 @@
 #pragma once
+#include <filesystem>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
-#include "Shader.hpp"
-#include "Texture.hpp"
+#include "resources/Resource.hpp"
+
 
 #define GET_RESMGR() Services::Get<ResourceManager>("ResMgr")
 
 namespace Cleave {
+
 class ResourceManager {
 public:
-    ResourceManager() {};
-    std::unordered_map<std::string, Shader*> shaders;
-    std::unordered_map<std::string, Texture*> textures;
+    void RegisterLoader(std::unique_ptr<ResourceLoader> loader);
 
-    Texture* AddTexture(const std::string& file);
-    Shader* AddShader(const std::string& name, const std::string& vertexPath,
-                      const std::string& fragmentPath);
-    Shader* AddShaderFromString(const std::string& name,
-                                const std::string& vertexSource,
-                                const std::string& fragmentSource);
+    template <typename T>
+    std::shared_ptr<T> Get(const std::string& name) {
+        auto it = m_resources.find(name);
+        if (it != m_resources.end()) {
+            return std::dynamic_pointer_cast<T>(it->second);
+        }
+        return nullptr;
+    }
+
+    void ScanResources(const std::string& path = "resources");
+    void ReloadAll();
+
+private:
+    std::filesystem::path m_resourceRoot;
+    std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources;
+    std::vector<std::unique_ptr<ResourceLoader>> m_loaders;
 };
+
 }  // namespace Cleave

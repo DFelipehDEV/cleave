@@ -10,6 +10,9 @@ namespace Cleave {
 class Shader : public Resource {
 public:
     Shader() {}
+    Shader(const std::string& vertexSource, const std::string& fragmentSource) {
+        CreateFromString(vertexSource, fragmentSource);
+    }
     ~Shader() override { Destroy(); }
 
     std::string GetTypeName() const override { return "cleave::Shader"; }

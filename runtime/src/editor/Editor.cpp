@@ -13,7 +13,9 @@
 #include "Services.hpp"
 #include "imgui.h"
 #include "resources/ResourceManager.hpp"
+#include "resources/Shader.hpp"
 #include "scene/JsonSceneSerializer.hpp"
+
 
 namespace Cleave {
 namespace Editor {
@@ -48,10 +50,10 @@ void Editor::Run(Renderer* renderer) {
     while (!m_window->shouldClose()) {
         m_window->pollEvents();
         auto resourceManager = GET_RESMGR();
-        resourceManager->shaders["main"]->Use();
-        resourceManager->shaders["main"]->SetUniformInt("tex", 0);
-        resourceManager->shaders["main"]->SetUniformMatrix4(
-            "projection", glm::value_ptr(renderer->GetProjection()));
+        auto shader = resourceManager->Get<Shader>("main");
+        shader->Use();
+        shader->SetUniformInt("tex", 0);
+        shader->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
         // Clear
         {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);

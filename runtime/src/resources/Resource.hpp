@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <string>
 
 namespace Cleave {
@@ -18,4 +19,12 @@ protected:
     uint32_t m_id = 0;
     std::string m_path;
 };
+
+class ResourceLoader {
+public:
+    virtual ~ResourceLoader() = default;
+    virtual std::shared_ptr<Resource> Load(const std::string& path) = 0;
+    virtual bool CanLoad(const std::string& extension) const = 0;
+};
+
 }  // namespace Cleave

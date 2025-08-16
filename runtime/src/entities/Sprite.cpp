@@ -6,9 +6,11 @@
 #include "Services.hpp"
 #include "math/Matrix4.hpp"
 #include "resources/ResourceManager.hpp"
+#include "resources/Shader.hpp"
 
 namespace Cleave {
-Sprite::Sprite(Transform transform, Texture* texture, Vec2f origin)
+Sprite::Sprite(Transform transform, std::shared_ptr<Texture> texture,
+               Vec2f origin)
     : Entity(transform), m_texture(texture), m_origin(origin) {}
 
 void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
@@ -16,7 +18,7 @@ void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
     if (properties.find("origin") != properties.end())
         m_origin = Vec2f::FromString(properties.at("origin").value);
     if (properties.find("texture") != properties.end())
-        m_texture = GET_RESMGR()->textures[properties.at("texture").value];
+        m_texture = GET_RESMGR()->Get<Texture>(properties.at("texture").value);
 }
 
 const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties()
@@ -35,8 +37,10 @@ const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties()
 
 Entity* Sprite::Create() { return new Sprite(); }
 
-Texture* Sprite::GetTexture() const { return m_texture; }
-void Sprite::SetTexture(Texture* texture) { m_texture = texture; }
+std::shared_ptr<Texture> Sprite::GetTexture() const { return m_texture; }
+void Sprite::SetTexture(std::shared_ptr<Texture> texture) {
+    m_texture = texture;
+}
 
 Vec2f Sprite::GetOrigin() const { return m_origin; }
 void Sprite::SetOrigin(Vec2f origin) { m_origin = origin; }
@@ -55,12 +59,12 @@ void Sprite::OnRender(Renderer* renderer) {
     model.Scale(GetTransform().GetWorldScale());
 
     auto resourceManager = GET_RESMGR();
-    resourceManager->shaders["sprite"]->Use();
-    resourceManager->shaders["sprite"]->SetUniformInt("tex", 0);
-    resourceManager->shaders["sprite"]->SetUniformMatrix4(
-        "projection", glm::value_ptr(renderer->GetProjection()));
-    resourceManager->shaders["sprite"]->SetUniformMatrix4("model",
-                                                          (float*)model.m);
+    auto shader = resourceManager->Get<Shader>("sprite");
+    shader->Use();
+    shader->SetUniformInt("tex", 0);
+    shader->SetUniformMatrix4("projection",
+                              glm::value_ptr(renderer->GetProjection()));
+    shader->SetUniformMatrix4("model", (float*)model.m);
 
     renderer->DrawTexture(*m_texture, globalPosition.x, globalPosition.y);
 
