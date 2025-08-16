@@ -92,8 +92,8 @@ public:
 
     static Entity* Create();
 
-    EntityID GetID() const;
-    void SetID(EntityID id);
+    EntityID GetId() const;
+    void SetId(EntityID id);
 
     std::string GetName() const;
     void SetName(std::string_view name);

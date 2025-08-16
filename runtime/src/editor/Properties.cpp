@@ -12,7 +12,7 @@ namespace Editor {
 void Properties::OnRender() {
     if (!m_entity) return;
 
-    EntityID id = m_entity->GetID();
+    EntityID id = m_entity->GetId();
     auto entityProperties = m_entity->GetProperties();
 
     if (!entityProperties.empty()) {

@@ -44,6 +44,8 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
                 std::unique_ptr<Entity> entity =
                     Registry::CreateEntity(factory->first);
 
+                NEXT_ENTITY_ID = std::max(NEXT_ENTITY_ID, entity->GetId() + 1);
+
                 pendingInits.push_back({entity.get(), properties});
 
                 parent->AddChild(std::move(entity));

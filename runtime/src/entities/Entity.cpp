@@ -7,7 +7,7 @@ Entity::~Entity() {}
 
 void Entity::Init(const std::unordered_map<std::string, Property> properties) {
     if (properties.find("id") != properties.end())
-        SetID(std::stoi(properties.at("id").value));
+        SetId(std::stoi(properties.at("id").value));
     if (properties.find("name") != properties.end())
         SetName(properties.at("name").value);
 
@@ -51,8 +51,8 @@ const std::unordered_map<std::string, Entity::Property> Entity::GetProperties()
 
 Entity* Entity::Create() { return new Entity(); }
 
-EntityID Entity::GetID() const { return m_id; }
-void Entity::SetID(EntityID id) {
+EntityID Entity::GetId() const { return m_id; }
+void Entity::SetId(EntityID id) {
     m_id = id;
     if (id >= NEXT_ENTITY_ID) {
         NEXT_ENTITY_ID = id + 1;
