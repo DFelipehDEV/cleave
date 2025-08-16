@@ -24,6 +24,7 @@ void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
 const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties()
     const {
     auto properties = Entity::GetProperties();
+    properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
     properties["origin"] = {GetOrigin().ToString(),
                             Entity::Property::Types::Vec2f};
     std::string texturePath;

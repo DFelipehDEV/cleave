@@ -37,11 +37,6 @@ void Hierarchy::OnRender() {
     if (ImGui::BeginPopupContextWindow("HierarchyContextMenu",
                                        ImGuiPopupFlags_MouseButtonRight)) {
         static int entityCount = 0;
-        if (ImGui::Selectable("New Entity")) {
-            std::unique_ptr<Entity> newEntity = std::make_unique<Entity>();
-            newEntity->SetName("Entity" + std::to_string(entityCount++));
-            m_selectedEntity->AddChild(std::move(newEntity));
-        }
 
         for (auto registry : Registry::GetAllTypes()) {
             if (ImGui::Selectable(("New " + registry.first).c_str())) {
