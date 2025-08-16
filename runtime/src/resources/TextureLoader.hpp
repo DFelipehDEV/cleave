@@ -13,7 +13,6 @@ public:
         auto texture = std::make_shared<Texture>();
 
         if (texture->CreateFromFile(path)) {
-            texture->SetPath(path);
             return texture;
         }
 
@@ -21,7 +20,7 @@ public:
         GLuint missingTextureID = CreateMissingTexture();
         if (missingTextureID != 0) {
             texture->SetId(missingTextureID);
-            texture->SetPath("/MissingTexture");
+            texture->SetPath("MissingTexture");
             return texture;
         }
 
@@ -29,7 +28,11 @@ public:
     }
 
     bool CanLoad(const std::string& extension) const override {
-        return extension == ".png" || extension == ".jpg";
+        return extension == ".png" || extension == ".jpg" ||
+               extension == ".jpeg" || extension == ".bmp" ||
+               extension == ".tga" || extension == ".gif" ||
+               extension == ".psd" || extension == ".hdr" ||
+               extension == ".pic";
     }
 
     GLuint CreateMissingTexture() {
