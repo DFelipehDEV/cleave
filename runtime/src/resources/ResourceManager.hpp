@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "resources/Resource.hpp"
-
+#include "Services.hpp"
 
 #define GET_RESMGR() Services::Get<ResourceManager>("ResMgr")
 

@@ -1,10 +1,12 @@
 #include "GameView.hpp"
 
 #include <imgui.h>
-
 #include <algorithm>
 
 #include "scene/JsonSceneSerializer.hpp"
+#include "resources/ResourceManager.hpp"
+#include "resources/Shader.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Cleave {
 namespace Editor {
@@ -50,16 +52,27 @@ void GameView::OnUpdate() {
 }
 
 void GameView::OnRender(Renderer* renderer) {
-    if (ImGui::Button("Save Scene")) {
-        JsonSceneSerializer::Save("SavedScene.json", GetScene());
-    }
-    if (ImGui::Button("Load Scene")) {
-        auto scene = JsonSceneSerializer::Load("SavedScene.json");
-        if (scene) {
-            m_scene->Clear();
-            m_scene->SetRoot(scene->ReleaseRoot());
-        }
-        scene.reset();
+    // if (ImGui::Button("Save Scene")) {
+    //     JsonSceneSerializer::Save("SavedScene.json", GetScene());
+    // }
+    // ImGui::SameLine();
+    // if (ImGui::Button("Load Scene")) {
+    //     auto scene = JsonSceneSerializer::Load("SavedScene.json");
+    //     if (scene) {
+    //         m_scene->Clear();
+    //         m_scene->SetRoot(scene->ReleaseRoot());
+    //     }
+    //     scene.reset();
+    // }
+    // ImGui::SameLine();
+    if (ImGui::BeginTable("Toolbar", 3, ImGuiTableFlags_SizingFixedFit)) {
+        ImGui::TableNextColumn();
+        ImGui::Button("Play");
+        ImGui::TableNextColumn();
+        ImGui::Button("Pause");
+        ImGui::Checkbox("Show Grid", &m_gridEnabled);
+        ImGui::InputInt("Grid Size", &m_gridSize);
+        ImGui::EndTable();
     }
     static ImVec2 lastSize = {512, 288};
     ImVec2 contentSize = ImGui::GetContentRegionAvail();
@@ -88,11 +101,34 @@ void GameView::OnRender(Renderer* renderer) {
     glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
     renderer->ClearColor(100, 149, 237, 255);
     glClear(GL_COLOR_BUFFER_BIT);
+    if (m_gridEnabled) {
+        ImVec2 contentSize = ImGui::GetContentRegionAvail();
+        float width = contentSize.x / m_zoom;
+        float height = contentSize.y / m_zoom;
+
+        Color color = {128, 128, 128, 255};
+
+        int numX = static_cast<int>(width / m_gridSize) + 2;
+        int numY = static_cast<int>(height / m_gridSize) + 2;
+
+        for (int i = -1; i < numX; i++) {
+            float x = m_cameraPos.x + i * m_gridSize;
+            renderer->DrawLine(x, m_cameraPos.y, x, m_cameraPos.y + height,
+                               color);
+        }
+        for (int j = -1; j < numY; j++) {
+            float y = m_cameraPos.y + j * m_gridSize;
+            renderer->DrawLine(m_cameraPos.x, y, m_cameraPos.x + width, y,
+                               color);
+        }
+    }
     m_scene->Render(renderer);
+    
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     ImGui::Image((ImTextureID)(intptr_t)m_frameBufferTexture, contentSize,
                  ImVec2(0, 1), ImVec2(1, 0));
+    ImVec2 imageMin = ImGui::GetItemRectMin();
 }
 
 float GameView::GetZoom() const { return m_zoom; }

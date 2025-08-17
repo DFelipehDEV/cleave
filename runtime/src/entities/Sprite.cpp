@@ -7,6 +7,7 @@
 #include "math/Matrix4.hpp"
 #include "resources/ResourceManager.hpp"
 #include "resources/Shader.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Cleave {
 Sprite::Sprite(Transform transform, std::shared_ptr<Texture> texture,
@@ -76,7 +77,9 @@ void Sprite::OnRender(Renderer* renderer) {
                                 glm::value_ptr(renderer->GetProjection()));
         shader->SetUniformMatrix4("model", (float*)model.m);
 
-        renderer->DrawTexture(*m_texture, globalPosition.x, globalPosition.y);
+        m_texture->Bind();
+        renderer->DrawQuad(globalPosition.x, globalPosition.y, static_cast<float>(m_texture->GetWidth()),
+                           static_cast<float>(m_texture->GetHeight()));
     }
 
     Entity::OnRender(renderer);
