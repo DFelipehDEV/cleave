@@ -4,6 +4,7 @@
 #include "Services.hpp"
 #include "Window.hpp"
 #include "entities/AnimatedSprite.hpp"
+#include "entities/Camera.hpp"
 #include "entities/Sprite.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
@@ -44,6 +45,7 @@ int main() {
 
     Registry::RegisterType<Entity>();
     Registry::RegisterType<AnimatedSprite>();
+    Registry::RegisterType<Camera>();
     Registry::RegisterType<Sprite>();
 
     Services::Provide<Registry>("registry", std::make_shared<Registry>());

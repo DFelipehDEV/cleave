@@ -10,6 +10,7 @@ set(SOURCES
 	math/Transform.cpp
 	Window.cpp
 	entities/AnimatedSprite.cpp
+	entities/Camera.cpp
 	entities/Entity.cpp
 	entities/Sprite.cpp
 	platform/${PLATFORM}/FileDialog.cpp
@@ -32,6 +33,7 @@ set(HEADERS
 	math/Vec2.hpp
 	Window.hpp
 	entities/AnimatedSprite.hpp
+	entities/Camera.hpp
 	entities/Entity.hpp
 	entities/Sprite.hpp
 	platform/FileDialog.hpp
