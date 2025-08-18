@@ -5,8 +5,31 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "resources/ResourceManager.hpp"
 #include "resources/Shader.hpp"
+#include "entities/Entity.hpp"
 
-void Cleave::AnimatedSprite::OnTick(float deltaTime) {
+namespace Cleave {
+void AnimatedSprite::Init(const std::unordered_map<std::string, Property> properties) {
+    Sprite::Init(properties);
+    if (properties.find("playing") != properties.end())
+        m_playing = std::stoi(properties.at("playing").value);
+    if (properties.find("frameWidth") != properties.end())
+        m_frameWidth = std::stoi(properties.at("frameWidth").value);
+    if (properties.find("frameHeight") != properties.end())
+        m_frameHeight = std::stoi(properties.at("frameHeight").value);
+}
+
+const std::unordered_map<std::string, Entity::Property> AnimatedSprite::GetProperties() const {
+    auto properties = Sprite::GetProperties();
+    properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
+    properties["playing"] = {std::to_string(IsPlaying()), Entity::Property::Types::Bool};
+    properties["frameWidth"] = {std::to_string(m_frameWidth), Entity::Property::Types::Int};
+    properties["frameHeight"] = {std::to_string(m_frameHeight), Entity::Property::Types::Int};
+    return properties;
+}
+
+Entity* AnimatedSprite::Create() { return new AnimatedSprite(); }
+
+void AnimatedSprite::OnTick(float deltaTime) {
     if (!m_playing || !GetTexture()) return;
     
     m_time += deltaTime;
@@ -27,7 +50,7 @@ void Cleave::AnimatedSprite::OnTick(float deltaTime) {
     }
 }
 
-void Cleave::AnimatedSprite::OnRender(Renderer* renderer) {
+void AnimatedSprite::OnRender(Renderer* renderer) {
     if (!GetTexture() || !renderer) return;
     
     int frameX = (m_currentFrame % m_framesX) * m_frameWidth;
@@ -68,19 +91,20 @@ void Cleave::AnimatedSprite::OnRender(Renderer* renderer) {
     Entity::OnRender(renderer);
 }
 
-void Cleave::AnimatedSprite::Play(float fps, bool loop) {
+void AnimatedSprite::Play(float fps, bool loop) {
     m_frameDuration = 1.0f / fps;
     m_playing = true;
     m_loop = loop;
 }
 
-void Cleave::AnimatedSprite::Stop() {
+void AnimatedSprite::Stop() {
     m_playing = false;
 }
 
-void Cleave::AnimatedSprite::SetFrame(int frame) {
+void AnimatedSprite::SetFrame(int frame) {
     int totalFrames = m_framesX * m_framesY;
     if (frame >= 0 && frame < totalFrames) {
         m_currentFrame = frame;
     }
 }
+} // namespace Cleave

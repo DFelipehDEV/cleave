@@ -19,10 +19,12 @@ void Properties::OnRender() {
         bool changed = false;
         std::unordered_map<std::string, Entity::Property> newProperties;
         for (auto &[name, prop] : entityProperties) {
+            std::string displayName = name;
+            displayName[0] = std::toupper(displayName[0]);
             switch (prop.type) {
                 case Entity::Property::Types::Int: {
                     int value = std::stoi(prop.value);
-                    if (ImGui::InputInt(name.c_str(), &value)) {
+                    if (ImGui::InputInt(displayName.c_str(), &value)) {
                         newProperties[name].value = std::to_string(value);
                         changed = true;
                     }
@@ -31,7 +33,7 @@ void Properties::OnRender() {
 
                 case Entity::Property::Types::Float: {
                     float value = std::stof(prop.value);
-                    if (ImGui::InputFloat(name.c_str(), &value)) {
+                    if (ImGui::InputFloat(displayName.c_str(), &value)) {
                         newProperties[name].value = std::to_string(value);
                         changed = true;
                     }
@@ -40,7 +42,7 @@ void Properties::OnRender() {
 
                 case Entity::Property::Types::Double: {
                     double value = std::stod(prop.value);
-                    if (ImGui::InputDouble(name.c_str(), &value)) {
+                    if (ImGui::InputDouble(displayName.c_str(), &value)) {
                         newProperties[name].value = std::to_string(value);
                         changed = true;
                     }
@@ -49,7 +51,7 @@ void Properties::OnRender() {
 
                 case Entity::Property::Types::Bool: {
                     bool value = std::stoi(prop.value);
-                    if (ImGui::Checkbox(name.c_str(), &value)) {
+                    if (ImGui::Checkbox(displayName.c_str(), &value)) {
                         newProperties[name].value = std::to_string(value);
                         changed = true;
                     }
@@ -58,7 +60,7 @@ void Properties::OnRender() {
 
                 case Entity::Property::Types::Vec2f: {
                     Vec2f value = Vec2f::FromString(prop.value);
-                    if (ImGui::InputFloat2(name.c_str(), &value.x)) {
+                    if (ImGui::InputFloat2(displayName.c_str(), &value.x)) {
                         newProperties[name].value = value.ToString();
                         changed = true;
                     }
@@ -71,7 +73,7 @@ void Properties::OnRender() {
                     char buffer[256];
                     strncpy_s(buffer, prop.value.c_str(), sizeof(buffer));
                     buffer[sizeof(buffer) - 1] = '\0';
-                    if (ImGui::InputText(name.c_str(), buffer, sizeof(buffer))) {
+                    if (ImGui::InputText(displayName.c_str(), buffer, sizeof(buffer))) {
                         newProperties[name].value = buffer;
                         changed = true;
                     }
