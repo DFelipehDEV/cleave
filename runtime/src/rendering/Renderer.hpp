@@ -43,6 +43,8 @@ public:
     //                   Primitive primitive = Primitive::Triangle) = 0;
 
     virtual void DrawQuad(float x, float y, float w, float h) = 0;
+    virtual void DrawQuad(float x, float y, float w, float h,
+                          float u0, float v0, float u1, float v1) = 0;
     virtual void DrawLine(float x1, float y1, float x2, float y2, Color color) = 0;
     virtual void DrawRect(float x, float y, float w, float h, Color color) = 0;
     virtual void DrawRectOutline(float x, float y, float w, float h, Color color) = 0;
@@ -77,6 +79,8 @@ public:
     //           Primitive primitive = Primitive::Triangle);
 
     void DrawQuad(float x, float y, float w, float h);
+    void DrawQuad(float x, float y, float w, float h,
+                  float u0, float v0, float u1, float v1);
     void DrawLine(float x1, float y1, float x2, float y2, Color color);
     void DrawRect(float x, float y, float w, float h, Color color);
     void DrawRectOutline(float x, float y, float w, float h, Color color);
@@ -86,7 +90,7 @@ private:
     glm::mat4 m_projection;
     Rect4f m_viewport;
     BlendMode m_blendMode = BlendMode::NORMAL;
-    
+
     GLuint m_quadVAO = 0;
     GLuint m_quadVBO = 0;
     GLuint m_quadEBO = 0;
