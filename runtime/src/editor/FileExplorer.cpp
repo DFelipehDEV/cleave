@@ -7,6 +7,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <iostream>
+#include "scene/JsonSceneSerializer.hpp"
 
 namespace Cleave {
 namespace Editor {
@@ -21,6 +23,16 @@ void FileExplorer::ShowDirectory(std::filesystem::path dir) {
             if (ImGui::IsItemClicked(ImGuiMouseButton_Right) &&
                 !ImGui::IsItemToggledOpen()) {
                 m_selectedDirectory = path;
+            }
+            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
+                if (path.extension() == ".jscn") {
+                    auto scene = JsonSceneSerializer::Load(path.string());
+                    if (scene) {
+                        m_gameView->GetScene()->Clear();
+                        m_gameView->GetScene()->SetRoot(scene->ReleaseRoot());
+                    }
+                    scene.reset();
+                }
             }
         } else {
             bool opened = ImGui::TreeNodeEx(

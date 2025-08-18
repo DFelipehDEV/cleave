@@ -53,11 +53,11 @@ void GameView::OnUpdate() {
 
 void GameView::OnRender(Renderer* renderer) {
     // if (ImGui::Button("Save Scene")) {
-    //     JsonSceneSerializer::Save("SavedScene.json", GetScene());
+    //     JsonSceneSerializer::Save("SavedScene.jscn", GetScene());
     // }
     // ImGui::SameLine();
     // if (ImGui::Button("Load Scene")) {
-    //     auto scene = JsonSceneSerializer::Load("SavedScene.json");
+    //     auto scene = JsonSceneSerializer::Load("SavedScene.jscn");
     //     if (scene) {
     //         m_scene->Clear();
     //         m_scene->SetRoot(scene->ReleaseRoot());

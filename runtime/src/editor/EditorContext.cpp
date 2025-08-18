@@ -23,7 +23,7 @@ EditorContext::EditorContext(Window* window) : m_window(window) {
         std::make_unique<Entity>(Transform({0, 0}), "root")));
     m_hierarchy = std::make_shared<Hierarchy>(m_gameView);
     m_fileExplorer =
-        std::make_shared<FileExplorer>(std::filesystem::current_path());
+        std::make_shared<FileExplorer>(std::filesystem::current_path(), m_gameView.get());
     m_menuBar = std::make_shared<MainMenuBar>(this, m_fileExplorer.get());
 
     m_properties = std::make_shared<Properties>();
