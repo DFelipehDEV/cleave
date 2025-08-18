@@ -3,6 +3,7 @@
 
 #include "Services.hpp"
 #include "Window.hpp"
+#include "entities/AnimatedSprite.hpp"
 #include "entities/Sprite.hpp"
 #include "rendering/Renderer.hpp"
 #include "resources/ResourceManager.hpp"
@@ -13,7 +14,6 @@
 #include "scene/EntityRegistry.hpp"
 #include "scene/Scene.hpp"
 #include "thirdparty/stb_image.h"
-
 
 using namespace Cleave;
 
@@ -43,6 +43,7 @@ int main() {
     glViewport(0, 0, window->GetWidth(), window->GetHeight());
 
     Registry::RegisterType<Entity>();
+    Registry::RegisterType<AnimatedSprite>();
     Registry::RegisterType<Sprite>();
 
     Services::Provide<Registry>("registry", std::make_shared<Registry>());
@@ -51,12 +52,26 @@ int main() {
         Transform({16, 32}), resourceManager->Get<Texture>("textures/cat.png"));
     cat->SetName("Carlos Gato");
 
-    std::unique_ptr<Sprite> dog = std::make_unique<Sprite>(
-        Transform({128, 128}), resourceManager->Get<Texture>("textures/dog.png"));
+    std::unique_ptr<Entity> dog = std::make_unique<Entity>(Transform({48, 64}));
     dog->SetName("Roberto Cao");
+    {
+        std::unique_ptr<AnimatedSprite> animatedDogIdle =
+            std::make_unique<AnimatedSprite>(Transform({116, 128}), resourceManager->Get<Texture>("textures/dog-sheet-idle.png"), 116, 167);
+        std::unique_ptr<AnimatedSprite> animatedDogWalk =
+            std::make_unique<AnimatedSprite>(Transform({232, 128}), resourceManager->Get<Texture>("textures/dog-sheet-walk.png"), 116, 167);
+        animatedDogIdle->SetName("AnimatedDogIdle");
+        animatedDogWalk->SetName("AnimatedDogWalk");
+
+        animatedDogIdle->Play(5.0f, true);
+        animatedDogWalk->Play(10.0f, true);
+        dog->AddChild(std::move(animatedDogIdle));
+        dog->AddChild(std::move(animatedDogWalk));
+    }
+
     cat->AddChild(std::move(dog));
 #ifdef CLEAVE_EDITOR_ENABLED
-    Cleave::Editor::EditorContext editor = Cleave::Editor::EditorContext(window);
+    Cleave::Editor::EditorContext editor =
+        Cleave::Editor::EditorContext(window);
     Scene* scene = editor.GetGameView()->GetScene();
 
     scene->GetRoot()->AddChild(std::move(cat));
@@ -67,10 +82,7 @@ int main() {
         renderer->ClearColor(100, 149, 237, 255);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        resourceManager->Get<Shader>("shaders/main")->Use();
-        resourceManager->Get<Shader>("shaders/main")->SetUniformInt("tex", 0);
-        resourceManager->Get<Shader>("shaders/main")->SetUniformMatrix4(
-            "projection", glm::value_ptr(renderer->GetProjection()));
+        cat->OnTick(1.0f / 60.0f);
         cat->OnRender((Renderer*)renderer);
 
         window->swapBuffers();

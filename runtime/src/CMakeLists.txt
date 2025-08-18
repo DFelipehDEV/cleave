@@ -9,15 +9,16 @@ set(SOURCES
 	Services.cpp
 	math/Transform.cpp
 	Window.cpp
+	entities/AnimatedSprite.cpp
 	entities/Entity.cpp
 	entities/Sprite.cpp
 	platform/${PLATFORM}/FileDialog.cpp
 	platform/${PLATFORM}/MessageBox.cpp
 	rendering/Renderer.cpp
-	resources/Resource.cpp	
+	resources/Resource.cpp
+	resources/ResourceManager.cpp	
 	resources/Shader.cpp
 	resources/Texture.cpp
-	resources/ResourceManager.cpp
 )
 
 set(HEADERS
@@ -30,15 +31,18 @@ set(HEADERS
 	math/Transform.hpp
 	math/Vec2.hpp
 	Window.hpp
+	entities/AnimatedSprite.hpp
 	entities/Entity.hpp
 	entities/Sprite.hpp
 	platform/FileDialog.hpp
 	platform/MessageBox.hpp
 	rendering/Renderer.hpp
 	resources/Resource.hpp
-	resources/Shader.hpp
-	resources/Texture.hpp
 	resources/ResourceManager.hpp
+	resources/Shader.hpp
+	resources/ShaderLoader.hpp
+	resources/Texture.hpp
+	resources/TextureLoader.hpp
 )
 
 find_package(GLEW REQUIRED)
