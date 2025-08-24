@@ -1,0 +1,58 @@
+{
+    "children": [
+        {
+            "children": [
+                {
+                    "children": [
+                        {
+                            "frameHeight": "167",
+                            "frameWidth": "116",
+                            "id": "2",
+                            "name": "AnimatedDogIdle",
+                            "origin": "0.500000,0.500000",
+                            "playing": "1",
+                            "position": "116.000000,128.000000",
+                            "rotation": "0.000000",
+                            "scale": "1.000000,1.000000",
+                            "texture": "res/textures/dog-sheet-idle.png",
+                            "type": "cleave::AnimatedSprite"
+                        },
+                        {
+                            "frameHeight": "167",
+                            "frameWidth": "116",
+                            "id": "3",
+                            "name": "AnimatedDogWalk",
+                            "origin": "0.500000,0.500000",
+                            "playing": "1",
+                            "position": "232.000000,128.000000",
+                            "rotation": "0.000000",
+                            "scale": "1.000000,1.000000",
+                            "texture": "res/textures/dog-sheet-walk.png",
+                            "type": "cleave::AnimatedSprite"
+                        }
+                    ],
+                    "id": "1",
+                    "name": "Roberto Cao",
+                    "position": "48.000000,64.000000",
+                    "rotation": "0.000000",
+                    "scale": "1.000000,1.000000",
+                    "type": "cleave::Entity"
+                }
+            ],
+            "id": "0",
+            "name": "Carlos Gato",
+            "origin": "0.500000,0.500000",
+            "position": "55.000000,32.000000",
+            "rotation": "0.000000",
+            "scale": "1.000000,1.000000",
+            "texture": "res/textures/cat.png",
+            "type": "cleave::Sprite"
+        }
+    ],
+    "id": "10",
+    "name": "root",
+    "position": "0.000000,0.000000",
+    "rotation": "0.000000",
+    "scale": "1.000000,1.000000",
+    "type": "cleave::Entity"
+}

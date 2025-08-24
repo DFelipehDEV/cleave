@@ -36,6 +36,7 @@ int main() {
 
     resourceManager->RegisterLoader(std::make_unique<TextureLoader>());
     resourceManager->RegisterLoader(std::make_unique<ShaderLoader>());
+    resourceManager->RegisterLoader(std::make_unique<SceneLoader>());
 
     resourceManager->ScanResources();
 
@@ -51,16 +52,16 @@ int main() {
     Services::Provide<Registry>("registry", std::make_shared<Registry>());
 
     std::unique_ptr<Sprite> cat = std::make_unique<Sprite>(
-        Transform({16, 32}), resourceManager->Get<Texture>("textures/cat.png"));
+        Transform({16, 32}), resourceManager->Get<Texture>("res/textures/cat.png"));
     cat->SetName("Carlos Gato");
 
     std::unique_ptr<Entity> dog = std::make_unique<Entity>(Transform({48, 64}));
     dog->SetName("Roberto Cao");
     {
         std::unique_ptr<AnimatedSprite> animatedDogIdle =
-            std::make_unique<AnimatedSprite>(Transform({116, 128}), resourceManager->Get<Texture>("textures/dog-sheet-idle.png"), 116, 167);
+            std::make_unique<AnimatedSprite>(Transform({116, 128}), resourceManager->Get<Texture>("res/textures/dog-sheet-idle.png"), 116, 167);
         std::unique_ptr<AnimatedSprite> animatedDogWalk =
-            std::make_unique<AnimatedSprite>(Transform({232, 128}), resourceManager->Get<Texture>("textures/dog-sheet-walk.png"), 116, 167);
+            std::make_unique<AnimatedSprite>(Transform({232, 128}), resourceManager->Get<Texture>("res/textures/dog-sheet-walk.png"), 116, 167);
         animatedDogIdle->SetName("AnimatedDogIdle");
         animatedDogWalk->SetName("AnimatedDogWalk");
 

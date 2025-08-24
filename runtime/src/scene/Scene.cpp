@@ -1,5 +1,7 @@
 #include "scene/Scene.hpp"
 
+#include "scene/JsonSceneSerializer.hpp"
+
 namespace Cleave {
 std::unique_ptr<Entity> Scene::ReleaseRoot() { return std::move(m_root); }
 
@@ -17,5 +19,11 @@ void Scene::Render(Renderer* renderer) {
     if (m_root) {
         m_root->OnRender(renderer);
     }
+}
+
+std::shared_ptr<Resource> SceneLoader::Load(const std::string& path) {
+    auto scene = JsonSceneSerializer::Load(path);
+    scene->SetPath(path);
+    return scene;
 }
 }  // namespace Cleave
