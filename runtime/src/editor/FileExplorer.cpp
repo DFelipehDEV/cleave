@@ -8,7 +8,6 @@
 #include <windows.h>
 #endif
 #include <iostream>
-#include "scene/JsonSceneSerializer.hpp"
 
 namespace Cleave {
 namespace Editor {
@@ -26,10 +25,10 @@ void FileExplorer::ShowDirectory(std::filesystem::path dir) {
             }
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
                 if (path.extension() == ".jscn") {
-                    auto scene = JsonSceneSerializer::Load(path.string());
+                    std::shared_ptr<Scene> scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(path.string()));
                     if (scene) {
-                        m_gameView->GetScene()->Clear();
-                        m_gameView->GetScene()->SetRoot(scene->ReleaseRoot());
+                        std::cout << "Changing scene to: " << scene->GetPath() << std::endl;
+                        m_gameView->SetScene(scene);
                     }
                     scene.reset();
                 }

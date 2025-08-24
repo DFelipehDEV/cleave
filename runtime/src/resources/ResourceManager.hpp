@@ -24,8 +24,11 @@ public:
         return nullptr;
     }
 
-    void ScanResources(const std::string& path = "resources");
+    void ScanResources(const std::string& path = "res");
     void ReloadAll();
+
+    std::filesystem::path GetResourceRoot() const;
+    void SetResourceRoot(const std::filesystem::path& path);
 
 private:
     std::filesystem::path m_resourceRoot;

@@ -9,11 +9,14 @@
 
 namespace Cleave {
 namespace Editor {
-void Properties::OnRender() {
-    if (!m_entity) return;
+void Properties::OnRender(Scene* scene) {
+    if (!scene) return;
 
-    EntityID id = m_entity->GetId();
-    auto entityProperties = m_entity->GetProperties();
+    Entity* entity = scene->GetRoot()->GetChild(m_entityId, true);
+    if (!entity) return;
+
+    EntityID id = entity->GetId();
+    auto entityProperties = entity->GetProperties();
 
     if (!entityProperties.empty()) {
         bool changed = false;
@@ -81,13 +84,13 @@ void Properties::OnRender() {
             }
         }
 
-        if (changed) m_entity->Init(newProperties);
+        if (changed) entity->Init(newProperties);
     }
 }
 
-Entity *Properties::GetEntity() const { return m_entity; }
-void Properties::SetEntity(Entity *entity) { m_entity = entity; }
+EntityID Properties::GetEntityId() const { return m_entityId; }
+void Properties::SetEntityId(EntityID id) { m_entityId = id; }
 
-void Properties::Clear() { m_entity = nullptr; }
+void Properties::Clear() { m_entityId = 0; }
 }  // namespace Editor
 }  // namespace Cleave

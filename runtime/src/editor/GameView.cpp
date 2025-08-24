@@ -1,12 +1,14 @@
 #include "GameView.hpp"
 
 #include <imgui.h>
-#include <algorithm>
 
-#include "scene/JsonSceneSerializer.hpp"
+#include <algorithm>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "resources/ResourceManager.hpp"
 #include "resources/Shader.hpp"
-#include <glm/gtc/type_ptr.hpp>
+#include "scene/JsonSceneSerializer.hpp"
+
 
 namespace Cleave {
 namespace Editor {
@@ -29,7 +31,7 @@ void CreateGameFramebuffer(int width, int height, uint32_t& framebuffer,
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-GameView::GameView(std::shared_ptr<Scene> scene) : m_scene(std::move(scene)) {
+GameView::GameView(std::shared_ptr<Scene> scene, std::shared_ptr<Properties> properties) : m_scene(std::move(scene)), m_properties(std::move(properties)) {
     CreateGameFramebuffer(512, 288, m_frameBuffer, m_frameBufferTexture);
 }
 
@@ -52,24 +54,21 @@ void GameView::OnUpdate() {
 }
 
 void GameView::OnRender(Renderer* renderer) {
-    // if (ImGui::Button("Save Scene")) {
-    //     JsonSceneSerializer::Save("SavedScene.jscn", GetScene());
-    // }
-    // ImGui::SameLine();
-    // if (ImGui::Button("Load Scene")) {
-    //     auto scene = JsonSceneSerializer::Load("SavedScene.jscn");
-    //     if (scene) {
-    //         m_scene->Clear();
-    //         m_scene->SetRoot(scene->ReleaseRoot());
-    //     }
-    //     scene.reset();
-    // }
-    // ImGui::SameLine();
+    ImGui::Text(m_scene->GetPath() != "" ? m_scene->GetPath().c_str() : "No Scene Loaded");
     if (ImGui::BeginTable("Toolbar", 3, ImGuiTableFlags_SizingFixedFit)) {
         ImGui::TableNextColumn();
-        ImGui::Button("Play");
+        if (ImGui::Button(m_playing ? "Stop" : "Play")) {
+            auto scenePath = m_scene->GetPath();
+            std::cout << "Scene path: " << scenePath << std::endl;
+            m_playing = !m_playing;
+            if (m_playing) {
+                JsonSceneSerializer::Save(scenePath, m_scene.get());
+            } else {
+                m_properties->Clear();
+                m_scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(scenePath));     
+            }
+        }
         ImGui::TableNextColumn();
-        ImGui::Button("Pause");
         ImGui::Checkbox("Show Grid", &m_gridEnabled);
         ImGui::InputInt("Grid Size", &m_gridSize);
         ImGui::EndTable();
@@ -123,7 +122,7 @@ void GameView::OnRender(Renderer* renderer) {
         }
     }
     m_scene->Render(renderer);
-    
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     ImGui::Image((ImTextureID)(intptr_t)m_frameBufferTexture, contentSize,

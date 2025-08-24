@@ -24,7 +24,7 @@ void ResourceManager::ScanResources(const std::string& path) {
                 if (loader->CanLoad(extension)) {
                     auto resource = loader->Load(entry.path().string());
                     if (resource) {
-                        std::string relPath = std::filesystem::relative(entry.path(), m_resourceRoot).string();
+                        std::string relPath = std::filesystem::relative(entry.path()).string();
                         std::replace(relPath.begin(), relPath.end(), '\\', '/');
                         m_resources[relPath] = resource;
                         std::cout << "Loaded resource: " << relPath << std::endl;
@@ -35,5 +35,8 @@ void ResourceManager::ScanResources(const std::string& path) {
         }
     }
 }
+
+std::filesystem::path ResourceManager::GetResourceRoot() const { return m_resourceRoot; }
+void ResourceManager::SetResourceRoot(const std::filesystem::path& path) { m_resourceRoot = path; }
 
 }  // namespace Cleave

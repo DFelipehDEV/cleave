@@ -5,12 +5,13 @@
 
 #include "rendering/Renderer.hpp"
 #include "scene/Scene.hpp"
+#include "editor/Properties.hpp"
 
 namespace Cleave {
 namespace Editor {
 class GameView {
 public:
-    GameView(std::shared_ptr<Scene> scene);
+    GameView(std::shared_ptr<Scene> scene, std::shared_ptr<Properties> properties);
     void OnUpdate();
     void OnRender(Renderer* renderer);
 
@@ -27,6 +28,7 @@ public:
     void SetGridSize(int size) { m_gridSize = std::max(size, 1); }
 private:
     std::shared_ptr<Scene> m_scene;
+    std::shared_ptr<Properties> m_properties;
     uint32_t m_frameBuffer;
     uint32_t m_frameBufferTexture;
 
@@ -34,6 +36,7 @@ private:
     Vec2f m_cameraPos = {0, 0};
     bool m_gridEnabled = true;
     int m_gridSize = 32;
+    bool m_playing = false;
 };
 }  // namespace Editor
 }  // namespace Cleave

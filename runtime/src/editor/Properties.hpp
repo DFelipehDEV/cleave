@@ -1,21 +1,23 @@
 #pragma once
 #include "entities/Entity.hpp"
 
+#include "scene/Scene.hpp"
+
 namespace Cleave {
 namespace Editor {
 class Properties {
 public:
     Properties() = default;
     ~Properties() = default;
-    void OnRender();
+    void OnRender(Scene* scene);
 
-    Entity* GetEntity() const;
-    void SetEntity(Entity* entity);
+    EntityID GetEntityId() const;
+    void SetEntityId(EntityID id);
 
     void Clear();
 
 private:
-    Entity* m_entity;
+    EntityID m_entityId = 0;
 };
 }  // namespace Editor
 }  // namespace Cleave

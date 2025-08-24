@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include "Resource.hpp"
 
@@ -40,5 +41,17 @@ public:
     void SetUniformVector4f(const std::string& name, float x, float y, float z,
                             float w) const;
     void SetUniformMatrix4(const std::string& name, const float* matrix) const;
+};
+
+class ShaderLoader : public ResourceLoader {
+public:
+    std::shared_ptr<Resource> Load(const std::string& path) override;
+
+    bool CanLoad(const std::string& extension) const override {
+        return extension == ".vert" || extension == ".frag";
+    }
+
+private:
+    std::string ReadFile(const std::filesystem::path& path);
 };
 }  // namespace Cleave

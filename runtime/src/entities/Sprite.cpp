@@ -70,7 +70,7 @@ void Sprite::OnRender(Renderer* renderer) {
         model.Scale(GetTransform().GetWorldScale());
 
         auto resourceManager = GET_RESMGR();
-        auto shader = resourceManager->Get<Shader>("shaders/sprite.vert");
+        auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
         shader->Use();
         shader->SetUniformInt("tex", 0);
         shader->SetUniformMatrix4("projection",

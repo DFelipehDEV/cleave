@@ -42,9 +42,7 @@ set(HEADERS
 	resources/Resource.hpp
 	resources/ResourceManager.hpp
 	resources/Shader.hpp
-	resources/ShaderLoader.hpp
 	resources/Texture.hpp
-	resources/TextureLoader.hpp
 )
 
 find_package(GLEW REQUIRED)

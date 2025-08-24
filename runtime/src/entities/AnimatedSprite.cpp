@@ -16,6 +16,9 @@ void AnimatedSprite::Init(const std::unordered_map<std::string, Property> proper
         m_frameWidth = std::stoi(properties.at("frameWidth").value);
     if (properties.find("frameHeight") != properties.end())
         m_frameHeight = std::stoi(properties.at("frameHeight").value);
+    
+    m_framesX = GetTexture() ? GetTexture()->GetWidth() / m_frameWidth : 0;
+    m_framesY = GetTexture() ? GetTexture()->GetHeight() / m_frameHeight : 0;
 }
 
 const std::unordered_map<std::string, Entity::Property> AnimatedSprite::GetProperties() const {
@@ -69,7 +72,7 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
     model.Scale(scale);
     
     auto resourceManager = GET_RESMGR();
-    auto shader = resourceManager->Get<Shader>("shaders/sprite.vert");
+    auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
     if (!shader) return;
     
     shader->Use();

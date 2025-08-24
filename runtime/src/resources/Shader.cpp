@@ -2,9 +2,11 @@
 
 #include <GL/glew.h>
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
 
 namespace Cleave {
 std::string LoadFile(const std::string& path) {
@@ -230,5 +232,29 @@ void Shader::SetUniformMatrix4(const std::string& name,
         return;
     }
     glUniformMatrix4fv(location, 1, false, matrix);
+}
+
+std::shared_ptr<Resource> ShaderLoader::Load(const std::string& path) {
+    auto shaderPath = std::filesystem::path(path);
+    auto name = shaderPath.stem().string();
+    auto dir = shaderPath.parent_path();
+
+    auto vertPath = dir / (name + ".vert");
+    auto fragPath = dir / (name + ".frag");
+
+    if (!std::filesystem::exists(vertPath) ||
+        !std::filesystem::exists(fragPath)) {
+        return nullptr;
+    }
+
+    return std::make_shared<Shader>(ReadFile(vertPath), ReadFile(fragPath));
+}
+
+std::string ShaderLoader::ReadFile(const std::filesystem::path& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open shader file: " + path.string());
+    }
+    return std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
 }
 }  // namespace Cleave

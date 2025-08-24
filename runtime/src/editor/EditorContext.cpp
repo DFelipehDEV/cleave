@@ -19,14 +19,13 @@
 namespace Cleave {
 namespace Editor {
 EditorContext::EditorContext(Window* window) : m_window(window) {
+    m_properties = std::make_shared<Properties>();
     m_gameView = std::make_shared<GameView>(std::make_shared<Scene>(
-        std::make_unique<Entity>(Transform({0, 0}), "root")));
+        std::make_unique<Entity>(Transform({0, 0}), "root")), m_properties);
     m_hierarchy = std::make_shared<Hierarchy>(m_gameView);
     m_fileExplorer =
         std::make_shared<FileExplorer>(std::filesystem::current_path(), m_gameView.get());
     m_menuBar = std::make_shared<MainMenuBar>(this, m_fileExplorer.get());
-
-    m_properties = std::make_shared<Properties>();
 }
 
 void EditorContext::Run(Renderer* renderer) {
@@ -50,7 +49,7 @@ void EditorContext::Run(Renderer* renderer) {
     while (!m_window->shouldClose()) {
         m_window->pollEvents();
         auto resourceManager = GET_RESMGR();
-        auto shader = resourceManager->Get<Shader>("shaders/main.vert");
+        auto shader = resourceManager->Get<Shader>("res/shaders/main.vert");
         shader->Use();
         shader->SetUniformInt("tex", 0);
         shader->SetUniformMatrix4("projection",
@@ -70,11 +69,13 @@ void EditorContext::Run(Renderer* renderer) {
             if (IsHierarchyVisible()) {
                 ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse);
                 m_hierarchy->OnRender();
-                m_properties->SetEntity(m_hierarchy->GetSelectedEntity());
+                if (m_hierarchy->GetSelectedEntity()) {
+                    m_properties->SetEntityId(m_hierarchy->GetSelectedEntity()->GetId());
+                }
 
                 // Properties panel
                 ImGui::BeginChild("PropertiesPanel", ImVec2(0, 0), true);
-                m_properties->OnRender();
+                m_properties->OnRender(m_gameView->GetScene());
                 ImGui::EndChild();
                 ImGui::End();
             }
