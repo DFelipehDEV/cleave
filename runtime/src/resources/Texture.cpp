@@ -1,6 +1,7 @@
 #include "Texture.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 #include "thirdparty/stb_image.h"
 
@@ -20,7 +21,11 @@ bool Texture::CreateFromFile(const std::string& path) {
         std::cerr << "Failed to load texture from file: " << path << std::endl;
         return false;
     }
-    SetPath(path);
+    std::string pathStr = path;
+    #ifdef _WIN32
+    std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
+    #endif
+    SetPath(pathStr);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, data);
