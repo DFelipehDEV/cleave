@@ -30,10 +30,10 @@ void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
     }
 }
 
-void Hierarchy::OnRender() {
+void Hierarchy::OnRender(Scene* scene) {
     ImGui::BeginChild("Hierarchy", ImVec2(0, 200), true);
-    if (GetScene() && GetScene()->GetRoot())
-        ShowEntityHierarchy(GetScene()->GetRoot(), m_selectedEntity);
+    if (scene->GetRoot())
+        ShowEntityHierarchy(scene->GetRoot(), m_selectedEntity);
     if (ImGui::BeginPopupContextWindow("HierarchyContextMenu",
                                        ImGuiPopupFlags_MouseButtonRight)) {
         static int entityCount = 0;
@@ -71,14 +71,6 @@ void Hierarchy::OnRender() {
     ImGui::InvisibleButton("Splitter", ImVec2(-1, 4.0f));
     if (ImGui::IsItemActive()) {
         entitiesPanelHeight += ImGui::GetIO().MouseDelta.y;
-    }
-}
-
-Scene* Hierarchy::GetScene() { return m_gameView->GetScene(); }
-void Hierarchy::SetScene(std::shared_ptr<Scene> scene) {
-    if (m_gameView && scene) {
-        m_gameView->SetScene(scene);
-        m_selectedEntity = scene->GetRoot();
     }
 }
 

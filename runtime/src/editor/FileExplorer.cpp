@@ -9,6 +9,8 @@
 #endif
 #include <iostream>
 
+#include "editor/EditorContext.hpp"
+
 namespace Cleave {
 namespace Editor {
 void FileExplorer::ShowDirectory(std::filesystem::path dir) {
@@ -25,10 +27,10 @@ void FileExplorer::ShowDirectory(std::filesystem::path dir) {
             }
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
                 if (path.extension() == ".jscn") {
-                    std::shared_ptr<Scene> scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(path.string()));
+                    std::shared_ptr<Scene> scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(path.generic_string()));
                     if (scene) {
-                        std::cout << "Changing scene to: " << scene->GetPath() << std::endl;
-                        m_gameView->SetScene(scene);
+                        std::cout << "Opening scene: " << scene->GetPath() << std::endl;
+                        m_editorContext->AddGameView(std::make_shared<GameView>(scene, m_editorContext->GetProperties()));
                     }
                     scene.reset();
                 }

@@ -52,7 +52,7 @@ int main() {
 #ifdef CLEAVE_EDITOR_ENABLED
     Cleave::Editor::EditorContext editor =
         Cleave::Editor::EditorContext(window);
-    Scene* scene = editor.GetGameView()->GetScene();
+    Scene* scene = editor.GetCurrentGameView()->GetScene();
 
     editor.Run((Renderer*)renderer);
 #else

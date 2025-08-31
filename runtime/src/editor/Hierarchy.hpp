@@ -8,22 +8,14 @@ namespace Cleave {
 namespace Editor {
 class Hierarchy {
 public:
-    Hierarchy(std::shared_ptr<GameView> gameView)
-        : m_gameView(gameView),
-          m_selectedEntity(gameView && gameView->GetScene()
-                               ? gameView->GetScene()->GetRoot()
-                               : nullptr) {}
+    Hierarchy(Entity* selectedEntity) : m_selectedEntity(selectedEntity) {}
     ~Hierarchy() = default;
 
-    void OnRender();
-
-    Scene* GetScene();
-    void SetScene(std::shared_ptr<Scene> scene);
+    void OnRender(Scene* scene);
 
     Entity* GetSelectedEntity();
 
 private:
-    std::shared_ptr<GameView> m_gameView;
     Entity* m_selectedEntity;
 };
 }  // namespace Editor

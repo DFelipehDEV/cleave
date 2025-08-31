@@ -2,14 +2,14 @@
 #include <filesystem>
 #include <string>
 
-#include "editor/GameView.hpp"
-
 namespace Cleave {
 namespace Editor {
+
+class EditorContext;
 class FileExplorer {
 public:
-    FileExplorer(const std::filesystem::path& directory, GameView* gameView)
-        : m_directory(directory), m_gameView(gameView) {}
+    FileExplorer(const std::filesystem::path& directory, EditorContext* editorContext)
+        : m_directory(directory), m_editorContext(editorContext) {}
     ~FileExplorer() = default;
 
     void ShowDirectory(std::filesystem::path dir);
@@ -20,7 +20,7 @@ public:
     void SetDirectory(std::filesystem::path directory);
 
 private:
-    GameView* m_gameView;
+    EditorContext* m_editorContext;
     std::filesystem::path m_directory;
     std::filesystem::path m_selectedDirectory;
 };

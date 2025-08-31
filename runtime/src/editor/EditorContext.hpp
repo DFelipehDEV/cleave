@@ -20,8 +20,11 @@ public:
     Scene* GetScene();
     Hierarchy* GetHierarchy();
     FileExplorer* GetFileExplorer();
-    Properties* GetProperties();
-    GameView* GetGameView();
+    std::shared_ptr<Properties>& GetProperties();
+    std::shared_ptr<GameView>& GetCurrentGameView();
+    void SetCurrentGameView(int index);
+    std::vector<std::shared_ptr<GameView>>& GetGameViews() { return m_gameViews; }
+    void AddGameView(std::shared_ptr<GameView> gameView) { m_gameViews.push_back(gameView); }
     
     bool IsHierarchyVisible() const;
     void SetHierarchyVisible(bool visible);
@@ -39,7 +42,9 @@ private:
     std::shared_ptr<Hierarchy> m_hierarchy;
     std::shared_ptr<FileExplorer> m_fileExplorer;
     std::shared_ptr<Properties> m_properties;
-    std::shared_ptr<GameView> m_gameView;
+    std::vector<std::shared_ptr<GameView>> m_gameViews;
+
+    int m_currentGameView;
     bool m_hierarchyVisible = true;
     bool m_fileExplorerVisible = true;
     bool m_gameViewVisible = true;
