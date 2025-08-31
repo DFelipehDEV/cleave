@@ -124,7 +124,10 @@ FileExplorer* EditorContext::GetFileExplorer() { return m_fileExplorer.get(); }
 
 std::shared_ptr<Properties>& EditorContext::GetProperties() { return m_properties; }
 
-std::shared_ptr<GameView>& EditorContext::GetCurrentGameView() { return m_gameViews[m_currentGameView]; }
+std::vector<std::shared_ptr<GameView>>& EditorContext::GetGameViews() { return m_gameViews; }
+void EditorContext::AddGameView(std::shared_ptr<GameView> gameView) { m_gameViews.push_back(gameView); }
+
+const std::shared_ptr<GameView>& EditorContext::GetCurrentGameView() { return m_gameViews[m_currentGameView]; }
 void EditorContext::SetCurrentGameView(int index) { m_currentGameView = index; }
 
 bool EditorContext::IsHierarchyVisible() const { return m_hierarchyVisible; }

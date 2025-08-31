@@ -21,10 +21,12 @@ public:
     Hierarchy* GetHierarchy();
     FileExplorer* GetFileExplorer();
     std::shared_ptr<Properties>& GetProperties();
-    std::shared_ptr<GameView>& GetCurrentGameView();
+
+    std::vector<std::shared_ptr<GameView>>& GetGameViews();
+    void AddGameView(std::shared_ptr<GameView> gameView);
+
+    const std::shared_ptr<GameView>& GetCurrentGameView();
     void SetCurrentGameView(int index);
-    std::vector<std::shared_ptr<GameView>>& GetGameViews() { return m_gameViews; }
-    void AddGameView(std::shared_ptr<GameView> gameView) { m_gameViews.push_back(gameView); }
     
     bool IsHierarchyVisible() const;
     void SetHierarchyVisible(bool visible);
