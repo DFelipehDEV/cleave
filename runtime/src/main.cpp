@@ -13,6 +13,7 @@
 #include "scene/EntityRegistry.hpp"
 #include "scene/Scene.hpp"
 #include "thirdparty/stb_image.h"
+#include "Input.hpp"
 
 using namespace Cleave;
 
@@ -32,6 +33,9 @@ int main() {
     ResourceManager* resourceManager = new ResourceManager();
     resourceManager->SetRenderer((Renderer*)renderer);
 
+    Input* input = new Input();
+    Services::Provide<Input>("Input", input);
+
     resourceManager->RegisterLoader(std::make_unique<TextureLoader>());
     resourceManager->RegisterLoader(std::make_unique<ShaderLoader>());
     resourceManager->RegisterLoader(std::make_unique<SceneLoader>());
@@ -48,8 +52,10 @@ int main() {
     Registry::RegisterType<Sprite>();
 
     Services::Provide<Registry>("registry", std::make_shared<Registry>());
+    input->AddAction("right", GLFW_KEY_D);
+    input->AddAction("right", GLFW_KEY_RIGHT);
 
-#ifdef CLEAVE_EDITOR_ENABLED
+#ifndef CLEAVE_EDITOR_ENABLED
     Cleave::Editor::EditorContext editor =
         Cleave::Editor::EditorContext(window);
     Scene* scene = editor.GetCurrentGameView()->GetScene();
@@ -60,6 +66,10 @@ int main() {
     while (!window->shouldClose()) {
         renderer->ClearColor(100, 149, 237, 255);
         renderer->BeginFrame();
+        input->Update();
+        if (input->IsActionJustPressed("right")) {
+            std::cout << "right pressed!" << std::endl;
+        }
         scene->Tick();
         scene->Render((Renderer*)renderer);
         renderer->EndFrame();

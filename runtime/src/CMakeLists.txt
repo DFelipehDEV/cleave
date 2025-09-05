@@ -3,12 +3,13 @@
 endif()
 
 set(SOURCES
-	scene/JsonSceneSerializer.cpp
-	math/Matrix4.cpp
-	scene/Scene.cpp
+	Input.cpp
 	Services.cpp
-	math/Transform.cpp
 	Window.cpp
+	math/Matrix4.cpp
+	math/Transform.cpp
+	scene/JsonSceneSerializer.cpp
+	scene/Scene.cpp
 	entities/AnimatedSprite.cpp
 	entities/Camera.cpp
 	entities/Entity.cpp
@@ -23,15 +24,16 @@ set(SOURCES
 )
 
 set(HEADERS
+	Input.hpp
+	Services.hpp
+	Window.hpp
 	scene/JsonSceneSerializer.hpp
-	math/Matrix4.hpp
-	math/Rect4.hpp
 	scene/EntityRegistry.hpp
 	scene/Scene.hpp
-	Services.hpp
+	math/Matrix4.hpp
+	math/Rect4.hpp
 	math/Transform.hpp
 	math/Vec2.hpp
-	Window.hpp
 	entities/AnimatedSprite.hpp
 	entities/Camera.hpp
 	entities/Entity.hpp
