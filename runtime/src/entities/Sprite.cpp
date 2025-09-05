@@ -1,13 +1,9 @@
 #include "Sprite.hpp"
 
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/vec3.hpp>
-
 #include "Services.hpp"
 #include "math/Matrix4.hpp"
 #include "resources/ResourceManager.hpp"
 #include "resources/Shader.hpp"
-#include <glm/gtc/type_ptr.hpp>
 
 namespace Cleave {
 Sprite::Sprite(Transform transform, std::shared_ptr<Texture> texture,
@@ -30,8 +26,7 @@ void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
     }
 }
 
-const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties()
-    const {
+const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() const {
     auto properties = Entity::GetProperties();
     properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
     properties["origin"] = {GetOrigin().ToString(),
@@ -48,9 +43,7 @@ const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties()
 Entity* Sprite::Create() { return new Sprite(); }
 
 std::shared_ptr<Texture> Sprite::GetTexture() const { return m_texture; }
-void Sprite::SetTexture(std::shared_ptr<Texture> texture) {
-    m_texture = texture;
-}
+void Sprite::SetTexture(std::shared_ptr<Texture> texture) { m_texture = texture; }
 
 Vec2f Sprite::GetOrigin() const { return m_origin; }
 void Sprite::SetOrigin(Vec2f origin) { m_origin = origin; }
@@ -71,15 +64,18 @@ void Sprite::OnRender(Renderer* renderer) {
 
         auto resourceManager = GET_RESMGR();
         auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
-        shader->Use();
-        shader->SetUniformInt("tex", 0);
-        shader->SetUniformMatrix4("projection",
-                                glm::value_ptr(renderer->GetProjection()));
-        shader->SetUniformMatrix4("model", (float*)model.m);
 
-        m_texture->Bind();
-        renderer->DrawQuad(globalPosition.x, globalPosition.y, static_cast<float>(m_texture->GetWidth()),
-                           static_cast<float>(m_texture->GetHeight()));
+        renderer->AddRenderCommand(new RenderQuadCommand(
+            globalPosition.x,
+            globalPosition.y,
+            static_cast<float>(m_texture->GetWidth()),
+            static_cast<float>(m_texture->GetHeight()), 
+            m_texture->GetTextureId(), 
+            shader->GetShaderId(), 
+            model, 
+            renderer->GetProjection(),
+            GetDepth()
+        ));
     }
 
     Entity::OnRender(renderer);

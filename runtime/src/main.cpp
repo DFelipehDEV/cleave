@@ -6,7 +6,7 @@
 #include "entities/AnimatedSprite.hpp"
 #include "entities/Camera.hpp"
 #include "entities/Sprite.hpp"
-#include "rendering/Renderer.hpp"
+#include "rendering/OpenGLRenderer.hpp"
 #include "resources/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 #include "resources/Texture.hpp"
@@ -22,7 +22,6 @@ using namespace Cleave;
 #include "editor/Properties.hpp"
 using namespace Cleave::Editor;
 #endif
-#include <glm/gtc/type_ptr.hpp>
 
 int main() {
     Window* window = new Window(512, 288, "CleaveRT!");
@@ -31,6 +30,7 @@ int main() {
     renderer->Initialize(*window);
 
     ResourceManager* resourceManager = new ResourceManager();
+    resourceManager->SetRenderer((Renderer*)renderer);
 
     resourceManager->RegisterLoader(std::make_unique<TextureLoader>());
     resourceManager->RegisterLoader(std::make_unique<ShaderLoader>());
@@ -56,13 +56,13 @@ int main() {
 
     editor.Run((Renderer*)renderer);
 #else
+    Scene* scene = resourceManager->Get<Scene>("res/scenes/TestScene.jscn").get();
     while (!window->shouldClose()) {
         renderer->ClearColor(100, 149, 237, 255);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        cat->OnTick(1.0f / 60.0f);
-        cat->OnRender((Renderer*)renderer);
-
+        renderer->BeginFrame();
+        scene->Tick();
+        scene->Render((Renderer*)renderer);
+        renderer->EndFrame();
         window->swapBuffers();
         window->pollEvents();
     }

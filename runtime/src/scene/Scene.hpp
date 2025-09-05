@@ -27,7 +27,7 @@ private:
 
 class SceneLoader : public ResourceLoader {
 public:
-    std::shared_ptr<Resource> Load(const std::string& path) override;
+    std::shared_ptr<Resource> Load(const std::string& path, ResourceManager* resourceManager) override;
     bool CanLoad(const std::string& extension) const override {
         return extension == ".jscn";
     }

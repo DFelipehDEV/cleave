@@ -21,7 +21,7 @@ void Scene::Render(Renderer* renderer) {
     }
 }
 
-std::shared_ptr<Resource> SceneLoader::Load(const std::string& path) {
+std::shared_ptr<Resource> SceneLoader::Load(const std::string& path, ResourceManager* resourceManager) {
     auto scene = JsonSceneSerializer::Load(path);
     scene->SetPath(path);
     return scene;

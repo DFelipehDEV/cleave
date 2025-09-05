@@ -2,7 +2,6 @@
 
 #include <math.h>
 #include <algorithm>
-#include <glm/gtc/type_ptr.hpp>
 #include "resources/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 #include "entities/Entity.hpp"
@@ -75,11 +74,6 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
     auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
     if (!shader) return;
     
-    shader->Use();
-    shader->SetUniformInt("tex", 0);
-    shader->SetUniformMatrix4("projection", glm::value_ptr(renderer->GetProjection()));
-    shader->SetUniformMatrix4("model", (float*)model.m);
-    
     float texWidth = static_cast<float>(GetTexture()->GetWidth());
     float texHeight = static_cast<float>(GetTexture()->GetHeight());
     float u0 = frameX / texWidth;
@@ -87,9 +81,21 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
     float u1 = (frameX + m_frameWidth) / texWidth;
     float v1 = (frameY + m_frameHeight) / texHeight;
     
-    GetTexture()->Bind();
-    renderer->DrawQuad(0, 0, static_cast<float>(m_frameWidth), 
-                      static_cast<float>(m_frameHeight), u0, v0, u1, v1);
+    renderer->AddRenderCommand(new RenderQuadCommand(
+        0,
+        0, 
+        static_cast<float>(m_frameWidth),          
+        static_cast<float>(m_frameHeight), 
+        GetTexture()->GetTextureId(), 
+        shader->GetShaderId(), 
+        model,
+        renderer->GetProjection(), 
+        GetDepth(),
+        u0,
+        v0, 
+        u1, 
+        v1 
+    ));
     
     Entity::OnRender(renderer);
 }

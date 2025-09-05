@@ -15,7 +15,7 @@ void Properties::OnRender(Scene* scene) {
     Entity* entity = scene->GetRoot()->GetChild(m_entityId, true);
     if (!entity) return;
 
-    EntityID id = entity->GetId();
+    EntityId id = entity->GetId();
     auto entityProperties = entity->GetProperties();
 
     if (!entityProperties.empty()) {
@@ -88,8 +88,8 @@ void Properties::OnRender(Scene* scene) {
     }
 }
 
-EntityID Properties::GetEntityId() const { return m_entityId; }
-void Properties::SetEntityId(EntityID id) { m_entityId = id; }
+EntityId Properties::GetEntityId() const { return m_entityId; }
+void Properties::SetEntityId(EntityId id) { m_entityId = id; }
 
 void Properties::Clear() { m_entityId = 0; }
 }  // namespace Editor

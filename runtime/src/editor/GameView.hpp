@@ -21,11 +21,11 @@ public:
     Scene* GetScene() const;
     void SetScene(std::shared_ptr<Scene> scene);
 
-    bool IsGridEnabled() const { return m_gridEnabled; }
-    void SetGridEnabled(bool enabled) { m_gridEnabled = enabled; }
+    bool IsGridEnabled() const;
+    void SetGridEnabled(bool enabled);
 
-    int GetGridSize() const { return m_gridSize; }
-    void SetGridSize(int size) { m_gridSize = std::max(size, 1); }
+    int GetGridSize() const;
+    void SetGridSize(int size);
 private:
     std::shared_ptr<Scene> m_scene;
     std::shared_ptr<Properties> m_properties;

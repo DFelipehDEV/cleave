@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "editor/EditorContext.hpp"
+#include "resources/ResourceManager.hpp"
 
 namespace Cleave {
 namespace Editor {
@@ -27,7 +28,7 @@ void FileExplorer::ShowDirectory(std::filesystem::path dir) {
             }
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
                 if (path.extension() == ".jscn") {
-                    std::shared_ptr<Scene> scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(path.generic_string()));
+                    std::shared_ptr<Scene> scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(path.generic_string(), GET_RESMGR()));
                     if (scene) {
                         std::cout << "Opening scene: " << scene->GetPath() << std::endl;
                         m_editorContext->AddGameView(std::make_shared<GameView>(scene, m_editorContext->GetProperties()));

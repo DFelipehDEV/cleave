@@ -1,13 +1,13 @@
-#include "Renderer.hpp"
+#include "rendering/OpenGLRenderer.hpp"
 
 #include <GL/glew.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "thirdparty/stb_image.h"
 
 namespace Cleave {
 OpenGLRenderer::~OpenGLRenderer() { Terminate(); }
@@ -55,26 +55,27 @@ void OpenGLRenderer::Terminate() {}
 
 void OpenGLRenderer::BeginFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_renderCommands.clear();
 }
 
-void OpenGLRenderer::EndFrame(Window& window) {
-    glfwSwapBuffers(window.getGLFWwindow());
+void OpenGLRenderer::EndFrame() {
 }
 
-glm::mat4 OpenGLRenderer::GetProjection() const { return m_projection; }
-void OpenGLRenderer::SetProjection(glm::mat4 projection) {
+Matrix4 OpenGLRenderer::GetProjection() const { return m_projection; }
+void OpenGLRenderer::SetProjection(Matrix4 projection) {
     m_projection = projection;
 }
 
 Rect4f OpenGLRenderer::GetViewPort() const { return m_viewport; }
 void OpenGLRenderer::SetViewPort(Rect4f viewport) {
     m_viewport = viewport;
-    glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+    glViewport(static_cast<GLsizei>(viewport.x), static_cast<GLsizei>(viewport.y), static_cast<GLsizei>(viewport.width), static_cast<GLsizei>(viewport.height));
 }
 
 BlendMode OpenGLRenderer::GetBlendMode() const {
     return m_blendMode;
 }
+
 void OpenGLRenderer::SetBlendMode(BlendMode mode) {
     if (m_blendMode == mode) return;
     m_blendMode = mode;
@@ -109,6 +110,160 @@ void OpenGLRenderer::SetBlendMode(BlendMode mode) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
             break;
+    }
+}
+
+int OpenGLRenderer::GetSpriteShader() const { return m_spriteShader; }
+void OpenGLRenderer::SetSpriteShader(int shaderId) { m_spriteShader = shaderId; }
+
+void OpenGLRenderer::UseShader(int shaderId) {
+    glUseProgram(shaderId);
+    m_currentShader = shaderId;
+}
+
+void OpenGLRenderer::SetShaderUniformInt(const std::string& name, int value) const {
+    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        return;
+    }
+    glUniform1i(location, value);
+}
+
+void OpenGLRenderer::SetShaderUniformFloat(const std::string& name, float value) const {
+    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        return;
+    }
+    glUniform1f(location, value);
+}
+
+void OpenGLRenderer::SetShaderUniformVector2f(const std::string& name, float x,
+                                float y) const {
+    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        return;
+    }
+    glUniform2f(location, x, y);
+}
+
+void OpenGLRenderer::SetShaderUniformVector3f(const std::string& name, float x, float y,
+                                float z) const {
+    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        return;
+    }
+    glUniform3f(location, x, y, z);
+}
+
+void OpenGLRenderer::SetShaderUniformVector4f(const std::string& name, float x, float y,
+                                float z, float w) const {
+    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        return;
+    }
+    glUniform4f(location, x, y, z, w);
+}
+
+void OpenGLRenderer::SetShaderUniformMatrix4(const std::string& name,
+                               const float* matrix) const {
+    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    if (location == -1) {
+        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        return;
+    }
+    glUniformMatrix4fv(location, 1, false, matrix);
+}
+
+void OpenGLRenderer::UseTexture(int textureId) {
+    glBindTexture(GL_TEXTURE_2D, textureId);
+}
+
+Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
+    Renderer::TextureInfo info;
+
+    glGenTextures(1, &info.id);
+    glBindTexture(GL_TEXTURE_2D, info.id);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    unsigned char* data = stbi_load(path.c_str(), &info.width, &info.height, nullptr, STBI_rgb_alpha);
+    if (!data) {
+        std::cerr << "Failed to load texture from file: " << path << std::endl;
+        return info;
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.width, info.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    stbi_image_free(data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return info;
+}
+
+int OpenGLRenderer::CreateShader(const std::string& vertex, const std::string& fragment) {
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    const char* vertexSource = vertex.c_str();
+    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
+    glCompileShader(vertexShader);
+
+    GLint success;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+        std::cerr << "Vertex shader compilation failed: " << infoLog << std::endl;
+        return -1;
+    }
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    const char* fragmentSource = fragment.c_str();
+    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
+    glCompileShader(fragmentShader);
+
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+        std::cerr << "Fragment shader compilation failed: " << infoLog << std::endl;
+        return -1;
+    }
+
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+        std::cerr << "Shader program linking failed: " << infoLog << std::endl;
+        return -1;
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    return shaderProgram;
+}
+
+const std::vector<RenderCommand*>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }
+void OpenGLRenderer::AddRenderCommand(RenderCommand* command) { m_renderCommands.push_back(command); }
+
+void OpenGLRenderer::RunRenderCommands() {
+    std::stable_sort(m_renderCommands.begin(), m_renderCommands.end(),
+              [](RenderCommand* a, RenderCommand* b) { return a->depth < b->depth; });
+
+    for (RenderCommand* command : m_renderCommands) {
+        std::cout << "Running command with depth " << command->depth << std::endl;
+        command->Run(this);
     }
 }
 
@@ -227,7 +382,7 @@ void OpenGLRenderer::DrawCircle(float x, float y, float radius, Color color, int
     vertices.insert(vertices.end(), {x, y, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f});
 
     for (int i = 0; i <= segments; i++) {
-        float angle = 2.0f * M_PI * i / segments;
+        float angle = 2.0f * (float)M_PI * i / segments;
         float px = x + radius * cos(angle);
         float py = y + radius * sin(angle);
 
@@ -260,7 +415,7 @@ void OpenGLRenderer::DrawCircle(float x, float y, float radius, Color color, int
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);

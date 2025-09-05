@@ -9,28 +9,26 @@ namespace Cleave {
 class Texture : public Resource {
 public:
     Texture() : m_width(1), m_height(1) {};
-    ~Texture() { Destroy(); }
+    ~Texture() = default;
 
     std::string GetTypeName() const override { return "cleave::Texture"; }
 
-    bool CreateFromFile(const std::string& path);
-
-    void Bind(GLenum textureUnit = GL_TEXTURE0) const;
-
-    void Destroy();
+    uint32_t GetTextureId() const;
+    void SetTextureId(int id);
 
     int GetWidth() const;
+    void SetWidth(int width);
 
     int GetHeight() const;
-
+    void SetHeight(int height);
 private:
-    uint32_t m_textureId;
+    uint32_t m_textureId = 0;
     int m_width, m_height;
 };
 
 class TextureLoader : public ResourceLoader {
 public:
-    std::shared_ptr<Resource> Load(const std::string& path) override;
+    std::shared_ptr<Resource> Load(const std::string& path, ResourceManager* resourceManager) override;
 
     bool CanLoad(const std::string& extension) const override {
         return extension == ".png" || extension == ".jpg" ||

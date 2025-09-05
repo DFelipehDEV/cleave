@@ -23,7 +23,7 @@ Entity* Camera::Create() { return new Camera(); }
 
 void Camera::OnRender(Renderer* renderer) {
     float aspect = renderer->GetViewPort().width / renderer->GetViewPort().height;
-    glm::mat4 projection = glm::ortho(
+    Matrix4 projection = Matrix4::Ortho(
         -aspect * m_zoom, aspect * m_zoom,
         -m_zoom, m_zoom,
         -1.0f, 1.0f);

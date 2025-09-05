@@ -19,6 +19,8 @@ void Entity::Init(const std::unordered_map<std::string, Property> properties) {
     if (properties.find("rotation") != properties.end())
         m_transform.SetRotationDegrees(
             std::stof(properties.at("rotation").value));
+    if (properties.find("depth") != properties.end())
+        SetDepth(std::stoi(properties.at("depth").value));
 }
 
 void Entity::OnTick(float deltaTime) {
@@ -33,8 +35,7 @@ void Entity::OnRender(Renderer* renderer) {
     }
 }
 
-const std::unordered_map<std::string, Entity::Property> Entity::GetProperties()
-    const {
+const std::unordered_map<std::string, Entity::Property> Entity::GetProperties() const {
     std::unordered_map<std::string, Property> properties;
     properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
     properties["id"] = {std::to_string(m_id), Entity::Property::Types::Hidden};
@@ -46,13 +47,14 @@ const std::unordered_map<std::string, Entity::Property> Entity::GetProperties()
                            Entity::Property::Types::Vec2f};
     properties["rotation"] = {std::to_string(m_transform.GetRotation()),
                               Entity::Property::Types::Float};
+    properties["depth"] = {std::to_string(m_depth), Entity::Property::Types::Int};
     return properties;
 }
 
 Entity* Entity::Create() { return new Entity(); }
 
-EntityID Entity::GetId() const { return m_id; }
-void Entity::SetId(EntityID id) {
+EntityId Entity::GetId() const { return m_id; }
+void Entity::SetId(EntityId id) {
     m_id = id;
     if (id >= NEXT_ENTITY_ID) {
         NEXT_ENTITY_ID = id + 1;
@@ -64,6 +66,9 @@ void Entity::SetName(std::string_view name) { m_name = name; }
 
 Transform& Entity::GetTransform() { return m_transform; }
 void Entity::SetTransform(Transform& transform) { m_transform = transform; }
+
+int Entity::GetDepth() { return m_depth; }
+void Entity::SetDepth(int depth) { m_depth = depth; }
 
 Entity* Entity::GetParent() const { return m_parent; }
 void Entity::SetParent(Entity* parent) {
@@ -119,7 +124,7 @@ Entity* Entity::GetChild(std::string_view name, bool recursive) const {
     return nullptr;
 }
 
-Entity* Entity::GetChild(EntityID id, bool recursive) const {
+Entity* Entity::GetChild(EntityId id, bool recursive) const {
     for (const auto& child : m_children) {
         if (child->m_id == id) {
             return child.get();

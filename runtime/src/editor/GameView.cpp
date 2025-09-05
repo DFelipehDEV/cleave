@@ -3,7 +3,6 @@
 #include <imgui.h>
 
 #include <algorithm>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "resources/ResourceManager.hpp"
 #include "resources/Shader.hpp"
@@ -65,7 +64,7 @@ void GameView::OnRender(Renderer* renderer) {
                 JsonSceneSerializer::Save(scenePath, m_scene.get());
             } else {
                 m_properties->Clear();
-                m_scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(scenePath));     
+                m_scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(scenePath, GET_RESMGR()));     
             }
         }
         ImGui::TableNextColumn();
@@ -92,7 +91,7 @@ void GameView::OnRender(Renderer* renderer) {
     float width = contentSize.x / m_zoom;
     float height = contentSize.y / m_zoom;
 
-    renderer->SetProjection(glm::ortho(m_cameraPos.x, m_cameraPos.x + width,
+    renderer->SetProjection(Matrix4::Ortho(m_cameraPos.x, m_cameraPos.x + width,
                                        m_cameraPos.y + height, m_cameraPos.y,
                                        -1.0f, 1.0f));
 
@@ -121,7 +120,9 @@ void GameView::OnRender(Renderer* renderer) {
                                color);
         }
     }
+    
     m_scene->Render(renderer);
+    renderer->RunRenderCommands();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -137,5 +138,11 @@ Scene* GameView::GetScene() const { return m_scene.get(); }
 void GameView::SetScene(std::shared_ptr<Scene> scene) {
     m_scene = std::move(scene);
 }
+
+bool GameView::IsGridEnabled() const { return m_gridEnabled; }
+void GameView::SetGridEnabled(bool enabled) { m_gridEnabled = enabled; }
+
+int GameView::GetGridSize() const { return m_gridSize; }
+void GameView::SetGridSize(int size) { m_gridSize = std::max(size, 1); }
 }  // namespace Editor
 }  // namespace Cleave

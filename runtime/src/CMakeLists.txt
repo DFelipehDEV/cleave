@@ -15,7 +15,7 @@ set(SOURCES
 	entities/Sprite.cpp
 	platform/${PLATFORM}/FileDialog.cpp
 	platform/${PLATFORM}/MessageBox.cpp
-	rendering/Renderer.cpp
+	rendering/OpenGLRenderer.cpp
 	resources/Resource.cpp
 	resources/ResourceManager.cpp	
 	resources/Shader.cpp
@@ -38,6 +38,7 @@ set(HEADERS
 	entities/Sprite.hpp
 	platform/FileDialog.hpp
 	platform/MessageBox.hpp
+	rendering/OpenGLRenderer.hpp
 	rendering/Renderer.hpp
 	resources/Resource.hpp
 	resources/ResourceManager.hpp
@@ -47,14 +48,13 @@ set(HEADERS
 
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(glm REQUIRED)
 
 add_library(CleaveRuntime STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(CleaveRuntime PRIVATE GLEW::GLEW glfw glm::glm)
+target_link_libraries(CleaveRuntime PRIVATE GLEW::GLEW glfw)
 target_include_directories(CleaveRuntime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(CleaveRuntimeExe main.cpp)
-target_link_libraries(CleaveRuntimeExe PRIVATE CleaveRuntime GLEW::GLEW glfw glm::glm)
+target_link_libraries(CleaveRuntimeExe PRIVATE CleaveRuntime GLEW::GLEW glfw)
 
 option(BUILD_EDITOR "Build the Editor module" ON)
 if(BUILD_EDITOR)

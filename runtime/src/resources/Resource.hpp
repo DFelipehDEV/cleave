@@ -3,6 +3,8 @@
 #include <string>
 
 namespace Cleave {
+class ResourceManager;
+
 class Resource {
 public:
     virtual ~Resource() = default;
@@ -23,7 +25,7 @@ protected:
 class ResourceLoader {
 public:
     virtual ~ResourceLoader() = default;
-    virtual std::shared_ptr<Resource> Load(const std::string& path) = 0;
+    virtual std::shared_ptr<Resource> Load(const std::string& path, ResourceManager* resourceManager) = 0;
     virtual bool CanLoad(const std::string& extension) const = 0;
 };
 

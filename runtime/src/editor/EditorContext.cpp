@@ -6,7 +6,6 @@
 
 #include <fstream>
 #include <functional>
-#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
@@ -48,13 +47,14 @@ void EditorContext::Run(Renderer* renderer) {
     ImGui_ImplOpenGL3_Init();
 
     while (!m_window->shouldClose()) {
+        auto now = std::chrono::high_resolution_clock::now();
         m_window->pollEvents();
         auto resourceManager = GET_RESMGR();
         auto shader = resourceManager->Get<Shader>("res/shaders/main.vert");
-        shader->Use();
-        shader->SetUniformInt("tex", 0);
-        shader->SetUniformMatrix4("projection",
-                                  glm::value_ptr(renderer->GetProjection()));
+        renderer->UseShader(shader->GetShaderId());
+        renderer->SetShaderUniformInt("tex", 0);
+        renderer->SetShaderUniformMatrix4("projection", (float*)renderer->GetProjection().m);
+        renderer->BeginFrame();
         // Clear
         {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -106,10 +106,15 @@ void EditorContext::Run(Renderer* renderer) {
                 ImGui::EndChild();
             }
         }
-
+        renderer->EndFrame();
+        auto end = std::chrono::high_resolution_clock::now();
+        float frameTimeMs = std::chrono::duration<float, std::milli>(end - now).count();
+        ImGui::SetCursorPos(ImVec2(32, 32));
+        ImGui::Text("Frame Time: %.2f ms, FPS: %.2f ms", frameTimeMs, frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f);
+        
         ImGui::Render();
+        
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         m_window->swapBuffers();
     }
 

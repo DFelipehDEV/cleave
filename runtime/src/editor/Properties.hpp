@@ -11,13 +11,13 @@ public:
     ~Properties() = default;
     void OnRender(Scene* scene);
 
-    EntityID GetEntityId() const;
-    void SetEntityId(EntityID id);
+    EntityId GetEntityId() const;
+    void SetEntityId(EntityId id);
 
     void Clear();
 
 private:
-    EntityID m_entityId = 0;
+    EntityId m_entityId = 0;
 };
 }  // namespace Editor
 }  // namespace Cleave

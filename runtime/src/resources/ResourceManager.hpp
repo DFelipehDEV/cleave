@@ -7,10 +7,11 @@
 #include "resources/Resource.hpp"
 #include "Services.hpp"
 
+#include "rendering/Renderer.hpp"
+
 #define GET_RESMGR() Services::Get<ResourceManager>("ResMgr")
 
 namespace Cleave {
-
 class ResourceManager {
 public:
     void RegisterLoader(std::unique_ptr<ResourceLoader> loader);
@@ -30,10 +31,13 @@ public:
     std::filesystem::path GetResourceRoot() const;
     void SetResourceRoot(const std::filesystem::path& path);
 
+    Renderer* GetRenderer() const;
+    void SetRenderer(Renderer* renderer);
 private:
     std::filesystem::path m_resourceRoot;
     std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources;
     std::vector<std::unique_ptr<ResourceLoader>> m_loaders;
+    Renderer* m_renderer;
 };
 
 }  // namespace Cleave

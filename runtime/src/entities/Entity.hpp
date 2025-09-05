@@ -10,8 +10,8 @@
 #include "rendering/Renderer.hpp"
 
 
-typedef uint64_t EntityID;
-static EntityID NEXT_ENTITY_ID = 0;
+typedef uint64_t EntityId;
+static EntityId NEXT_ENTITY_ID = 0;
 
 namespace Cleave {
 class Entity {
@@ -92,14 +92,17 @@ public:
 
     static Entity* Create();
 
-    EntityID GetId() const;
-    void SetId(EntityID id);
+    EntityId GetId() const;
+    void SetId(EntityId id);
 
     std::string GetName() const;
     void SetName(std::string_view name);
 
     Transform& GetTransform();
     void SetTransform(Transform& transform);
+
+    int GetDepth();
+    void SetDepth(int depth);
 
     Entity* GetParent() const;
     void SetParent(Entity* parent);
@@ -109,14 +112,15 @@ public:
     void RemoveChild(Entity* child);
 
     Entity* GetChild(std::string_view name, bool recursive = false) const;
-    Entity* GetChild(EntityID id, bool recursive = false) const;
+    Entity* GetChild(EntityId id, bool recursive = false) const;
 
     Entity* GetRoot();
 
 private:
-    EntityID m_id;
+    EntityId m_id;
     std::string m_name = "";
     Transform m_transform;
+    int m_depth = 0;
     Entity* m_parent = nullptr;
     std::vector<std::unique_ptr<Entity>> m_children;
 };
