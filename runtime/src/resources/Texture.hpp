@@ -1,5 +1,4 @@
 #pragma once
-#include <GL/glew.h>
 #include <string>
 #include <iostream>
 
@@ -37,7 +36,5 @@ public:
                extension == ".psd" || extension == ".hdr" ||
                extension == ".pic";
     }
-private:
-    GLuint CreateMissingTexture(); 
 };
 }  // namespace Cleave

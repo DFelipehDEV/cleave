@@ -2,10 +2,14 @@
 	set(PLATFORM win32)
 endif()
 
+set(AUDIO_BACKEND SoLoud)
+
 set(SOURCES
 	Input.cpp
 	Services.cpp
 	Window.cpp
+	audio/${AUDIO_BACKEND}Backend.cpp
+	audio/AudioManager.cpp
 	math/Matrix4.cpp
 	math/Transform.cpp
 	scene/JsonSceneSerializer.cpp
@@ -20,6 +24,7 @@ set(SOURCES
 	resources/Resource.cpp
 	resources/ResourceManager.cpp	
 	resources/Shader.cpp
+	resources/Sound.cpp
 	resources/Texture.cpp
 )
 
@@ -27,6 +32,8 @@ set(HEADERS
 	Input.hpp
 	Services.hpp
 	Window.hpp
+	audio/${AUDIO_BACKEND}Backend.hpp
+	audio/AudioManager.hpp
 	scene/JsonSceneSerializer.hpp
 	scene/EntityRegistry.hpp
 	scene/Scene.hpp
@@ -45,14 +52,19 @@ set(HEADERS
 	resources/Resource.hpp
 	resources/ResourceManager.hpp
 	resources/Shader.hpp
+	resources/Sound.hpp
 	resources/Texture.hpp
 )
 
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
 
+set(SOLOUD_BACKEND_WINMM ON CACHE BOOL "" FORCE)
+set(SOLOUD_BACKEND_SDL2 OFF CACHE BOOL "" FORCE)
+add_subdirectory(thirdparty/soloud/contrib ${CMAKE_BINARY_DIR}/soloud_build)
+
 add_library(CleaveRuntime STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(CleaveRuntime PRIVATE GLEW::GLEW glfw)
+target_link_libraries(CleaveRuntime PRIVATE GLEW::GLEW glfw soloud)
 target_include_directories(CleaveRuntime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(CleaveRuntimeExe main.cpp)
