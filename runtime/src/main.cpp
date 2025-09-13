@@ -6,6 +6,7 @@
 #include "entities/AnimatedSprite.hpp"
 #include "entities/Camera.hpp"
 #include "entities/Sprite.hpp"
+#include "entities/SoundPlayer.hpp"
 #include "rendering/OpenGLRenderer.hpp"
 
 #include "resources/ResourceManager.hpp"
@@ -66,6 +67,7 @@ int main() {
     Registry::RegisterType<AnimatedSprite>();
     Registry::RegisterType<Camera>();
     Registry::RegisterType<Sprite>();
+    Registry::RegisterType<SoundPlayer>();
 
     // input->AddAction("right", GLFW_KEY_D);
     // input->AddAction("right", GLFW_KEY_RIGHT);

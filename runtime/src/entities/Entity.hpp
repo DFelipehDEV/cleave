@@ -73,6 +73,7 @@ public:
             Bool,
             String,
             Vec2f,
+            FilePath,
             Hidden,
         };
         std::string value;

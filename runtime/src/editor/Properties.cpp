@@ -4,6 +4,9 @@
 #include <iostream>
 #include <regex>
 #include <sstream>
+#include <filesystem>
+
+#include "platform/FileDialog.hpp"
 
 #include "imgui.h"
 
@@ -23,7 +26,8 @@ void Properties::OnRender(Scene* scene) {
         for (auto &[name, prop] : entityProperties) {
             std::string displayName = name;
             std::string newValue = prop.value;
-            displayName[0] = std::toupper(displayName[0]);
+            if (!displayName.empty())
+                displayName[0] = std::toupper(displayName[0]);
             switch (prop.type) {
                 case Entity::Property::Types::Int: {
                     int value = std::stoi(prop.value);
@@ -71,6 +75,28 @@ void Properties::OnRender(Scene* scene) {
                 }
 
                 case Entity::Property::Types::Hidden:
+                    break;
+
+                case Entity::Property::Types::FilePath:
+                        if (ImGui::Button(("Pick '" + name + "'").c_str())) {
+                            ImGui::OpenPopup("LoadPopup");
+                        } 
+
+                        if (ImGui::BeginPopup("LoadPopup")) {
+                            ImGui::BeginChild("FileList", ImVec2(300, 400), true);
+                            for (const auto& entry : std::filesystem::recursive_directory_iterator("res/")) {
+                                if (entry.is_regular_file()) {
+                                    std::string path = entry.path().generic_string();
+                                    if (ImGui::Selectable(path.substr(4).c_str())) {
+                                        newValue = path;
+                                        changed = true;
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                            }
+                            ImGui::EndChild();
+                            ImGui::EndPopup();
+                        }
                     break;
                 default: {
                     char buffer[256];

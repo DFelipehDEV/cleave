@@ -18,15 +18,19 @@ public:
     void Shutdown() override;
     
     bool LoadSound(std::shared_ptr<Sound> sound) override;
-    void PlaySound(std::shared_ptr<Sound> sound, float volume) override;
+    SoundHandle PlaySound(std::shared_ptr<Sound> sound, float volume) override;
+    void StopSound(SoundHandle handle) override;
+
     void PlayMusic(std::shared_ptr<Sound> sound, float volume) override;
     
     void StopAllSounds() override;
     void StopMusic() override;
     
     void SetSoundVolume(float volume) override;
+    void SetSoundVolume(SoundHandle handle, float volume) override;
     void SetMusicVolume(float volume) override;
 
+    void SetSoundLoop(SoundHandle handle, bool loop) override;
 private:
     SoLoud::Soloud* m_engine;
     std::unordered_map<std::string, std::unique_ptr<SoLoud::Wav>> m_sounds;

@@ -17,6 +17,7 @@ set(SOURCES
 	entities/AnimatedSprite.cpp
 	entities/Camera.cpp
 	entities/Entity.cpp
+	entities/SoundPlayer.cpp
 	entities/Sprite.cpp
 	platform/${PLATFORM}/FileDialog.cpp
 	platform/${PLATFORM}/MessageBox.cpp
@@ -44,6 +45,7 @@ set(HEADERS
 	entities/AnimatedSprite.hpp
 	entities/Camera.hpp
 	entities/Entity.hpp
+	entities/SoundPlayer.hpp
 	entities/Sprite.hpp
 	platform/FileDialog.hpp
 	platform/MessageBox.hpp

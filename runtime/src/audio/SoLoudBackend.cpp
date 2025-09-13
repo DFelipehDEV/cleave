@@ -26,13 +26,19 @@ bool SoLoudBackend::LoadSound(std::shared_ptr<Sound> sound) {
     return true;
 }
 
-void SoLoudBackend::PlaySound(std::shared_ptr<Sound> sound, float volume) {
+SoundHandle SoLoudBackend::PlaySound(std::shared_ptr<Sound> sound, float volume) {
     if (!sound->GetData()) {
         LoadSound(sound);
     }
     
     if (auto* wav = static_cast<SoLoud::Wav*>(sound->GetData())) {
-        m_engine->play(*wav, volume * m_soundVolume);
+        return m_engine->play(*wav, volume * m_soundVolume);
+    }
+}
+
+void SoLoudBackend::StopSound(SoundHandle handle) {
+    if (handle != 0) {
+        m_engine->stop(handle);
     }
 }
 
@@ -46,7 +52,7 @@ void SoLoudBackend::PlayMusic(std::shared_ptr<Sound> sound, float volume) {
     }
     
     if (auto* wav = static_cast<SoLoud::Wav*>(sound->GetData())) {
-        m_musicHandle = m_engine->play(*wav, volume * m_musicVolume);
+        m_musicHandle = m_engine->playBackground(*wav, volume * m_musicVolume);
         m_engine->setLooping(m_musicHandle, true);
     }
 }
@@ -63,10 +69,21 @@ void SoLoudBackend::StopMusic() {
 }
 
 void SoLoudBackend::SetSoundVolume(float volume) { m_soundVolume = volume; }
+void SoLoudBackend::SetSoundVolume(SoundHandle handle, float volume) {
+    if (handle != 0) {
+        m_engine->setVolume(handle, m_soundVolume * volume);
+    }
+}
 void SoLoudBackend::SetMusicVolume(float volume) {
     m_musicVolume = volume;
     if (m_musicHandle != 0) {
         m_engine->setVolume(m_musicHandle, volume);
+    }
+}
+
+void SoLoudBackend::SetSoundLoop(SoundHandle handle, bool loop) {
+    if (handle != 0) {
+        m_engine->setLooping(handle, loop);
     }
 }
 } // namespace Cleave
