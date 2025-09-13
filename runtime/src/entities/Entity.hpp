@@ -117,10 +117,10 @@ public:
 
 private:
     EntityId m_id;
-    std::string m_name = "";
-    Transform m_transform;
     int m_depth = 0;
+    Transform m_transform;
     Entity* m_parent = nullptr;
+    std::string m_name = "";
     std::vector<std::unique_ptr<Entity>> m_children;
 };
 }  // namespace Cleave

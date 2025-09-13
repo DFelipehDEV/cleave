@@ -30,19 +30,24 @@ using namespace Cleave;
 using namespace Cleave::Editor;
 #endif
 
+namespace Config {
+    constexpr int WINDOW_WIDTH = 512;
+    constexpr int WINDOW_HEIGHT = 288;
+    constexpr const char* WINDOW_TITLE = "CleaveRT!";
+    constexpr const char* START_SCENE_PATH = "res/scenes/TestScene.jscn";
+    using AudioBackendType = SoLoudBackend;
+
+    constexpr bool USE_EDITOR = true;
+}
+
 int main() {
-    Window* window = new Window(512, 288, "CleaveRT!");
+    Window* window = new Window(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::WINDOW_TITLE);
 
     OpenGLRenderer* renderer = new OpenGLRenderer();
     renderer->Initialize(*window);
 
     ResourceManager* resourceManager = new ResourceManager();
     resourceManager->SetRenderer((Renderer*)renderer);
-
-    std::shared_ptr<AudioManager> audioManager = std::make_shared<AudioManager>(resourceManager, std::make_unique<SoLoudBackend>());
-
-    Input* input = new Input();
-    Services::Provide<Input>("Input", input);
 
     resourceManager->RegisterLoader(std::make_unique<TextureLoader>());
     resourceManager->RegisterLoader(std::make_unique<ShaderLoader>());
@@ -51,41 +56,42 @@ int main() {
 
     resourceManager->ScanResources();
 
+    Input* input = new Input();
+    AudioManager* audioManager = new AudioManager(resourceManager, std::make_unique<Config::AudioBackendType>());
+    Services::Provide<Input>("Input", input);
     Services::Provide<ResourceManager>("ResMgr", resourceManager);
     Services::Provide<AudioManager>("AudMgr", audioManager);
-
-    glViewport(0, 0, window->GetWidth(), window->GetHeight());
 
     Registry::RegisterType<Entity>();
     Registry::RegisterType<AnimatedSprite>();
     Registry::RegisterType<Camera>();
     Registry::RegisterType<Sprite>();
 
-    Services::Provide<Registry>("registry", std::make_shared<Registry>());
-    input->AddAction("right", GLFW_KEY_D);
-    input->AddAction("right", GLFW_KEY_RIGHT);
+    // input->AddAction("right", GLFW_KEY_D);
+    // input->AddAction("right", GLFW_KEY_RIGHT);
 
 #ifdef CLEAVE_EDITOR_ENABLED
-    Cleave::Editor::EditorContext editor =
-        Cleave::Editor::EditorContext(window);
-    Scene* scene = editor.GetCurrentGameView()->GetScene();
-
-    editor.Run((Renderer*)renderer);
+    if (Config::USE_EDITOR) {
+        Cleave::Editor::EditorContext editor = Cleave::Editor::EditorContext(window);
+        editor.Run((Renderer*)renderer);
+    }
 #else
     audioManager->PlayMusic(resourceManager->Get<Sound>("res/GMate.ogg"));
-    Scene* scene = resourceManager->Get<Scene>("res/scenes/TestScene.jscn").get();
+    Scene* scene = resourceManager->Get<Scene>(Config::START_SCENE_PATH).get();
     auto lastPrintTime = std::chrono::high_resolution_clock::now();
     while (!window->shouldClose()) {
         auto now = std::chrono::high_resolution_clock::now();
         renderer->ClearColor(100, 149, 237, 255);
         renderer->BeginFrame();
         input->Update();
-        if (input->IsActionJustPressed("right")) {
-            audioManager->PlaySound(resourceManager->Get<Sound>("res/Jump.wav"));
-            std::cout << "right pressed!" << std::endl;
-        }
+        // if (input->IsActionJustPressed("right")) {
+        //     audioManager->PlaySound(resourceManager->Get<Sound>("res/Jump.wav"));
+        //     std::cout << "right pressed!" << std::endl;
+        // }
+
         scene->Tick();
         scene->Render((Renderer*)renderer);
+
         renderer->EndFrame();
         window->swapBuffers();
         window->pollEvents();
