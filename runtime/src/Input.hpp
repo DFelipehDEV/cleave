@@ -6,18 +6,22 @@
 #include <unordered_map>
 
 namespace Cleave {
+struct InputAction {
+    std::vector<int> inputs;
+    float state = 0.0f;
+    bool justPressed = false;
+};
+
 class Input {
 public:
-    void AddAction(const std::string& action, int key);
+    void AddAction(const std::string& actionName, int key);
     
-    float GetActionState(const std::string& action) const;
-    bool IsActionPressed(const std::string& action) const;
-    bool IsActionJustPressed(const std::string& action) const;
+    float GetActionState(const std::string& actionName) const;
+    bool IsActionPressed(const std::string& actionName) const;
+    bool IsActionJustPressed(const std::string& actionName) const;
 
     void Update();
 private:
-    std::unordered_map<std::string, std::vector<int>> m_actions;
-    std::unordered_map<std::string, float> m_actionsStates;
-    std::unordered_map<std::string, bool> m_actionsStatesPressed;
+    std::unordered_map<std::string, InputAction> m_actions;
 };
 }  // namespace Cleave
