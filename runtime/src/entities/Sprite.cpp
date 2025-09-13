@@ -10,34 +10,32 @@ Sprite::Sprite(Transform transform, std::shared_ptr<Texture> texture,
                Vec2f origin)
     : Entity(transform), m_texture(texture), m_origin(origin) {}
 
-void Sprite::Init(const std::unordered_map<std::string, Property> properties) {
-    Entity::Init(properties);
-    if (properties.find("origin") != properties.end())
-        m_origin = Vec2f::FromString(properties.at("origin").value);
-
-    if (properties.find("texture") != properties.end()) {
-        const std::string& texturePath = properties.at("texture").value;
-        if (!texturePath.empty()) {
-            auto tex = GET_RESMGR()->Get<Texture>(texturePath);
-            m_texture = tex ? tex : nullptr; // Only assign if valid, else clear
-        } else {
-            m_texture = nullptr;
-        }
-    }
-}
-
 const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() const {
     auto properties = Entity::GetProperties();
-    properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
-    properties["origin"] = {GetOrigin().ToString(),
-                            Entity::Property::Types::Vec2f};
+    properties["type"] = {GetTypeName(), Property::Types::Hidden};
+    properties["origin"] = {GetOrigin().ToString(), Property::Types::Vec2f};
     std::string texturePath;
-    if (m_texture != nullptr)
+    if (m_texture)
         texturePath = GetTexture()->GetPath();
     else
         texturePath = "";
     properties["texture"] = {texturePath, Entity::Property::Types::String};
     return properties;
+}
+
+void Sprite::SetProperty(std::string_view name, const std::string& value) {
+    if (name == "origin") {
+        m_origin = Vec2f::FromString(value);
+    } else if (name == "texture") {
+        if (!value.empty()) {
+            auto tex = GET_RESMGR()->Get<Texture>(value);
+            m_texture = tex ? tex : nullptr; // Only assign if valid, else clear
+        } else {
+            m_texture = nullptr;
+        }
+    } else {
+        Entity::SetProperty(name, value);
+    }
 }
 
 Entity* Sprite::Create() { return new Sprite(); }

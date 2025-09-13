@@ -5,18 +5,19 @@ namespace Cleave {
 float Camera::GetZoom() const { return m_zoom; }
 void Camera::SetZoom(float zoom) { m_zoom = zoom; }
 
-void Camera::Init(const std::unordered_map<std::string, Property> properties) {
-    Entity::Init(properties);
-    if (properties.find("zoom") != properties.end())
-        m_zoom = std::stof(properties.at("zoom").value);
-}
-
 const std::unordered_map<std::string, Entity::Property> Camera::GetProperties()
     const {
     auto properties = Entity::GetProperties();
     properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
     properties["zoom"] = {std::to_string(m_zoom), Entity::Property::Types::Float};
     return properties;
+}
+void Camera::SetProperty(std::string_view name, const std::string& value) {
+    if (name == "zoom") {
+        m_zoom = std::stof(value);
+    } else {
+        Entity::SetProperty(name, value);
+    }
 }
 
 Entity* Camera::Create() { return new Camera(); }

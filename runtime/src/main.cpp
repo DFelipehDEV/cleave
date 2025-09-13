@@ -65,7 +65,7 @@ int main() {
     input->AddAction("right", GLFW_KEY_D);
     input->AddAction("right", GLFW_KEY_RIGHT);
 
-#ifndef CLEAVE_EDITOR_ENABLED
+#ifdef CLEAVE_EDITOR_ENABLED
     Cleave::Editor::EditorContext editor =
         Cleave::Editor::EditorContext(window);
     Scene* scene = editor.GetCurrentGameView()->GetScene();
@@ -74,7 +74,9 @@ int main() {
 #else
     audioManager->PlayMusic(resourceManager->Get<Sound>("res/GMate.ogg"));
     Scene* scene = resourceManager->Get<Scene>("res/scenes/TestScene.jscn").get();
+    auto lastPrintTime = std::chrono::high_resolution_clock::now();
     while (!window->shouldClose()) {
+        auto now = std::chrono::high_resolution_clock::now();
         renderer->ClearColor(100, 149, 237, 255);
         renderer->BeginFrame();
         input->Update();
@@ -87,6 +89,13 @@ int main() {
         renderer->EndFrame();
         window->swapBuffers();
         window->pollEvents();
+        auto end = std::chrono::high_resolution_clock::now();
+        float frameTimeMs = std::chrono::duration<float, std::milli>(end - now).count();
+        float elapsed = std::chrono::duration<float>(end - lastPrintTime).count();
+        if (elapsed >= 1.0f) {
+            std::cout << "Frame Time: " << frameTimeMs << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) << std::endl;
+            lastPrintTime = end;
+        }
     }
 #endif
     return 0;

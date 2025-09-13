@@ -6,21 +6,9 @@ namespace Cleave {
 Entity::~Entity() {}
 
 void Entity::Init(const std::unordered_map<std::string, Property> properties) {
-    if (properties.find("id") != properties.end())
-        SetId(std::stoi(properties.at("id").value));
-    if (properties.find("name") != properties.end())
-        SetName(properties.at("name").value);
-
-    if (properties.find("position") != properties.end())
-        m_transform.SetPosition(
-            Vec2f::FromString(properties.at("position").value));
-    if (properties.find("scale") != properties.end())
-        m_transform.SetScale(Vec2f::FromString(properties.at("scale").value));
-    if (properties.find("rotation") != properties.end())
-        m_transform.SetRotationDegrees(
-            std::stof(properties.at("rotation").value));
-    if (properties.find("depth") != properties.end())
-        SetDepth(std::stoi(properties.at("depth").value));
+    for (const auto& [name, prop] : properties) {
+        SetProperty(name, prop.value);
+    }
 }
 
 void Entity::OnTick(float deltaTime) {
@@ -37,18 +25,30 @@ void Entity::OnRender(Renderer* renderer) {
 
 const std::unordered_map<std::string, Entity::Property> Entity::GetProperties() const {
     std::unordered_map<std::string, Property> properties;
-    properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
-    properties["id"] = {std::to_string(m_id), Entity::Property::Types::Hidden};
-
-    properties["name"] = {m_name, Entity::Property::Types::String};
-    properties["position"] = {m_transform.GetPosition().ToString(),
-                              Entity::Property::Types::Vec2f};
-    properties["scale"] = {m_transform.GetScale().ToString(),
-                           Entity::Property::Types::Vec2f};
-    properties["rotation"] = {std::to_string(m_transform.GetRotation()),
-                              Entity::Property::Types::Float};
-    properties["depth"] = {std::to_string(m_depth), Entity::Property::Types::Int};
+    properties["type"] = {GetTypeName(), Property::Types::Hidden};
+    properties["id"] = {std::to_string(m_id), Property::Types::Hidden};
+    properties["name"] = {m_name, Property::Types::String};
+    properties["position"] = {m_transform.GetPosition().ToString(), Property::Types::Vec2f};
+    properties["scale"] = {m_transform.GetScale().ToString(), Property::Types::Vec2f};
+    properties["rotation"] = {std::to_string(m_transform.GetRotation()), Property::Types::Float};
+    properties["depth"] = {std::to_string(m_depth), Property::Types::Int};
     return properties;
+}
+
+void Entity::SetProperty(std::string_view name, const std::string& value) {
+    if (name == "id") {
+        SetId(std::stoi(value));
+    } else if (name == "name") {
+        SetName(value);
+    } else if (name == "position") {
+        m_transform.SetPosition(Vec2f::FromString(value));
+    } else if (name == "scale") {
+        m_transform.SetScale(Vec2f::FromString(value));
+    } else if (name == "rotation") {
+        m_transform.SetRotationDegrees(std::stof(value));
+    } else if (name == "depth") {
+        SetDepth(std::stoi(value));
+    }
 }
 
 Entity* Entity::Create() { return new Entity(); }

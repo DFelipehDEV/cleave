@@ -46,6 +46,7 @@ void EditorContext::Run(Renderer* renderer) {
                 // callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
+    auto lastPrintTime = std::chrono::high_resolution_clock::now();
     while (!m_window->shouldClose()) {
         auto now = std::chrono::high_resolution_clock::now();
         m_window->pollEvents();
@@ -109,8 +110,11 @@ void EditorContext::Run(Renderer* renderer) {
         renderer->EndFrame();
         auto end = std::chrono::high_resolution_clock::now();
         float frameTimeMs = std::chrono::duration<float, std::milli>(end - now).count();
-        ImGui::SetCursorPos(ImVec2(32, 32));
-        ImGui::Text("Frame Time: %.2f ms, FPS: %.2f ms", frameTimeMs, frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f);
+        float elapsed = std::chrono::duration<float>(end - lastPrintTime).count();
+        if (elapsed >= 1.0f) {
+            std::cout << "Frame Time: " << frameTimeMs << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) << std::endl;
+            lastPrintTime = end;
+        }
         
         ImGui::Render();
         

@@ -10,14 +10,12 @@ public:
            Vec2f origin = {0.5f, 0.5f});
     ~Sprite() = default;
 
-    void Init(
-        const std::unordered_map<std::string, Property> properties) override;
     void OnRender(Renderer* renderer) override;
 
     static const char* GetTypeName() { return "cleave::Sprite"; }
 
-    const std::unordered_map<std::string, Property> GetProperties()
-        const override;
+    const std::unordered_map<std::string, Property> GetProperties() const override;
+    void SetProperty(std::string_view name, const std::string& value) override;
 
     static Entity* Create();
 

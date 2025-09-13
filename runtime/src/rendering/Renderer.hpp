@@ -78,7 +78,7 @@ public:
 
 struct RenderCommand {
     int depth = 0;
-    RenderCommand(int _depth) : depth(_depth) {std::cout << "Created command with depth " << _depth << std::endl;}
+    RenderCommand(int _depth) : depth(_depth) {}
     virtual void Run(Renderer* renderer) = 0;
 };
 

@@ -20,15 +20,15 @@ void Properties::OnRender(Scene* scene) {
 
     if (!entityProperties.empty()) {
         bool changed = false;
-        std::unordered_map<std::string, Entity::Property> newProperties;
         for (auto &[name, prop] : entityProperties) {
             std::string displayName = name;
+            std::string newValue = prop.value;
             displayName[0] = std::toupper(displayName[0]);
             switch (prop.type) {
                 case Entity::Property::Types::Int: {
                     int value = std::stoi(prop.value);
                     if (ImGui::InputInt(displayName.c_str(), &value)) {
-                        newProperties[name].value = std::to_string(value);
+                        newValue = std::to_string(value);
                         changed = true;
                     }
                     break;
@@ -37,7 +37,7 @@ void Properties::OnRender(Scene* scene) {
                 case Entity::Property::Types::Float: {
                     float value = std::stof(prop.value);
                     if (ImGui::InputFloat(displayName.c_str(), &value)) {
-                        newProperties[name].value = std::to_string(value);
+                        newValue = std::to_string(value);
                         changed = true;
                     }
                     break;
@@ -46,7 +46,7 @@ void Properties::OnRender(Scene* scene) {
                 case Entity::Property::Types::Double: {
                     double value = std::stod(prop.value);
                     if (ImGui::InputDouble(displayName.c_str(), &value)) {
-                        newProperties[name].value = std::to_string(value);
+                        newValue = std::to_string(value);
                         changed = true;
                     }
                     break;
@@ -55,7 +55,7 @@ void Properties::OnRender(Scene* scene) {
                 case Entity::Property::Types::Bool: {
                     bool value = std::stoi(prop.value);
                     if (ImGui::Checkbox(displayName.c_str(), &value)) {
-                        newProperties[name].value = std::to_string(value);
+                        newValue = std::to_string(value);
                         changed = true;
                     }
                     break;
@@ -64,7 +64,7 @@ void Properties::OnRender(Scene* scene) {
                 case Entity::Property::Types::Vec2f: {
                     Vec2f value = Vec2f::FromString(prop.value);
                     if (ImGui::InputFloat2(displayName.c_str(), &value.x)) {
-                        newProperties[name].value = value.ToString();
+                        newValue = value.ToString();
                         changed = true;
                     }
                     break;
@@ -77,14 +77,13 @@ void Properties::OnRender(Scene* scene) {
                     strncpy_s(buffer, prop.value.c_str(), sizeof(buffer));
                     buffer[sizeof(buffer) - 1] = '\0';
                     if (ImGui::InputText(displayName.c_str(), buffer, sizeof(buffer))) {
-                        newProperties[name].value = buffer;
+                        newValue = buffer;
                         changed = true;
                     }
                 }
             }
+            if (changed) entity->SetProperty(name, newValue);
         }
-
-        if (changed) entity->Init(newProperties);
     }
 }
 
