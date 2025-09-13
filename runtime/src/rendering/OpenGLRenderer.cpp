@@ -55,6 +55,7 @@ void OpenGLRenderer::Terminate() {}
 
 void OpenGLRenderer::BeginFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for (auto cmd : m_renderCommands) delete cmd;
     m_renderCommands.clear();
 }
 
@@ -262,7 +263,6 @@ void OpenGLRenderer::RunRenderCommands() {
               [](RenderCommand* a, RenderCommand* b) { return a->depth < b->depth; });
 
     for (RenderCommand* command : m_renderCommands) {
-        std::cout << "Running command with depth " << command->depth << std::endl;
         command->Run(this);
     }
 }
