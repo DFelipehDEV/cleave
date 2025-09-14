@@ -1,5 +1,7 @@
 #pragma once
 #include "rendering/Renderer.hpp"
+#include <unordered_map>
+#include <GL/glew.h>
 
 namespace Cleave {
 class OpenGLRenderer : Renderer {
@@ -23,10 +25,7 @@ public:
     BlendMode GetBlendMode() const;
     void SetBlendMode(BlendMode mode);
 
-    int GetSpriteShader() const;
-    void SetSpriteShader(int shaderId);
-
-    void UseShader(int shaderId);
+    void UseShader(ShaderHandle shader);
     void SetShaderUniformInt(const std::string& name, int value) const;
     void SetShaderUniformFloat(const std::string& name, float value) const;
     void SetShaderUniformVector2f(const std::string& name, float x, float y) const;
@@ -34,10 +33,10 @@ public:
     void SetShaderUniformVector4f(const std::string& name, float x, float y, float z, float w) const;
     void SetShaderUniformMatrix4(const std::string& name, const float* matrix) const;
 
-    void UseTexture(int textureId);
+    void UseTexture(TextureHandle handle);
 
     Renderer::TextureInfo CreateTexture(const std::string& path);
-    int CreateShader(const std::string& vertex, const std::string& fragment);
+    ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment);
 
     const std::vector<RenderCommand*>& GetRenderCommands() const;
     void AddRenderCommand(RenderCommand* command);
@@ -55,13 +54,15 @@ public:
     void DrawCircle(float x, float y, float radius, Color color, int segments = 16);
 
 private:
+    std::unordered_map<ShaderHandle, GLuint> m_shaders;
+    std::unordered_map<TextureHandle, GLuint> m_textures;
     std::vector<RenderCommand*> m_renderCommands;
     Matrix4 m_projection;
     Rect4f m_viewport;
     BlendMode m_blendMode = BlendMode::NORMAL;
 
+    GLuint m_currentTexture = 0;
     GLuint m_currentShader = 0;
-    GLuint m_spriteShader = 0;
     GLuint m_quadVAO = 0;
     GLuint m_quadVBO = 0;
     GLuint m_quadEBO = 0;

@@ -22,8 +22,8 @@ std::string LoadFile(const std::string& path) {
     return buffer.str();
 }
 
-int Shader::GetShaderId() const { return m_shaderId; }
-void Shader::SetShaderId(int id) { m_shaderId = id; }
+ShaderHandle Shader::GetHandle() const { return m_handle; }
+void Shader::SetHandle(ShaderHandle handle) { m_handle = handle; }
 
 std::shared_ptr<Resource> ShaderLoader::Load(const std::string& path, ResourceManager* resourceManager) {
     auto shaderPath = std::filesystem::path(path);
@@ -39,7 +39,7 @@ std::shared_ptr<Resource> ShaderLoader::Load(const std::string& path, ResourceMa
     }
 
     std::shared_ptr<Shader> shader = std::make_shared<Shader>();
-    shader->SetShaderId(resourceManager->GetRenderer()->CreateShader(ReadFile(vertPath), ReadFile(fragPath)));
+    shader->SetHandle(resourceManager->GetRenderer()->CreateShader(ReadFile(vertPath), ReadFile(fragPath)));
     shader->SetPath(path);
 
     return shader;

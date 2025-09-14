@@ -6,6 +6,9 @@
 #include "Window.hpp"
 #include "math/Rect4.hpp"
 #include "rendering/Color.hpp"
+#include "rendering/TextureFormat.hpp"
+#include "rendering/TextureHandle.hpp"
+#include "rendering/ShaderHandle.hpp"
 #include "math/Matrix4.hpp"
 
 namespace Cleave {
@@ -39,10 +42,7 @@ public:
     virtual BlendMode GetBlendMode() const = 0;
     virtual void SetBlendMode(BlendMode mode) = 0;
 
-    virtual int GetSpriteShader() const = 0;
-    virtual void SetSpriteShader(int shaderId) = 0;
-
-    virtual void UseShader(int shaderId) = 0;
+    virtual void UseShader(ShaderHandle shader) = 0;
     virtual void SetShaderUniformInt(const std::string& name, int value) const = 0;
     virtual void SetShaderUniformFloat(const std::string& name, float value) const = 0;
     virtual void SetShaderUniformVector2f(const std::string& name, float x, float y) const = 0;
@@ -50,15 +50,16 @@ public:
     virtual void SetShaderUniformVector4f(const std::string& name, float x, float y, float z, float w) const = 0;
     virtual void SetShaderUniformMatrix4(const std::string& name, const float* matrix) const = 0;
 
-    virtual void UseTexture(int textureId) = 0;
+    virtual void UseTexture(TextureHandle texture) = 0;
 
     struct TextureInfo {
-        uint32_t id = 0;
+        TextureHandle handle = 0;
         int width = 0;
         int height = 0;
+        TextureFormat format = TextureFormat::RGBA;
     };
     virtual TextureInfo CreateTexture(const std::string& path) = 0;
-    virtual int CreateShader(const std::string& vertex, const std::string& fragment) = 0;
+    virtual ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment) = 0;
 
     virtual const std::vector<RenderCommand*>& GetRenderCommands() const = 0;
     virtual void AddRenderCommand(RenderCommand* command) = 0;
@@ -85,49 +86,37 @@ struct RenderCommand {
 struct RenderQuadCommand : RenderCommand {
     float x, y, w, h;
     float u0 = 0.0f, v0 = 0.0f, u1 = 1.0f, v1 = 1.0f;
-    int textureId = -1;
-    int shaderId = -1;
+    TextureHandle texture = -1;
+    ShaderHandle shader = -1;
 
     Matrix4 modelMatrix;
-    Matrix4 projectionMatrix;
 
-    RenderQuadCommand(float _x, float _y, float _w, float _h, 
-                     int _textureId = -1, int _shaderId = -1, 
-                     Matrix4 _model = Matrix4(), 
-                     Matrix4 _projection = Matrix4(), 
-                     int _depth = 0, float _u0 = 0.0f, float _v0 = 0.0f, float _u1 = 1.0f, float _v1 = 1.0f)
+    RenderQuadCommand(float _x, float _y, 
+                    float _w, float _h, 
+                    TextureHandle _texture = -1, 
+                    ShaderHandle _shader = -1, 
+                    Matrix4 _model = Matrix4(),
+                    int _depth = 0, 
+                    float _u0 = 0.0f, float _v0 = 0.0f, 
+                    float _u1 = 1.0f, float _v1 = 1.0f)
         : RenderCommand(_depth), x(_x), y(_y), w(_w), h(_h), 
-          textureId(_textureId), shaderId(_shaderId),
-          modelMatrix(_model), projectionMatrix(_projection),
+          texture(_texture), shader(_shader),
+          modelMatrix(_model),
           u0(_u0), v0(_v0), u1(_u1), v1(_v1) {}
 
     void Run(Renderer* renderer) override {
-        if (shaderId != -1) {
-            renderer->UseShader(shaderId);
+        if (shader != -1) {
+            renderer->UseShader(shader);
             renderer->SetShaderUniformInt("tex", 0);
-            renderer->SetShaderUniformMatrix4("projection", (float*)projectionMatrix.m);
+            renderer->SetShaderUniformMatrix4("projection", (float*)renderer->GetProjection().m);
             renderer->SetShaderUniformMatrix4("model", (float*)modelMatrix.m);
         }
-        if (textureId != -1) {
-            renderer->UseTexture(textureId);
+
+        if (texture != -1) {
+            renderer->UseTexture(texture);
         }
+
         renderer->DrawQuad(x, y, w, h, u0, v0, u1, v1);
-    }
-};
-
-struct RenderSpriteCommand : RenderCommand {
-    float x, y, w, h;
-    int textureId = -1;
-
-    RenderSpriteCommand(float _x, float _y, float _w, float _h, int _textureId = -1, int _depth = 0)
-        : RenderCommand(_depth), x(_x), y(_y), w(_w), h(_h), textureId(_textureId) {}
-
-    void Run(Renderer* renderer) override {
-        if (textureId != -1) {
-            renderer->UseTexture(textureId);
-        }
-        renderer->UseShader(renderer->GetSpriteShader());
-        renderer->DrawQuad(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 };
 }  // namespace Cleave

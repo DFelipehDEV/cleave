@@ -8,14 +8,17 @@
 #include "resources/ResourceManager.hpp"
 
 namespace Cleave {
-uint32_t Texture::GetTextureId() const { return m_textureId; }
-void Texture::SetTextureId(int id) { m_textureId = id; }
-
 int Texture::GetWidth() const { return m_width; }
 void Texture::SetWidth(int width) { m_width = width; }
 
 int Texture::GetHeight() const { return m_height; }
 void Texture::SetHeight(int height) { m_height = height; }
+
+TextureFormat Texture::GetFormat() const { return m_format; }
+void Texture::SetFormat(TextureFormat format) { m_format = format; }
+
+TextureHandle Texture::GetHandle() const { return m_handle; }
+void Texture::SetHandle(TextureHandle handle) { m_handle = handle; }
 
 std::shared_ptr<Resource> TextureLoader::Load(const std::string& path, ResourceManager* resourceManager) {
     auto texture = std::make_shared<Texture>();
@@ -25,10 +28,11 @@ std::shared_ptr<Resource> TextureLoader::Load(const std::string& path, ResourceM
     #endif
     texture->SetPath(pathStr);
     auto textureInfo = resourceManager->GetRenderer()->CreateTexture(pathStr);
-    if (textureInfo.id != 0) {
-        texture->SetTextureId(textureInfo.id);
+    if (textureInfo.handle != 0) {
+        texture->SetHandle(textureInfo.handle);
         texture->SetWidth(textureInfo.width);
         texture->SetHeight(textureInfo.height);
+        texture->SetFormat(textureInfo.format);
         return texture;
     }
 

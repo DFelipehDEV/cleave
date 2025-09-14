@@ -2,9 +2,11 @@
 #include <string>
 #include <iostream>
 
+#include "rendering/TextureFormat.hpp"
 #include "Resource.hpp"
 
 namespace Cleave {
+typedef uint32_t TextureHandle;
 class Texture : public Resource {
 public:
     Texture() : m_width(1), m_height(1) {};
@@ -12,17 +14,21 @@ public:
 
     std::string GetTypeName() const override { return "cleave::Texture"; }
 
-    uint32_t GetTextureId() const;
-    void SetTextureId(int id);
+    TextureHandle GetHandle() const;
+    void SetHandle(TextureHandle handle);
 
     int GetWidth() const;
     void SetWidth(int width);
 
     int GetHeight() const;
     void SetHeight(int height);
+
+    TextureFormat GetFormat() const;
+    void SetFormat(TextureFormat format);
 private:
-    uint32_t m_textureId = 0;
+    TextureHandle m_handle = -1;
     int m_width, m_height;
+    TextureFormat m_format;
 };
 
 class TextureLoader : public ResourceLoader {

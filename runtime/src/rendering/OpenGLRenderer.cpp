@@ -1,7 +1,5 @@
 #include "rendering/OpenGLRenderer.hpp"
 
-#include <GL/glew.h>
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -114,12 +112,9 @@ void OpenGLRenderer::SetBlendMode(BlendMode mode) {
     }
 }
 
-int OpenGLRenderer::GetSpriteShader() const { return m_spriteShader; }
-void OpenGLRenderer::SetSpriteShader(int shaderId) { m_spriteShader = shaderId; }
-
-void OpenGLRenderer::UseShader(int shaderId) {
-    glUseProgram(shaderId);
-    m_currentShader = shaderId;
+void OpenGLRenderer::UseShader(ShaderHandle handle) {
+    glUseProgram(m_shaders[handle]);
+    m_currentShader = m_shaders[handle];
 }
 
 void OpenGLRenderer::SetShaderUniformInt(const std::string& name, int value) const {
@@ -180,35 +175,63 @@ void OpenGLRenderer::SetShaderUniformMatrix4(const std::string& name,
     glUniformMatrix4fv(location, 1, false, matrix);
 }
 
-void OpenGLRenderer::UseTexture(int textureId) {
-    glBindTexture(GL_TEXTURE_2D, textureId);
+void OpenGLRenderer::UseTexture(TextureHandle handle) {
+    glBindTexture(GL_TEXTURE_2D, m_textures[handle]);
+    m_currentTexture = m_textures[handle];
 }
 
 Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
     Renderer::TextureInfo info;
+    GLuint glHandle;
 
-    glGenTextures(1, &info.id);
-    glBindTexture(GL_TEXTURE_2D, info.id);
+    glGenTextures(1, &glHandle);
+    glBindTexture(GL_TEXTURE_2D, glHandle);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    unsigned char* data = stbi_load(path.c_str(), &info.width, &info.height, nullptr, STBI_rgb_alpha);
+    int channels;
+    unsigned char* data = stbi_load(path.c_str(), &info.width, &info.height, &channels, STBI_rgb_alpha);
     if (!data) {
         std::cerr << "Failed to load texture from file: " << path << std::endl;
         return info;
     }
+    TextureHandle handle = NEXT_TEXTURE_HANDLE++;
+    m_textures[handle] = glHandle;
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.width, info.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    GLenum format;
+    switch (channels) {
+        case 1:
+            format = GL_RED;
+            info.format = TextureFormat::R;
+            break;
+        case 2:
+            format = GL_RG;
+            info.format = TextureFormat::RG;
+            break;
+        case 3:
+            format = GL_RGB;
+            info.format = TextureFormat::RGB;
+            break;
+        default:
+            format = GL_RGBA;
+            info.format = TextureFormat::RGBA;
+            break;
+    }
+
+    info.handle = handle;
+
+    GLenum internalFormat = (channels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, info.width, info.height, 0, format, GL_UNSIGNED_BYTE, data);
 
     stbi_image_free(data);
     glBindTexture(GL_TEXTURE_2D, 0);
     return info;
 }
 
-int OpenGLRenderer::CreateShader(const std::string& vertex, const std::string& fragment) {
+ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::string& fragment) {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     const char* vertexSource = vertex.c_str();
     glShaderSource(vertexShader, 1, &vertexSource, nullptr);
@@ -252,7 +275,10 @@ int OpenGLRenderer::CreateShader(const std::string& vertex, const std::string& f
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    return shaderProgram;
+    ShaderHandle handle = NEXT_SHADER_HANDLE++;
+    m_shaders[handle] = shaderProgram;
+
+    return handle;
 }
 
 const std::vector<RenderCommand*>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }

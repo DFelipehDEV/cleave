@@ -51,6 +51,7 @@ set(HEADERS
 	platform/MessageBox.hpp
 	rendering/OpenGLRenderer.hpp
 	rendering/Renderer.hpp
+	rendering/TextureFormat.hpp
 	resources/Resource.hpp
 	resources/ResourceManager.hpp
 	resources/Shader.hpp

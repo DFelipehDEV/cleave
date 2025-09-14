@@ -6,6 +6,7 @@
 #include <fstream>
 
 #include "Resource.hpp"
+#include "rendering/ShaderHandle.hpp"
 
 namespace Cleave {
 class Shader : public Resource {
@@ -15,10 +16,10 @@ public:
 
     std::string GetTypeName() const override { return "cleave::Shader"; }
 
-    int GetShaderId() const;
-    void SetShaderId(int id);
+    ShaderHandle GetHandle() const;
+    void SetHandle(ShaderHandle handle);
 private:
-    int m_shaderId = 0;
+    ShaderHandle m_handle = 0;
 };
 
 class ShaderLoader : public ResourceLoader {

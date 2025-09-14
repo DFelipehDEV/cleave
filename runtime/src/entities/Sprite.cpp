@@ -68,10 +68,9 @@ void Sprite::OnRender(Renderer* renderer) {
             globalPosition.y,
             static_cast<float>(m_texture->GetWidth()),
             static_cast<float>(m_texture->GetHeight()), 
-            m_texture->GetTextureId(), 
-            shader->GetShaderId(), 
+            m_texture->GetHandle(), 
+            shader->GetHandle(), 
             model, 
-            renderer->GetProjection(),
             GetDepth()
         ));
     }

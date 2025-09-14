@@ -52,7 +52,7 @@ void EditorContext::Run(Renderer* renderer) {
         m_window->pollEvents();
         auto resourceManager = GET_RESMGR();
         auto shader = resourceManager->Get<Shader>("res/shaders/main.vert");
-        renderer->UseShader(shader->GetShaderId());
+        renderer->UseShader(shader->GetHandle());
         renderer->SetShaderUniformInt("tex", 0);
         renderer->SetShaderUniformMatrix4("projection", (float*)renderer->GetProjection().m);
         renderer->BeginFrame();
