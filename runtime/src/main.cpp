@@ -13,6 +13,7 @@
 #include "resources/Shader.hpp"
 #include "resources/Texture.hpp"
 #include "resources/Sound.hpp"
+#include "resources/Font.hpp"
 
 #include "audio/AudioManager.hpp"
 #include "audio/SoLoudBackend.hpp"
@@ -54,6 +55,7 @@ int main() {
     resourceManager->RegisterLoader(std::make_unique<ShaderLoader>());
     resourceManager->RegisterLoader(std::make_unique<SceneLoader>());
     resourceManager->RegisterLoader(std::make_unique<SoundLoader>());
+    resourceManager->RegisterLoader(std::make_unique<FontLoader>());
 
     resourceManager->ScanResources();
 

@@ -23,6 +23,7 @@ set(SOURCES
 	platform/${PLATFORM}/MessageBox.cpp
 	rendering/OpenGLRenderer.cpp
 	resources/Resource.cpp
+	resources/Font.cpp
 	resources/ResourceManager.cpp	
 	resources/Shader.cpp
 	resources/Sound.cpp
@@ -53,6 +54,7 @@ set(HEADERS
 	rendering/Renderer.hpp
 	rendering/TextureFormat.hpp
 	resources/Resource.hpp
+	resources/Font.hpp
 	resources/ResourceManager.hpp
 	resources/Shader.hpp
 	resources/Sound.hpp
@@ -61,13 +63,14 @@ set(HEADERS
 
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(Freetype REQUIRED)
 
 set(SOLOUD_BACKEND_WINMM ON CACHE BOOL "" FORCE)
 set(SOLOUD_BACKEND_SDL2 OFF CACHE BOOL "" FORCE)
 add_subdirectory(thirdparty/soloud/contrib ${CMAKE_BINARY_DIR}/soloud_build)
 
 add_library(CleaveRuntime STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(CleaveRuntime PRIVATE GLEW::GLEW glfw soloud)
+target_link_libraries(CleaveRuntime PRIVATE GLEW::GLEW glfw soloud Freetype::Freetype)
 target_include_directories(CleaveRuntime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(CleaveRuntimeExe main.cpp)

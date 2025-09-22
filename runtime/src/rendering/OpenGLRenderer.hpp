@@ -2,6 +2,8 @@
 #include "rendering/Renderer.hpp"
 #include <unordered_map>
 #include <GL/glew.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H  
 
 namespace Cleave {
 class OpenGLRenderer : Renderer {
@@ -37,6 +39,7 @@ public:
 
     Renderer::TextureInfo CreateTexture(const std::string& path);
     ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment);
+    FontHandle CreateFont(const std::string& fontPath, int fontSize);
 
     const std::vector<RenderCommand*>& GetRenderCommands() const;
     void AddRenderCommand(RenderCommand* command);
@@ -52,14 +55,22 @@ public:
     void DrawRect(float x, float y, float w, float h, Color color);
     void DrawRectOutline(float x, float y, float w, float h, Color color);
     void DrawCircle(float x, float y, float radius, Color color, int segments = 16);
+    void DrawChar(char c, FontHandle fontHandle, 
+                    float x, float y, float scale, Color color);
+    void DrawText(const std::string& text, FontHandle fontHandle, 
+                    float x, float y, float scale, Color color);
 
+    const Glyph* GetGlyph(FontHandle fontHandle, char c);
 private:
     std::unordered_map<ShaderHandle, GLuint> m_shaders;
     std::unordered_map<TextureHandle, GLuint> m_textures;
+    std::unordered_map<FontHandle, std::unordered_map<char, Glyph>> m_fonts;
     std::vector<RenderCommand*> m_renderCommands;
     Matrix4 m_projection;
     Rect4f m_viewport;
     BlendMode m_blendMode = BlendMode::NORMAL;
+
+    FT_Library m_ftLibrary;
 
     GLuint m_currentTexture = 0;
     GLuint m_currentShader = 0;

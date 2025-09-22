@@ -6,8 +6,7 @@
 namespace Cleave {
 class Services {
 private:
-    static std::unordered_map<std::string, std::shared_ptr<void>>&
-    GetServices() {
+    static std::unordered_map<std::string, std::shared_ptr<void>>& GetServices() {
         static std::unordered_map<std::string, std::shared_ptr<void>> services;
         return services;
     }

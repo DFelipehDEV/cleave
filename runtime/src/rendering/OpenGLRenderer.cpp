@@ -47,9 +47,15 @@ void OpenGLRenderer::Initialize(Window& window) {
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
+
+    if (FT_Init_FreeType(&m_ftLibrary)) {
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+    }
 }
 
-void OpenGLRenderer::Terminate() {}
+void OpenGLRenderer::Terminate() {
+    FT_Done_FreeType(m_ftLibrary);
+}
 
 void OpenGLRenderer::BeginFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -281,6 +287,60 @@ ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::
     return handle;
 }
 
+FontHandle OpenGLRenderer::CreateFont(const std::string& fontPath, int fontSize) {
+    FT_Face face;
+    if (FT_New_Face(m_ftLibrary, fontPath.c_str(), 0, &face)) {
+        std::cout << "ERROR::FREETYPE: Failed to load font: " << fontPath << std::endl;
+        return 0;
+    }
+
+    FT_Set_Pixel_Sizes(face, 0, fontSize);
+    
+    FontHandle handle = NEXT_FONT_HANDLE++;
+    std::unordered_map<char, Glyph> glyphs;
+    
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
+    // Load ASCII characters
+    for (unsigned char c = 0; c < 128; c++) {
+        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+            std::cout << "ERROR::FREETYPE: Failed to load Glyph for character: " << (int)c << std::endl;
+            continue;
+        }
+
+        Glyph glyph;
+        glyph.size = {static_cast<int>(face->glyph->bitmap.width), static_cast<int>(face->glyph->bitmap.rows)};
+        glyph.bearing = {face->glyph->bitmap_left, face->glyph->bitmap_top};
+        glyph.advance = face->glyph->advance.x;
+        
+        // Create texture only if glyph has bitmap data
+        if (glyph.size.x > 0 && glyph.size.y > 0) {
+            GLuint texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED,
+                        glyph.size.x, glyph.size.y, 0,
+                        GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+            
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            
+            glyph.texture = NEXT_TEXTURE_HANDLE++;
+            m_textures[glyph.texture] = texture;
+        }
+        
+        glyphs[c] = glyph;
+    }
+    
+    m_fonts[handle] = std::move(glyphs);
+    
+    FT_Done_Face(face);
+    return handle;
+}
+
 const std::vector<RenderCommand*>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }
 void OpenGLRenderer::AddRenderCommand(RenderCommand* command) { m_renderCommands.push_back(command); }
 
@@ -446,6 +506,49 @@ void OpenGLRenderer::DrawCircle(float x, float y, float radius, Color color, int
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
+}
+
+void OpenGLRenderer::DrawChar(char c, FontHandle fontHandle, 
+                             float x, float y, float scale, Color color) {
+    const Glyph* glyph = GetGlyph(fontHandle, c);
+    if (!glyph) return;
+    
+    if (glyph->texture != 0) {
+        UseTexture(glyph->texture);
+        
+        float xpos = x + glyph->bearing.x * scale;
+        float ypos = y - (glyph->size.y - glyph->bearing.y) * scale;
+        float w = glyph->size.x * scale;
+        float h = glyph->size.y * scale;
+        
+        DrawQuad(xpos, ypos, w, h);
+    }
+}
+
+const Glyph* OpenGLRenderer::GetGlyph(FontHandle fontHandle, char c) {
+    auto fontIt = m_fonts.find(fontHandle);
+    if (fontIt == m_fonts.end())
+        return nullptr;
+
+    auto& glyphs = fontIt->second;
+    auto glyphIt = glyphs.find(c);
+    if (glyphIt == glyphs.end())
+        return nullptr;
+
+    return &glyphIt->second;
+}
+
+void OpenGLRenderer::DrawText(const std::string& text, FontHandle fontHandle, 
+                             float x, float y, float scale, Color color) {
+    float currentX = x;
+    
+    for (char c : text) {
+        const Glyph* glyph = GetGlyph(fontHandle, c);
+        if (glyph) {
+            DrawChar(c, fontHandle, currentX, y, scale, color);
+            currentX += (glyph->advance >> 6) * scale;
+        }
+    }
 }
 
 }  // namespace Cleave

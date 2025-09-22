@@ -9,7 +9,9 @@
 #include "rendering/TextureFormat.hpp"
 #include "rendering/TextureHandle.hpp"
 #include "rendering/ShaderHandle.hpp"
+#include "rendering/FontHandle.hpp"
 #include "math/Matrix4.hpp"
+#include "math/Transform.hpp"
 
 namespace Cleave {
 enum class BlendMode {
@@ -22,6 +24,17 @@ enum class BlendMode {
 };
 
 struct RenderCommand;
+
+struct Glyph {
+    TextureHandle texture;
+    Vec2i size;       // Size of glyph
+    Vec2i bearing;    // Offset from baseline to left/top of glyph
+    unsigned int advance;    // Offset to advance to next glyph
+
+    Glyph() : size(0, 0), bearing(0, 0) {}
+    Glyph(TextureHandle tex, Vec2i sz, Vec2i bear, unsigned int adv) 
+        : texture(tex), size(sz), bearing(bear), advance(adv) {}
+};
 
 class Renderer {
 public:
@@ -59,7 +72,10 @@ public:
         TextureFormat format = TextureFormat::RGBA;
     };
     virtual TextureInfo CreateTexture(const std::string& path) = 0;
+
     virtual ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment) = 0;
+
+    virtual FontHandle CreateFont(const std::string& path, int size = 48) = 0;
 
     virtual const std::vector<RenderCommand*>& GetRenderCommands() const = 0;
     virtual void AddRenderCommand(RenderCommand* command) = 0;
@@ -75,6 +91,11 @@ public:
     virtual void DrawRect(float x, float y, float w, float h, Color color) = 0;
     virtual void DrawRectOutline(float x, float y, float w, float h, Color color) = 0;
     virtual void DrawCircle(float x, float y, float radius, Color color, int segments = 16) = 0;
+    virtual void DrawChar(char c, FontHandle fontHandle, 
+                    float x, float y, float scale, Color color) = 0;
+    virtual void DrawText(const std::string& text, FontHandle font, float x, float y, float scale, Color color) = 0;
+
+    virtual const Glyph* GetGlyph(FontHandle fontHandle, char c) = 0;
 };
 
 struct RenderCommand {
@@ -117,6 +138,32 @@ struct RenderQuadCommand : RenderCommand {
         }
 
         renderer->DrawQuad(x, y, w, h, u0, v0, u1, v1);
+    }
+};
+
+struct RenderTextCommand : RenderCommand {
+    std::string text;
+    FontHandle font;
+    ShaderHandle shader;
+    float x, y, scale;
+    Color color;
+
+    RenderTextCommand(const std::string& _text, FontHandle _font, ShaderHandle _shader, 
+                     float _x, float _y, float _scale, Color _color, int _depth = 0)
+        : RenderCommand(_depth), text(_text), font(_font), shader(_shader),
+          x(_x), y(_y), scale(_scale), color(_color) {}
+
+    void Run(Renderer* renderer) override {
+        if (shader != -1) {
+            renderer->UseShader(shader);
+            renderer->SetShaderUniformInt("tex", 0);
+            Transform transform = Transform({x, y});
+
+            renderer->SetShaderUniformMatrix4("model", (float*)transform.m);
+            renderer->SetShaderUniformMatrix4("projection", (float*)renderer->GetProjection().m);
+            renderer->SetShaderUniformVector4f("textColor", color.r/1.0f, color.g/1.0f, color.b/1.0f, color.a/1.0f);
+        }
+        renderer->DrawText(text, font, x, y, scale, color);
     }
 };
 }  // namespace Cleave
