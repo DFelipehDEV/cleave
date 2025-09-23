@@ -6,7 +6,6 @@
 
 #include <fstream>
 #include <functional>
-#include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "Services.hpp"
@@ -112,7 +111,9 @@ void EditorContext::Run(Renderer* renderer) {
         float frameTimeMs = std::chrono::duration<float, std::milli>(end - now).count();
         float elapsed = std::chrono::duration<float>(end - lastPrintTime).count();
         if (elapsed >= 1.0f) {
-            std::cout << "Frame Time: " << frameTimeMs << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) << std::endl;
+            LOG_INFO("Frame Time: " << frameTimeMs 
+                        << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) 
+                        << " DrawCalls:" << renderer->GetDrawCalls());
             lastPrintTime = end;
         }
         

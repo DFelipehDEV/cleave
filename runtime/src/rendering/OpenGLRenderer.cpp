@@ -1,11 +1,11 @@
 #include "rendering/OpenGLRenderer.hpp"
 
-#include <iostream>
 #include <vector>
 #include <algorithm>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "thirdparty/stb_image.h"
+#include "Log.hpp"
 
 namespace Cleave {
 OpenGLRenderer::~OpenGLRenderer() { Terminate(); }
@@ -49,7 +49,7 @@ void OpenGLRenderer::Initialize(Window& window) {
     glBindVertexArray(0);
 
     if (FT_Init_FreeType(&m_ftLibrary)) {
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        LOG_ERROR("Couldn't init FreeType Library");
     }
 }
 
@@ -59,12 +59,17 @@ void OpenGLRenderer::Terminate() {
 
 void OpenGLRenderer::BeginFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (auto cmd : m_renderCommands) delete cmd;
+    m_drawCalls = 0; 
     m_renderCommands.clear();
 }
 
 void OpenGLRenderer::EndFrame() {
 }
+
+uint32_t OpenGLRenderer::GetDrawCalls() const { return m_drawCalls; }
+
+int OpenGLRenderer::GetDepth() const { return m_depth; }
+void OpenGLRenderer::SetDepth(int depth) { m_depth = depth; }
 
 Matrix4 OpenGLRenderer::GetProjection() const { return m_projection; }
 void OpenGLRenderer::SetProjection(Matrix4 projection) {
@@ -118,24 +123,28 @@ void OpenGLRenderer::SetBlendMode(BlendMode mode) {
     }
 }
 
+void OpenGLRenderer::SetShader(ShaderHandle handle) {
+    m_currentShader = handle;
+}
+
 void OpenGLRenderer::UseShader(ShaderHandle handle) {
     glUseProgram(m_shaders[handle]);
-    m_currentShader = m_shaders[handle];
+    SetShader(handle);
 }
 
 void OpenGLRenderer::SetShaderUniformInt(const std::string& name, int value) const {
-    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
     if (location == -1) {
-        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
     }
     glUniform1i(location, value);
 }
 
 void OpenGLRenderer::SetShaderUniformFloat(const std::string& name, float value) const {
-    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
     if (location == -1) {
-        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
     }
     glUniform1f(location, value);
@@ -143,9 +152,9 @@ void OpenGLRenderer::SetShaderUniformFloat(const std::string& name, float value)
 
 void OpenGLRenderer::SetShaderUniformVector2f(const std::string& name, float x,
                                 float y) const {
-    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
     if (location == -1) {
-        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
     }
     glUniform2f(location, x, y);
@@ -153,9 +162,9 @@ void OpenGLRenderer::SetShaderUniformVector2f(const std::string& name, float x,
 
 void OpenGLRenderer::SetShaderUniformVector3f(const std::string& name, float x, float y,
                                 float z) const {
-    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
     if (location == -1) {
-        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
     }
     glUniform3f(location, x, y, z);
@@ -163,9 +172,9 @@ void OpenGLRenderer::SetShaderUniformVector3f(const std::string& name, float x, 
 
 void OpenGLRenderer::SetShaderUniformVector4f(const std::string& name, float x, float y,
                                 float z, float w) const {
-    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
     if (location == -1) {
-        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        LOG_WARN("Shader: " << m_currentShader <<  " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
     }
     glUniform4f(location, x, y, z, w);
@@ -173,17 +182,21 @@ void OpenGLRenderer::SetShaderUniformVector4f(const std::string& name, float x, 
 
 void OpenGLRenderer::SetShaderUniformMatrix4(const std::string& name,
                                const float* matrix) const {
-    GLint location = glGetUniformLocation(m_currentShader, name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
     if (location == -1) {
-        std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")\n";
+        LOG_WARN("Shader: " << m_currentShader <<  " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
     }
     glUniformMatrix4fv(location, 1, false, matrix);
 }
 
+void OpenGLRenderer::SetTexture(TextureHandle handle) {
+    m_currentTexture = handle;
+}
+
 void OpenGLRenderer::UseTexture(TextureHandle handle) {
     glBindTexture(GL_TEXTURE_2D, m_textures[handle]);
-    m_currentTexture = m_textures[handle];
+    SetTexture(handle);
 }
 
 Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
@@ -201,7 +214,7 @@ Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
     int channels;
     unsigned char* data = stbi_load(path.c_str(), &info.width, &info.height, &channels, STBI_rgb_alpha);
     if (!data) {
-        std::cerr << "Failed to load texture from file: " << path << std::endl;
+        LOG_ERROR("Failed to load texture from file: " << path);
         return info;
     }
     TextureHandle handle = NEXT_TEXTURE_HANDLE++;
@@ -248,7 +261,7 @@ ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cerr << "Vertex shader compilation failed: " << infoLog << std::endl;
+        LOG_ERROR("Vertex shader compilation failed: " << infoLog);
         return -1;
     }
 
@@ -261,7 +274,7 @@ ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cerr << "Fragment shader compilation failed: " << infoLog << std::endl;
+        LOG_ERROR("Fragment shader compilation failed: " << infoLog);
         return -1;
     }
 
@@ -274,7 +287,7 @@ ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::
     if (!success) {
         char infoLog[512];
         glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cerr << "Shader program linking failed: " << infoLog << std::endl;
+        LOG_ERROR("Shader program linking failed: " << infoLog);
         return -1;
     }
 
@@ -290,7 +303,7 @@ ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::
 FontHandle OpenGLRenderer::CreateFont(const std::string& fontPath, int fontSize) {
     FT_Face face;
     if (FT_New_Face(m_ftLibrary, fontPath.c_str(), 0, &face)) {
-        std::cout << "ERROR::FREETYPE: Failed to load font: " << fontPath << std::endl;
+        LOG_ERROR("Failed to load font: " << fontPath);
         return 0;
     }
 
@@ -304,7 +317,7 @@ FontHandle OpenGLRenderer::CreateFont(const std::string& fontPath, int fontSize)
     // Load ASCII characters
     for (unsigned char c = 0; c < 128; c++) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-            std::cout << "ERROR::FREETYPE: Failed to load Glyph for character: " << (int)c << std::endl;
+            LOG_WARN("Failed to load Glyph for character: " << (int)c);
             continue;
         }
 
@@ -341,15 +354,204 @@ FontHandle OpenGLRenderer::CreateFont(const std::string& fontPath, int fontSize)
     return handle;
 }
 
-const std::vector<RenderCommand*>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }
-void OpenGLRenderer::AddRenderCommand(RenderCommand* command) { m_renderCommands.push_back(command); }
+const std::vector<std::unique_ptr<RenderCommand>>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }
+void OpenGLRenderer::AddRenderCommand(std::unique_ptr<RenderCommand> command) { m_renderCommands.push_back(std::move(command)); }
 
 void OpenGLRenderer::RunRenderCommands() {
     std::stable_sort(m_renderCommands.begin(), m_renderCommands.end(),
-              [](RenderCommand* a, RenderCommand* b) { return a->depth < b->depth; });
+        [](const std::unique_ptr<RenderCommand>& a, const std::unique_ptr<RenderCommand>& b) {
+            return a->depth < b->depth;
+        });
 
-    for (RenderCommand* command : m_renderCommands) {
-        command->Run(this);
+    for (auto& command : m_renderCommands) {
+        if (!command) continue;
+        RenderCommand* rawCmd = command.get();
+        Transform transform = Transform();
+        switch (rawCmd->type) {
+            case RenderCommand::Type::Quad: {
+                RenderQuadCommand* quadCmd = dynamic_cast<RenderQuadCommand*>(rawCmd);
+                if (!quadCmd) break;
+                transform.SetPosition({quadCmd->x, quadCmd->y});
+                transform.SetRotation(quadCmd->rotation);
+                transform.SetScale({quadCmd->scaleX, quadCmd->scaleY});
+                if (quadCmd->shader != -1) {
+                    UseShader(quadCmd->shader);
+                    SetShaderUniformInt("tex", 0);
+                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
+                    SetShaderUniformMatrix4("model", (float*)transform.GetMatrix().m);
+                    SetShaderUniformVector4f("color", quadCmd->color.r / 255.0f, quadCmd->color.g / 255.0f, quadCmd->color.b / 255.0f, quadCmd->color.a / 255.0f);
+                }
+
+                if (quadCmd->texture != -1) {
+                    UseTexture(quadCmd->texture);
+                }
+                glBindVertexArray(m_quadVAO);
+
+                float vertices[] = {
+                    // x, y, u, v
+                    quadCmd->x, quadCmd->y + quadCmd->h, quadCmd->u0, quadCmd->v1,     // top-left
+                    quadCmd->x + quadCmd->w, quadCmd->y + quadCmd->h, quadCmd->u1, quadCmd->v1,   // top-right
+                    quadCmd->x + quadCmd->w, quadCmd->y, quadCmd->u1, quadCmd->v0,     // bottom-right
+                    quadCmd->x, quadCmd->y, quadCmd->u0, quadCmd->v0             // bottom-left
+                };
+
+                glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+                glBindVertexArray(0);
+                break;
+            }
+
+            case RenderCommand::Type::Line: {
+                RenderLineCommand* lineCmd = dynamic_cast<RenderLineCommand*>(rawCmd);
+                if (!lineCmd) break;
+
+                if (rawCmd->shader != -1) { 
+                    UseShader(rawCmd->shader);
+                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
+                    //SetShaderUniformMatrix4("transform", (float*)transform.m);
+                }
+                glBindTexture(GL_TEXTURE_2D, 0);
+                float vertices[] = {
+                    lineCmd->x1, lineCmd->y1, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f,
+                    lineCmd->x2, lineCmd->y2, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f};
+                unsigned int indices[] = {0, 1};
+
+                unsigned int VAO, VBO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+                // Position
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(0);
+
+                // Color
+                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+                glEnableVertexAttribArray(1);
+
+                glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+
+                glDeleteVertexArrays(1, &VAO);
+                glDeleteBuffers(1, &VBO);
+                glDeleteBuffers(1, &EBO);
+                break;
+            }
+
+            case RenderCommand::Type::Rect: {
+                RenderRectCommand* rectCmd = dynamic_cast<RenderRectCommand*>(rawCmd);
+                if (!rectCmd) break;
+                if (rawCmd->shader != -1) { 
+                    UseShader(rawCmd->shader);
+                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
+                    //SetShaderUniformMatrix4("transform", (float*)transform.m);
+                }
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                float vertices[] = {
+                    // Position        // Color
+                    rectCmd->x, rectCmd->y + rectCmd->h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
+                    rectCmd->x + rectCmd->w, rectCmd->y + rectCmd->h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
+                    rectCmd->x + rectCmd->w, rectCmd->y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
+                    rectCmd->x, rectCmd->y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f};
+
+                unsigned int indices[] = {0, 1, 2, 0, 2, 3};
+
+                unsigned int VAO, VBO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+                // Position attribute
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(0);
+
+                // Color attribute
+                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+                glEnableVertexAttribArray(1);
+
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+
+                glDeleteVertexArrays(1, &VAO);
+                glDeleteBuffers(1, &VBO);
+                glDeleteBuffers(1, &EBO);
+                break;
+            }
+
+            case RenderCommand::Type::Circle: {
+                RenderCircleCommand* circleCmd = dynamic_cast<RenderCircleCommand*>(rawCmd);
+                if (!circleCmd) break;
+                if (rawCmd->shader != -1) { 
+                    UseShader(rawCmd->shader);
+                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
+                    //SetShaderUniformMatrix4("transform", (float*)transform.m);
+                }
+                std::vector<float> vertices;
+                vertices.insert(vertices.end(), {circleCmd->x, circleCmd->y, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
+
+                for (int i = 0; i <= circleCmd->segments; i++) {
+                    float angle = 2.0f * (float)M_PI * i / circleCmd->segments;
+                    float px = circleCmd->x + circleCmd->radius * cos(angle);
+                    float py = circleCmd->y + circleCmd->radius * sin(angle);
+
+                    vertices.insert(vertices.end(), {px, py, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
+                }
+
+                std::vector<uint32_t> indices;
+                for (int i = 0; i < circleCmd->segments; i++) {
+                    indices.insert(indices.end(), {0, (uint32_t)(i + 1), (uint32_t)(i + 2)});
+                }
+
+                unsigned int VAO, VBO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
+
+                // Position attribute
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(0);
+
+                // Color attribute
+                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+                glEnableVertexAttribArray(1);
+
+                glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+
+                glDeleteVertexArrays(1, &VAO);
+                glDeleteBuffers(1, &VBO);
+                glDeleteBuffers(1, &EBO);
+                break;
+            }
+        }
     }
 }
 
@@ -357,103 +559,32 @@ void OpenGLRenderer::ClearColor(int r, int g, int b, int a) {
     glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
 
+void OpenGLRenderer::DrawQuad(float x, float y, float w, float h, float u0, float v0, float u1, float v1, Color color) {
+    AddRenderCommand(
+        std::make_unique<RenderQuadCommand>(
+            x, y, w, h, 1.0f, 1.0f, 
+            0.0f, m_currentTexture, m_currentShader, 
+            m_depth, u0, v0, u1, v1, color
+        )
+    );
+}
+
+void OpenGLRenderer::DrawQuad(float x, float y, float w, float h, float scaleX, float scaleY, float rotation, float u0, float v0, float u1, float v1, Color color) {
+    AddRenderCommand(
+        std::make_unique<RenderQuadCommand>(
+            x, y, w, h, scaleX, scaleY, 
+            rotation, m_currentTexture, m_currentShader, 
+            m_depth, u0, v0, u1, v1, color
+        )
+    );
+}
+
 void OpenGLRenderer::DrawLine(float x1, float y1, float x2, float y2, Color color) {
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    float vertices[] = {
-        x1, y1, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f,
-        x2, y2, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f};
-    unsigned int indices[] = {0, 1};
-
-    unsigned int VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Position
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Color
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-}
-
-void OpenGLRenderer::DrawQuad(float x, float y, float w, float h) {
-    DrawQuad(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
-}
-
-void OpenGLRenderer::DrawQuad(float x, float y, float w, float h,
-                              float u0, float v0, float u1, float v1) {
-    glBindVertexArray(m_quadVAO);
-
-    float vertices[] = {
-        // x, y, u, v
-        x, y + h, u0, v1,      // top-left
-        x + w, y + h, u1, v1,  // top-right
-        x + w, y, u1, v0,      // bottom-right
-        x, y, u0, v0           // bottom-left
-    };
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    AddRenderCommand(std::make_unique<RenderLineCommand>(x1, y1, x2, y2, color, m_currentShader, m_depth));
 }
 
 void OpenGLRenderer::DrawRect(float x, float y, float w, float h, Color color) {
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    float vertices[] = {
-        // Position        // Color
-        x, y + h, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f,
-        x + w, y + h, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f,
-        x + w, y, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f,
-        x, y, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f};
-
-    unsigned int indices[] = {0, 1, 2, 0, 2, 3};
-
-    unsigned int VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Color attribute
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    AddRenderCommand(std::make_unique<RenderRectCommand>(x, y, w, h, color, m_currentShader, m_depth));
 }
 
 void OpenGLRenderer::DrawRectOutline(float x, float y, float w, float h, Color color) {
@@ -464,65 +595,7 @@ void OpenGLRenderer::DrawRectOutline(float x, float y, float w, float h, Color c
 }
 
 void OpenGLRenderer::DrawCircle(float x, float y, float radius, Color color, int segments) {
-    std::vector<float> vertices;
-    vertices.insert(vertices.end(), {x, y, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f});
-
-    for (int i = 0; i <= segments; i++) {
-        float angle = 2.0f * (float)M_PI * i / segments;
-        float px = x + radius * cos(angle);
-        float py = y + radius * sin(angle);
-
-        vertices.insert(vertices.end(), {px, py, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f});
-    }
-
-    std::vector<uint32_t> indices;
-    for (int i = 0; i < segments; i++) {
-        indices.insert(indices.end(), {0, (uint32_t)(i + 1), (uint32_t)(i + 2)});
-    }
-
-    unsigned int VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
-
-    // Position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Color attribute
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-}
-
-void OpenGLRenderer::DrawChar(char c, FontHandle fontHandle, 
-                             float x, float y, float scale, Color color) {
-    const Glyph* glyph = GetGlyph(fontHandle, c);
-    if (!glyph) return;
-    
-    if (glyph->texture != 0) {
-        UseTexture(glyph->texture);
-        
-        float xpos = x + glyph->bearing.x * scale;
-        float ypos = y - (glyph->size.y - glyph->bearing.y) * scale;
-        float w = glyph->size.x * scale;
-        float h = glyph->size.y * scale;
-        
-        DrawQuad(xpos, ypos, w, h);
-    }
+    AddRenderCommand(std::make_unique<RenderCircleCommand>(x, y, radius, color, segments, m_currentShader, m_depth));
 }
 
 const Glyph* OpenGLRenderer::GetGlyph(FontHandle fontHandle, char c) {
@@ -539,16 +612,29 @@ const Glyph* OpenGLRenderer::GetGlyph(FontHandle fontHandle, char c) {
 }
 
 void OpenGLRenderer::DrawText(const std::string& text, FontHandle fontHandle, 
-                             float x, float y, float scale, Color color) {
-    float currentX = x;
-    
+                              float x, float y, float scale, Color color) {
+    const Glyph* glyph;
+    float cursorX = x;
+    float cursorY = y;
+
     for (char c : text) {
-        const Glyph* glyph = GetGlyph(fontHandle, c);
-        if (glyph) {
-            DrawChar(c, fontHandle, currentX, y, scale, color);
-            currentX += (glyph->advance >> 6) * scale;
+        glyph = GetGlyph(fontHandle, c);
+        if (!glyph || glyph->texture == -1) {
+            cursorX += 8 * scale;
+            continue;
         }
+
+        float xpos = cursorX + glyph->bearing.x * scale;
+        float ypos = cursorY - (glyph->size.y - glyph->bearing.y) * scale;
+        float w = glyph->size.x * scale;
+        float h = glyph->size.y * scale;
+
+        SetTexture(glyph->texture);
+        DrawQuad(xpos, ypos, w, h, 0.0f, 0.0f, 1.0f, 1.0f, color); 
+
+        cursorX += (glyph->advance >> 6) * scale;
     }
 }
+
 
 }  // namespace Cleave

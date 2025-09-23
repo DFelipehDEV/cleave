@@ -19,6 +19,7 @@ set(SOURCES
 	entities/Entity.cpp
 	entities/SoundPlayer.cpp
 	entities/Sprite.cpp
+	entities/WorldLabel.cpp
 	platform/${PLATFORM}/FileDialog.cpp
 	platform/${PLATFORM}/MessageBox.cpp
 	rendering/OpenGLRenderer.cpp
@@ -32,6 +33,7 @@ set(SOURCES
 
 set(HEADERS
 	Input.hpp
+	Log.hpp
 	Services.hpp
 	Window.hpp
 	audio/${AUDIO_BACKEND}Backend.hpp
@@ -48,6 +50,7 @@ set(HEADERS
 	entities/Entity.hpp
 	entities/SoundPlayer.hpp
 	entities/Sprite.hpp
+	entities/WorldLabel.hpp
 	platform/FileDialog.hpp
 	platform/MessageBox.hpp
 	rendering/OpenGLRenderer.hpp
@@ -75,6 +78,13 @@ target_include_directories(CleaveRuntime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(CleaveRuntimeExe main.cpp)
 target_link_libraries(CleaveRuntimeExe PRIVATE CleaveRuntime GLEW::GLEW glfw)
+set(RESOURCES_DIR ${CMAKE_SOURCE_DIR}/res)
+add_custom_command(
+    TARGET CleaveRuntimeExe POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${RESOURCES_DIR}
+            $<TARGET_FILE_DIR:CleaveRuntimeExe>/res
+)
 
 option(BUILD_EDITOR "Build the Editor module" ON)
 if(BUILD_EDITOR)

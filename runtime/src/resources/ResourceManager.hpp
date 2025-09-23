@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Log.hpp"
 #include "resources/Resource.hpp"
 #include "Services.hpp"
 
@@ -22,6 +23,7 @@ public:
         if (it != m_resources.end()) {
             return std::dynamic_pointer_cast<T>(it->second);
         }
+        LOG_ERROR("Resource not found: " << name);
         return nullptr;
     }
 

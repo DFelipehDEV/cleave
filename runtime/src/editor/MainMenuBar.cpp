@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
+#include "Log.hpp"
 
 #include "platform/FileDialog.hpp"
 #include "platform/MessageBox.hpp"
@@ -26,9 +26,7 @@ void MainMenuBar::OnRender() {
             }
 
             if (ImGui::MenuItem("Save as..")) {
-                std::cout << FileDialog::SaveFile(
-                                 "Project file (*.json)\0*.json\0")
-                          << std::endl;
+                LOG_INFO(FileDialog::SaveFile("Project file (*.json)\0*.json\0"));
             }
 
             if (ImGui::MenuItem("Exit")) {

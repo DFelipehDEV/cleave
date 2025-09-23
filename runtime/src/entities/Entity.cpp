@@ -1,7 +1,5 @@
 #include "Entity.hpp"
 
-#include <iostream>
-
 namespace Cleave {
 Entity::~Entity() {}
 
@@ -30,7 +28,7 @@ const std::unordered_map<std::string, Entity::Property> Entity::GetProperties() 
     properties["name"] = {m_name, Property::Types::String};
     properties["position"] = {m_transform.GetPosition().ToString(), Property::Types::Vec2f};
     properties["scale"] = {m_transform.GetScale().ToString(), Property::Types::Vec2f};
-    properties["rotation"] = {std::to_string(m_transform.GetRotation()), Property::Types::Float};
+    properties["rotation"] = {std::to_string(m_transform.GetRotationDegrees()), Property::Types::Float};
     properties["depth"] = {std::to_string(m_depth), Property::Types::Int};
     return properties;
 }

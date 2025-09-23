@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <iostream>
 
 namespace Cleave {
 
@@ -22,12 +21,11 @@ void ResourceManager::ScanResources(const std::string& path) {
 
             for (const auto& loader : m_loaders) {
                 if (loader->CanLoad(extension)) {
-                    auto resource = loader->Load(entry.path().string(), this);
+                    auto resource = loader->Load(entry.path().generic_string(), this);
                     if (resource) {
-                        std::string relPath = std::filesystem::relative(entry.path()).string();
-                        std::replace(relPath.begin(), relPath.end(), '\\', '/');
+                        std::string relPath = std::filesystem::relative(entry.path()).generic_string();
                         m_resources[relPath] = resource;
-                        std::cout << "Loaded resource: " << relPath << std::endl;
+                        LOG_INFO("Loaded resource: " << relPath);
                     }
                     break;
                 }

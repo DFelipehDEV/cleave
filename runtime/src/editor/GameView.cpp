@@ -58,7 +58,6 @@ void GameView::OnRender(Renderer* renderer) {
         ImGui::TableNextColumn();
         if (ImGui::Button(m_playing ? "Stop" : "Play")) {
             auto scenePath = m_scene->GetPath();
-            std::cout << "Scene path: " << scenePath << std::endl;
             m_playing = !m_playing;
             if (m_playing) {
                 JsonSceneSerializer::Save(scenePath, m_scene.get());

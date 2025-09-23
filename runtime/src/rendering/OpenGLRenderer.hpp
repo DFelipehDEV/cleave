@@ -18,6 +18,11 @@ public:
     void BeginFrame();
     void EndFrame();
 
+    uint32_t GetDrawCalls() const;
+
+    int GetDepth() const;
+    void SetDepth(int depth);
+
     Matrix4 GetProjection() const;
     void SetProjection(Matrix4 projection);
 
@@ -27,7 +32,8 @@ public:
     BlendMode GetBlendMode() const;
     void SetBlendMode(BlendMode mode);
 
-    void UseShader(ShaderHandle shader);
+    void SetShader(ShaderHandle handle);
+    void UseShader(ShaderHandle handle);
     void SetShaderUniformInt(const std::string& name, int value) const;
     void SetShaderUniformFloat(const std::string& name, float value) const;
     void SetShaderUniformVector2f(const std::string& name, float x, float y) const;
@@ -35,28 +41,27 @@ public:
     void SetShaderUniformVector4f(const std::string& name, float x, float y, float z, float w) const;
     void SetShaderUniformMatrix4(const std::string& name, const float* matrix) const;
 
+    void SetTexture(TextureHandle handle);
     void UseTexture(TextureHandle handle);
 
     Renderer::TextureInfo CreateTexture(const std::string& path);
     ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment);
     FontHandle CreateFont(const std::string& fontPath, int fontSize);
 
-    const std::vector<RenderCommand*>& GetRenderCommands() const;
-    void AddRenderCommand(RenderCommand* command);
+    const std::vector<std::unique_ptr<RenderCommand>>& GetRenderCommands() const;
+    void AddRenderCommand(std::unique_ptr<RenderCommand> command);
 
     void RunRenderCommands();
 
     void ClearColor(int r, int g, int b, int a);
 
-    void DrawQuad(float x, float y, float w, float h);
     void DrawQuad(float x, float y, float w, float h,
-                  float u0, float v0, float u1, float v1);
+                  float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White());
+    void DrawQuad(float x, float y, float w, float h, float scaleX = 1.0f, float scaleY = 1.0f, float rotation = 0.0f, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White());
     void DrawLine(float x1, float y1, float x2, float y2, Color color);
     void DrawRect(float x, float y, float w, float h, Color color);
     void DrawRectOutline(float x, float y, float w, float h, Color color);
     void DrawCircle(float x, float y, float radius, Color color, int segments = 16);
-    void DrawChar(char c, FontHandle fontHandle, 
-                    float x, float y, float scale, Color color);
     void DrawText(const std::string& text, FontHandle fontHandle, 
                     float x, float y, float scale, Color color);
 
@@ -65,15 +70,18 @@ private:
     std::unordered_map<ShaderHandle, GLuint> m_shaders;
     std::unordered_map<TextureHandle, GLuint> m_textures;
     std::unordered_map<FontHandle, std::unordered_map<char, Glyph>> m_fonts;
-    std::vector<RenderCommand*> m_renderCommands;
+    std::vector<std::unique_ptr<RenderCommand>> m_renderCommands;
+    int m_depth = 0;
     Matrix4 m_projection;
     Rect4f m_viewport;
     BlendMode m_blendMode = BlendMode::NORMAL;
 
+    uint32_t m_drawCalls = 0;
+
     FT_Library m_ftLibrary;
 
-    GLuint m_currentTexture = 0;
-    GLuint m_currentShader = 0;
+    TextureHandle m_currentTexture = 0;
+    ShaderHandle m_currentShader = 0;
     GLuint m_quadVAO = 0;
     GLuint m_quadVBO = 0;
     GLuint m_quadEBO = 0;

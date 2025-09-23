@@ -65,11 +65,11 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
     
     Vec2f offset = Vec2f(m_frameSize.x * 0.5f, m_frameSize.y * 0.5f);
     
-    Matrix4 model;
-    model.Translate(globalPosition);
-    model.Translate(-offset);
-    model.Rotate(rotation);
-    model.Scale(scale);
+    Transform transform;
+    transform.Translate(globalPosition);
+    transform.Translate(-offset);
+    transform.Rotate(rotation);
+    transform.Scale(scale);
     
     auto resourceManager = GET_RESMGR();
     auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
@@ -85,20 +85,16 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
     const float u1 = (framePos.x + m_frameSize.x) / texWidth;
     const float v1 = (framePos.y + m_frameSize.y) / texHeight;
     
-    renderer->AddRenderCommand(new RenderQuadCommand(
-        0,
-        0, 
-        static_cast<float>(m_frameSize.x),          
-        static_cast<float>(m_frameSize.y), 
-        GetTexture()->GetHandle(), 
-        shader->GetHandle(), 
-        model,
-        GetDepth(),
-        u0,
-        v0, 
-        u1, 
-        v1 
-    ));
+    renderer->SetTexture(GetTexture()->GetHandle());
+    renderer->SetShader(shader->GetHandle());
+    renderer->SetDepth(GetDepth());
+    renderer->DrawQuad(
+        globalPosition.x,
+        globalPosition.y,
+        static_cast<float>(m_frameSize.x),
+        static_cast<float>(m_frameSize.y),
+        u0, v0, u1, v1, Color::White()
+    );
     
     Entity::OnRender(renderer);
 }

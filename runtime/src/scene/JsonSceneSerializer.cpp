@@ -2,18 +2,18 @@
 
 #include <fstream>
 #include <functional>
-#include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "EntityRegistry.hpp"
 #include "entities/Entity.hpp"
 #include "scene/Scene.hpp"
+#include "Log.hpp"
 
 namespace Cleave {
 std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
-        std::cerr << "Failed to open: " << path << std::endl;
+        LOG_ERROR("Failed to open: " << path);
         return nullptr;
     }
 
@@ -21,7 +21,7 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
     try {
         file >> json;
     } catch (const std::exception& e) {
-        std::cerr << "JSON parse error: " << e.what() << std::endl;
+        LOG_ERROR("JSON parse error: " << e.what());
         return nullptr;
     }
 
@@ -72,7 +72,7 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
             entity->Init(properties);
         }
     } catch (const std::exception& e) {
-        std::cerr << "Scene loading failed: " << e.what() << std::endl;
+        LOG_ERROR("Scene loading failed: " << e.what());
         return nullptr;
     }
 
@@ -82,7 +82,7 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
 bool JsonSceneSerializer::Save(const std::string& path, Scene* scene) {
     std::ofstream file(path);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file for writing: " << path << std::endl;
+        LOG_ERROR("Failed to open file for writing: " << path);
         return false;
     }
 

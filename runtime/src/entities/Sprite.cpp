@@ -54,25 +54,22 @@ void Sprite::OnRender(Renderer* renderer) {
         Vec2f offset = Vec2f(m_texture->GetWidth() * m_origin.x,
                             m_texture->GetHeight() * m_origin.y);
 
-        Matrix4 model;
-        model.Translate(globalPosition);
-        model.Translate(-offset);
-        model.Rotate(GetTransform().GetWorldRotation());
-        model.Scale(GetTransform().GetWorldScale());
-
         auto resourceManager = GET_RESMGR();
         auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
 
-        renderer->AddRenderCommand(new RenderQuadCommand(
-            globalPosition.x,
-            globalPosition.y,
+        renderer->SetTexture(m_texture->GetHandle());
+        renderer->SetShader(shader->GetHandle());
+        renderer->SetDepth(GetDepth());
+        renderer->DrawQuad(
+            globalPosition.x - offset.x,
+            globalPosition.y - offset.y,
             static_cast<float>(m_texture->GetWidth()),
-            static_cast<float>(m_texture->GetHeight()), 
-            m_texture->GetHandle(), 
-            shader->GetHandle(), 
-            model, 
-            GetDepth()
-        ));
+            static_cast<float>(m_texture->GetHeight()),
+            GetTransform().GetWorldScale().x, 
+            GetTransform().GetWorldScale().y, 
+            GetTransform().GetWorldRotation(),
+            0.0f, 0.0f, 1.0f, 1.0f, Color::White()
+        );
     }
 
     Entity::OnRender(renderer);

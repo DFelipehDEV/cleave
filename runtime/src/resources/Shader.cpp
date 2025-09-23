@@ -4,7 +4,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 #include "resources/ResourceManager.hpp"
@@ -13,7 +12,7 @@ namespace Cleave {
 std::string LoadFile(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
-        std::cerr << "ERROR::SHADER::FILE_NOT_FOUND (" << path << ")\n";
+        LOG_ERROR("ERROR::SHADER::FILE_NOT_FOUND (" << path << ")");
         return "";
     }
 

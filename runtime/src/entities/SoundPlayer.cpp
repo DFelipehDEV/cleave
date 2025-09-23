@@ -1,6 +1,6 @@
 #include "entities/SoundPlayer.hpp"
 #include "Services.hpp"
-#include <iostream>
+#include "Log.hpp"
 
 namespace Cleave {
 const std::unordered_map<std::string, Entity::Property> SoundPlayer::GetProperties() const {
@@ -24,7 +24,7 @@ void SoundPlayer::SetProperty(std::string_view name, const std::string& value) {
         if (sound) {
             m_sound = sound;
         } else {
-            std::cout << "Sound in '" << value << "' doesn't exist" << std::endl;
+            LOG_WARN("Sound in '" << value << "' doesn't exist");
         }
     } else if (name == "playing") {
         m_playing = std::stoi(value);

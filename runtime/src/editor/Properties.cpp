@@ -1,7 +1,6 @@
 #include "Properties.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <regex>
 #include <sstream>
 #include <filesystem>
@@ -78,25 +77,25 @@ void Properties::OnRender(Scene* scene) {
                     break;
 
                 case Entity::Property::Types::FilePath:
-                        if (ImGui::Button(("Pick '" + name + "'").c_str())) {
-                            ImGui::OpenPopup("LoadPopup");
-                        } 
+                    if (ImGui::Button(("Pick '" + name + "'").c_str())) {
+                        ImGui::OpenPopup("LoadPopup");
+                    } 
 
-                        if (ImGui::BeginPopup("LoadPopup")) {
-                            ImGui::BeginChild("FileList", ImVec2(300, 400), true);
-                            for (const auto& entry : std::filesystem::recursive_directory_iterator("res/")) {
-                                if (entry.is_regular_file()) {
-                                    std::string path = entry.path().generic_string();
-                                    if (ImGui::Selectable(path.substr(4).c_str())) {
-                                        newValue = path;
-                                        changed = true;
-                                        ImGui::CloseCurrentPopup();
-                                    }
+                    if (ImGui::BeginPopup("LoadPopup")) {
+                        ImGui::BeginChild("FileList", ImVec2(300, 400), true);
+                        for (const auto& entry : std::filesystem::recursive_directory_iterator("res/")) {
+                            if (entry.is_regular_file()) {
+                                std::string path = entry.path().generic_string();
+                                if (ImGui::Selectable(path.substr(4).c_str())) {
+                                    newValue = path;
+                                    changed = true;
+                                    ImGui::CloseCurrentPopup();
                                 }
                             }
-                            ImGui::EndChild();
-                            ImGui::EndPopup();
                         }
+                        ImGui::EndChild();
+                        ImGui::EndPopup();
+                    }
                     break;
                 default: {
                     char buffer[256];

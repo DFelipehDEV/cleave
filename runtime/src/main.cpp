@@ -7,6 +7,7 @@
 #include "entities/Camera.hpp"
 #include "entities/Sprite.hpp"
 #include "entities/SoundPlayer.hpp"
+#include "entities/WorldLabel.hpp"
 #include "rendering/OpenGLRenderer.hpp"
 
 #include "resources/ResourceManager.hpp"
@@ -70,7 +71,7 @@ int main() {
     Registry::RegisterType<Camera>();
     Registry::RegisterType<Sprite>();
     Registry::RegisterType<SoundPlayer>();
-
+    Registry::RegisterType<WorldLabel>();
     // input->AddAction("right", GLFW_KEY_D);
     // input->AddAction("right", GLFW_KEY_RIGHT);
 
@@ -103,7 +104,9 @@ int main() {
         float frameTimeMs = std::chrono::duration<float, std::milli>(end - now).count();
         float elapsed = std::chrono::duration<float>(end - lastPrintTime).count();
         if (elapsed >= 1.0f) {
-            std::cout << "Frame Time: " << frameTimeMs << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) << std::endl;
+            LOG_INFO("Frame Time: " << frameTimeMs 
+                        << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) 
+                        << " DrawCalls:" << renderer->GetDrawCalls());
             lastPrintTime = end;
         }
     }

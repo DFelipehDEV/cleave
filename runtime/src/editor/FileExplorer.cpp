@@ -7,7 +7,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
-#include <iostream>
 
 #include "editor/EditorContext.hpp"
 #include "resources/ResourceManager.hpp"
@@ -30,7 +29,7 @@ void FileExplorer::ShowDirectory(std::filesystem::path dir) {
                 if (path.extension() == ".jscn") {
                     std::shared_ptr<Scene> scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(path.generic_string(), GET_RESMGR()));
                     if (scene) {
-                        std::cout << "Opening scene: " << scene->GetPath() << std::endl;
+                        LOG_INFO("Opening scene: " << scene->GetPath());
                         m_editorContext->AddGameView(std::make_shared<GameView>(scene, m_editorContext->GetProperties()));
                     }
                     scene.reset();

@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <iostream>
 
 #include "rendering/TextureFormat.hpp"
 #include "Resource.hpp"

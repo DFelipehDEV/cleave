@@ -1,11 +1,11 @@
 #include "Window.hpp"
 
-#include <iostream>
+#include "Log.hpp"
 
 namespace Cleave {
 Window::Window(int width, int height, const char* title) {
     if (!glfwInit()) {
-        std::cerr << "GLFW Init Failed\n";
+        LOG_ERROR("GLFW Init Failed");
         exit(1);
     }
 
@@ -15,7 +15,7 @@ Window::Window(int width, int height, const char* title) {
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {
-        std::cerr << "GLFW Window Creation Failed\n";
+        LOG_ERROR("GLFW Window Creation Failed");
         glfwTerminate();
         exit(1);
     }
