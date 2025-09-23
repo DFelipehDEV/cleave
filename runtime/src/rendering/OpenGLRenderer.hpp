@@ -44,6 +44,7 @@ public:
     void SetTexture(TextureHandle handle);
     void UseTexture(TextureHandle handle);
 
+    Renderer::TextureInfo CreateFallbackTexture();
     Renderer::TextureInfo CreateTexture(const std::string& path);
     ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment);
     FontHandle CreateFont(const std::string& fontPath, int fontSize);

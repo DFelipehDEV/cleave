@@ -78,6 +78,7 @@ public:
         int height = 0;
         TextureFormat format = TextureFormat::RGBA;
     };
+    virtual TextureInfo CreateFallbackTexture() = 0;
     virtual TextureInfo CreateTexture(const std::string& path) = 0;
 
     virtual ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment) = 0;

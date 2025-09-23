@@ -199,6 +199,35 @@ void OpenGLRenderer::UseTexture(TextureHandle handle) {
     SetTexture(handle);
 }
 
+Renderer::TextureInfo OpenGLRenderer::CreateFallbackTexture() {
+    Renderer::TextureInfo info;
+    info.width = 2;
+    info.height = 2;
+    info.format = TextureFormat::RGBA;
+
+    unsigned char pixels[] = {
+        255, 0, 255, 255,   0, 0, 0, 255,
+        0, 0, 0, 255,       255, 0, 255, 255
+    };
+
+    GLuint glHandle;
+    glGenTextures(1, &glHandle);
+    glBindTexture(GL_TEXTURE_2D, glHandle);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    TextureHandle handle = NEXT_TEXTURE_HANDLE++;
+    m_textures[handle] = glHandle;
+    info.handle = handle;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.width, info.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return info;
+}
+
 Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
     Renderer::TextureInfo info;
     GLuint glHandle;
@@ -215,7 +244,7 @@ Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
     unsigned char* data = stbi_load(path.c_str(), &info.width, &info.height, &channels, STBI_rgb_alpha);
     if (!data) {
         LOG_ERROR("Failed to load texture from file: " << path);
-        return info;
+        return CreateFallbackTexture();
     }
     TextureHandle handle = NEXT_TEXTURE_HANDLE++;
     m_textures[handle] = glHandle;
