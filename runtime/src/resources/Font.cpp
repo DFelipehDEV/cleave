@@ -1,5 +1,5 @@
 #include "resources/Font.hpp"
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "rendering/Renderer.hpp"
 #include <filesystem>
 #include <fstream>

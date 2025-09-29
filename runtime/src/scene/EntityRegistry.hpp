@@ -14,12 +14,8 @@ private:
 
 public:
     template <typename T>
+    requires std::derived_from<T, Entity> && std::default_initializable<T>
     static void RegisterType() {
-        static_assert(std::is_base_of_v<Entity, T>,
-                      "T must derive from Entity");
-        static_assert(std::is_default_constructible_v<T>,
-                      "T must be default constructible");
-
         GetFactories()[T::GetTypeName()] = []() {
             return std::make_unique<T>();
         };

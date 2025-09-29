@@ -1,7 +1,7 @@
 #pragma once
 #include "entities/Entity.hpp"
 #include "resources/Sound.hpp"
-#include "audio/AudioManager.hpp"
+#include "services/AudioManager.hpp"
 
 namespace Cleave {
 class SoundPlayer : public Entity {

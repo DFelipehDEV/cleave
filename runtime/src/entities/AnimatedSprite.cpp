@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <algorithm>
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 #include "entities/Entity.hpp"
 

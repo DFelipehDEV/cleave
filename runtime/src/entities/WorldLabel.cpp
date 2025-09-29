@@ -1,5 +1,5 @@
 #include "entities/WorldLabel.hpp"
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 
 namespace Cleave {

@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 #include "scene/JsonSceneSerializer.hpp"
 

@@ -1,8 +1,8 @@
 #include "Sprite.hpp"
 
-#include "Services.hpp"
+#include "services/Services.hpp"
 #include "math/Matrix4.hpp"
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 
 namespace Cleave {

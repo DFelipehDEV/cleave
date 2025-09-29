@@ -9,7 +9,7 @@
 #endif
 
 #include "editor/EditorContext.hpp"
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 
 namespace Cleave {
 namespace Editor {

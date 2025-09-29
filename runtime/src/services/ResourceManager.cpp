@@ -1,4 +1,4 @@
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 
 #include <algorithm>
 #include <filesystem>

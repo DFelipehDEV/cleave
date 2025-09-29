@@ -87,12 +87,7 @@ struct Vec2 {
         return Vec2<T>::Zero();
     }
 
-    // Comparison operators
-    bool operator==(const Vec2<T>& other) const {
-        return (x == other.x && y == other.y);
-    }
-
-    bool operator!=(const Vec2<T>& other) const { return !(*this == other); }
+    auto operator<=>(const Vec2&) const = default;
 
     // Utility functions
     float Dot(const Vec2<T>& other) const { return x * other.x + y * other.y; }

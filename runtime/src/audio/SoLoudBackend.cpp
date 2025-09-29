@@ -34,6 +34,8 @@ SoundHandle SoLoudBackend::PlaySound(std::shared_ptr<Sound> sound, float volume)
     if (auto* wav = static_cast<SoLoud::Wav*>(sound->GetData())) {
         return m_engine->play(*wav, volume * m_soundVolume);
     }
+    
+    return -1;
 }
 
 void SoLoudBackend::StopSound(SoundHandle handle) {

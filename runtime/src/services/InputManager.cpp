@@ -1,27 +1,27 @@
-#include "Input.hpp"
+#include "services/InputManager.hpp"
 
 namespace Cleave {
-void Input::AddAction(const std::string& actionName, int key) {
+void InputManager::AddAction(const std::string& actionName, int key) {
     InputAction& action = m_actions[actionName];
     action.inputs.push_back(key);
 }
 
-float Input::GetActionState(const std::string& actionName) const {
+float InputManager::GetActionState(const std::string& actionName) const {
     if (m_actions.find(actionName) == m_actions.end()) return 0.0f;
     return m_actions.at(actionName).state;
 }
 
-bool Input::IsActionPressed(const std::string& actionName) const {
+bool InputManager::IsActionPressed(const std::string& actionName) const {
     if (m_actions.find(actionName) == m_actions.end()) return false;
     return m_actions.at(actionName).state > 0.0f;
 }
 
-bool Input::IsActionJustPressed(const std::string& actionName) const {
+bool InputManager::IsActionJustPressed(const std::string& actionName) const {
     if (m_actions.find(actionName) == m_actions.end()) return false;
     return m_actions.at(actionName).justPressed;
 }
 
-void Input::Update() {
+void InputManager::Update() {
     for (auto& [key, action] : m_actions) {
         float state = 0.0f;
         bool justPressed = false;

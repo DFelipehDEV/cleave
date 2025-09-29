@@ -1,10 +1,12 @@
-#include "audio/AudioManager.hpp"
+#include "services/AudioManager.hpp"
 
 namespace Cleave {
     SoundHandle AudioManager::PlaySound(std::shared_ptr<Sound> sound) {
         if (m_backend) {
             return m_backend->PlaySound(sound, m_soundVolume);
         }
+
+        return -1;
     }
 
     void AudioManager::StopSound(SoundHandle handle) {

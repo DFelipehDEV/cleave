@@ -67,7 +67,7 @@ public:
     virtual void SetShaderUniformVector2f(const std::string& name, float x, float y) const = 0;
     virtual void SetShaderUniformVector3f(const std::string& name, float x, float y, float z) const = 0;
     virtual void SetShaderUniformVector4f(const std::string& name, float x, float y, float z, float w) const = 0;
-    virtual void SetShaderUniformMatrix4(const std::string& name, const float* matrix) const = 0;
+    virtual void SetShaderUniformMatrix4(const std::string& name, Matrix4 matrix) const = 0;
 
     virtual void SetTexture(TextureHandle handle) = 0;
     virtual void UseTexture(TextureHandle texture) = 0;

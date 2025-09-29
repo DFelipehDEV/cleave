@@ -181,13 +181,13 @@ void OpenGLRenderer::SetShaderUniformVector4f(const std::string& name, float x, 
 }
 
 void OpenGLRenderer::SetShaderUniformMatrix4(const std::string& name,
-                               const float* matrix) const {
+                               Matrix4 matrix) const {
     GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
     if (location == -1) {
         LOG_WARN("Shader: " << m_currentShader <<  " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
     }
-    glUniformMatrix4fv(location, 1, false, matrix);
+    glUniformMatrix4fv(location, 1, false, (float*)matrix.m);
 }
 
 void OpenGLRenderer::SetTexture(TextureHandle handle) {
@@ -406,8 +406,8 @@ void OpenGLRenderer::RunRenderCommands() {
                 if (quadCmd->shader != -1) {
                     UseShader(quadCmd->shader);
                     SetShaderUniformInt("tex", 0);
-                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
-                    SetShaderUniformMatrix4("model", (float*)transform.GetMatrix().m);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    SetShaderUniformMatrix4("model", transform.GetMatrix());
                     SetShaderUniformVector4f("color", quadCmd->color.r / 255.0f, quadCmd->color.g / 255.0f, quadCmd->color.b / 255.0f, quadCmd->color.a / 255.0f);
                 }
 
@@ -439,8 +439,8 @@ void OpenGLRenderer::RunRenderCommands() {
 
                 if (rawCmd->shader != -1) { 
                     UseShader(rawCmd->shader);
-                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
-                    //SetShaderUniformMatrix4("transform", (float*)transform.m);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    //SetShaderUniformMatrix4("transform", transform);
                 }
                 glBindTexture(GL_TEXTURE_2D, 0);
                 float vertices[] = {
@@ -483,8 +483,8 @@ void OpenGLRenderer::RunRenderCommands() {
                 if (!rectCmd) break;
                 if (rawCmd->shader != -1) { 
                     UseShader(rawCmd->shader);
-                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
-                    //SetShaderUniformMatrix4("transform", (float*)transform.m);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    //SetShaderUniformMatrix4("transform", transform);
                 }
                 glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -532,8 +532,8 @@ void OpenGLRenderer::RunRenderCommands() {
                 if (!circleCmd) break;
                 if (rawCmd->shader != -1) { 
                     UseShader(rawCmd->shader);
-                    SetShaderUniformMatrix4("projection", (float*)GetProjection().m);
-                    //SetShaderUniformMatrix4("transform", (float*)transform.m);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    //SetShaderUniformMatrix4("transform", transform);
                 }
                 std::vector<float> vertices;
                 vertices.insert(vertices.end(), {circleCmd->x, circleCmd->y, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});

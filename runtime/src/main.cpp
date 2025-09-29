@@ -1,7 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <algorithm>
 
-#include "Services.hpp"
+#include "services/Services.hpp"
 #include "Window.hpp"
 #include "entities/AnimatedSprite.hpp"
 #include "entities/Camera.hpp"
@@ -10,19 +10,19 @@
 #include "entities/WorldLabel.hpp"
 #include "rendering/OpenGLRenderer.hpp"
 
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 #include "resources/Texture.hpp"
 #include "resources/Sound.hpp"
 #include "resources/Font.hpp"
 
-#include "audio/AudioManager.hpp"
+#include "services/AudioManager.hpp"
 #include "audio/SoLoudBackend.hpp"
 
 #include "scene/EntityRegistry.hpp"
 #include "scene/Scene.hpp"
 #include "thirdparty/stb_image.h"
-#include "Input.hpp"
+#include "services/InputManager.hpp"
 
 using namespace Cleave;
 
@@ -60,11 +60,11 @@ int main() {
 
     resourceManager->ScanResources();
 
-    Input* input = new Input();
+    InputManager* input = new InputManager();
     AudioManager* audioManager = new AudioManager(resourceManager, std::make_unique<Config::AudioBackendType>());
-    Services::Provide<Input>("Input", input);
-    Services::Provide<ResourceManager>("ResMgr", resourceManager);
-    Services::Provide<AudioManager>("AudMgr", audioManager);
+    Services::Provide<InputManager>(input);
+    Services::Provide<ResourceManager>(resourceManager);
+    Services::Provide<AudioManager>(audioManager);
 
     Registry::RegisterType<Entity>();
     Registry::RegisterType<AnimatedSprite>();

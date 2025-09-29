@@ -1,5 +1,5 @@
 #include "entities/SoundPlayer.hpp"
-#include "Services.hpp"
+#include "services/Services.hpp"
 #include "Log.hpp"
 
 namespace Cleave {
@@ -46,23 +46,23 @@ Entity* SoundPlayer::Create() { return new SoundPlayer(); }
 bool SoundPlayer::IsPlaying() const { return m_playing; }
 void SoundPlayer::Play() {
     m_playing = true;
-    m_soundHandle = Services::Get<AudioManager>("AudMgr")->PlaySound(m_sound);
+    m_soundHandle = GET_AUDIOMGR()->PlaySound(m_sound);
 }
 
 void SoundPlayer::Stop() {
     m_playing = false;
-    Services::Get<AudioManager>("AudMgr")->StopSound(m_soundHandle);
+    GET_AUDIOMGR()->StopSound(m_soundHandle);
 }
 
 float SoundPlayer::GetVolume() const { return m_volume; }
 void SoundPlayer::SetVolume(float volume) {
     m_volume = volume;
-    Services::Get<AudioManager>("AudMgr")->SetSoundVolume(m_soundHandle, m_volume);
+    GET_AUDIOMGR()->SetSoundVolume(m_soundHandle, m_volume);
 }
 
 bool SoundPlayer::IsLooping() const { return m_loop; }
 void SoundPlayer::SetLoop(bool loop) {
     m_loop = loop;
-    Services::Get<AudioManager>("AudMgr")->SetSoundLoop(m_soundHandle, m_loop);
+    GET_AUDIOMGR()->SetSoundLoop(m_soundHandle, m_loop);
 }
 } // namespace Cleave

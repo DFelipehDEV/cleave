@@ -1,5 +1,5 @@
 #pragma once
-#include "audio/AudioManager.hpp"
+#include "services/AudioManager.hpp"
 #include <memory>
 #include <unordered_map>
 
@@ -9,8 +9,8 @@
 namespace Cleave {
 class SoLoudBackend : public AudioBackend {
 public:
-    SoLoudBackend::SoLoudBackend() : m_engine(new SoLoud::Soloud()) {}
-    SoLoudBackend::~SoLoudBackend() {
+    SoLoudBackend() : m_engine(new SoLoud::Soloud()) {}
+    ~SoLoudBackend() {
         Shutdown();
     }
     

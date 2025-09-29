@@ -6,18 +6,20 @@
 
 #include "Log.hpp"
 #include "resources/Resource.hpp"
-#include "Services.hpp"
+#include "services/Services.hpp"
 
 #include "rendering/Renderer.hpp"
 
-#define GET_RESMGR() Services::Get<ResourceManager>("ResMgr")
-
 namespace Cleave {
-class ResourceManager {
+#define GET_RESMGR() Services::Get<ResourceManager>()
+class ResourceManager : public Service {
 public:
     void RegisterLoader(std::unique_ptr<ResourceLoader> loader);
 
+    static std::string GetTypeName() { return "cleave::ResourceManager"; }
+
     template <typename T>
+    requires std::derived_from<T, Resource>
     std::shared_ptr<T> Get(const std::string& name) {
         auto it = m_resources.find(name);
         if (it != m_resources.end()) {

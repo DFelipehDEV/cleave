@@ -3,10 +3,11 @@
 #include <string>
 #include <memory>
 
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "resources/Sound.hpp"
 
 namespace Cleave {
+#define GET_AUDIOMGR() Services::Get<AudioManager>()
 typedef uint32_t SoundHandle;
 
 class AudioBackend {
@@ -32,12 +33,14 @@ public:
     virtual void SetSoundLoop(SoundHandle handle, bool loop) = 0;
 };
 
-class AudioManager {
+class AudioManager : public Service {
 public:
     AudioManager(ResourceManager* resourceManager, std::unique_ptr<AudioBackend> backend) : m_resourceManager(resourceManager), m_backend(std::move(backend)) {
         m_backend->Init();
     };
     ~AudioManager() = default;
+
+    static std::string GetTypeName() { return "cleave::AudioManager"; }
 
     SoundHandle PlaySound(std::shared_ptr<Sound> sound);
     void StopSound(SoundHandle handle);

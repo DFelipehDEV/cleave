@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 
 namespace Cleave {
 std::string LoadFile(const std::string& path) {

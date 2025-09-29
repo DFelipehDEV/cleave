@@ -5,11 +5,11 @@ endif()
 set(AUDIO_BACKEND SoLoud)
 
 set(SOURCES
-	Input.cpp
-	Services.cpp
+	services/InputManager.cpp
+	services/Services.cpp
 	Window.cpp
 	audio/${AUDIO_BACKEND}Backend.cpp
-	audio/AudioManager.cpp
+	services/AudioManager.cpp
 	math/Matrix4.cpp
 	math/Transform.cpp
 	scene/JsonSceneSerializer.cpp
@@ -25,19 +25,20 @@ set(SOURCES
 	rendering/OpenGLRenderer.cpp
 	resources/Resource.cpp
 	resources/Font.cpp
-	resources/ResourceManager.cpp	
+	services/ResourceManager.cpp	
 	resources/Shader.cpp
 	resources/Sound.cpp
 	resources/Texture.cpp
 )
 
 set(HEADERS
-	Input.hpp
+	services/InputManager.hpp
 	Log.hpp
-	Services.hpp
+	services/Service.hpp
+	services/Services.hpp
 	Window.hpp
 	audio/${AUDIO_BACKEND}Backend.hpp
-	audio/AudioManager.hpp
+	services/AudioManager.hpp
 	scene/JsonSceneSerializer.hpp
 	scene/EntityRegistry.hpp
 	scene/Scene.hpp
@@ -58,7 +59,7 @@ set(HEADERS
 	rendering/TextureFormat.hpp
 	resources/Resource.hpp
 	resources/Font.hpp
-	resources/ResourceManager.hpp
+	services/ResourceManager.hpp
 	resources/Shader.hpp
 	resources/Sound.hpp
 	resources/Texture.hpp

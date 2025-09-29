@@ -8,10 +8,10 @@
 namespace Cleave {
 class OpenGLRenderer : Renderer {
 public:
-    OpenGLRenderer::OpenGLRenderer()
+    OpenGLRenderer()
         : m_projection(Matrix4::Ortho(0.0f, 512.0f, 288.0f, 0.0f, -1.0f, 1.0f)),
           m_viewport(0.0f, 0.0f, 512.0f, 288.0f) {}
-    OpenGLRenderer::~OpenGLRenderer();
+    ~OpenGLRenderer();
     void Initialize(Window& window);
     void Terminate();
 
@@ -39,7 +39,7 @@ public:
     void SetShaderUniformVector2f(const std::string& name, float x, float y) const;
     void SetShaderUniformVector3f(const std::string& name, float x, float y, float z) const;
     void SetShaderUniformVector4f(const std::string& name, float x, float y, float z, float w) const;
-    void SetShaderUniformMatrix4(const std::string& name, const float* matrix) const;
+    void SetShaderUniformMatrix4(const std::string& name, Matrix4 matrix) const;
 
     void SetTexture(TextureHandle handle);
     void UseTexture(TextureHandle handle);

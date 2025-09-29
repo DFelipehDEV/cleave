@@ -8,9 +8,9 @@
 #include <functional>
 #include <nlohmann/json.hpp>
 
-#include "Services.hpp"
+#include "services/Services.hpp"
 #include "imgui.h"
-#include "resources/ResourceManager.hpp"
+#include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 #include "scene/JsonSceneSerializer.hpp"
 
@@ -53,7 +53,7 @@ void EditorContext::Run(Renderer* renderer) {
         auto shader = resourceManager->Get<Shader>("res/shaders/main.vert");
         renderer->UseShader(shader->GetHandle());
         renderer->SetShaderUniformInt("tex", 0);
-        renderer->SetShaderUniformMatrix4("projection", (float*)renderer->GetProjection().m);
+        renderer->SetShaderUniformMatrix4("projection", renderer->GetProjection());
         renderer->BeginFrame();
         // Clear
         {
