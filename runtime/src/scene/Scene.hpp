@@ -12,9 +12,15 @@ public:
 
     std::string GetTypeName() const override { return "cleave::Scene"; }
 
+    std::shared_ptr<Scene> Instantiate() const;
+
     std::unique_ptr<Entity> ReleaseRoot();
     Entity* GetRoot() const;
     void SetRoot(std::unique_ptr<Entity> root);
+
+    void AddSubScene(std::shared_ptr<Scene> subScene);
+
+    void ReassignEntityIDs();
 
     void Clear();
 

@@ -25,41 +25,35 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
         return nullptr;
     }
 
-    auto scene =
-        std::make_shared<Scene>(std::make_unique<Entity>(Transform(), "root"));
-
     std::vector<
         std::pair<Entity*, std::unordered_map<std::string, Entity::Property>>>
         pendingInits;
-    std::function<void(const nlohmann::json&, Entity*)> deserialize =
-        [&](const nlohmann::json& jsonData, Entity* parent) {
-            std::unordered_map<std::string, Entity::Property> properties;
-            for (const auto& [key, value] : jsonData.items()) {
-                if (key != "children") {
-                    properties[key].value = value.get<std::string>();
+    auto scene = std::make_shared<Scene>(std::make_unique<Entity>(Transform(), "root"));
+
+    std::function<void(const nlohmann::json&, Entity*)> deserialize;
+    deserialize = [&](const nlohmann::json& jsonData, Entity* parent) {
+        auto typeIt = Registry::GetAllTypes().find(jsonData["type"]);
+        if (typeIt != Registry::GetAllTypes().end()) {
+            std::unique_ptr<Entity> entity = Registry::CreateEntity(typeIt->first);
+
+            NEXT_ENTITY_ID = std::max(NEXT_ENTITY_ID, entity->GetId() + 1);
+
+            std::unordered_map<std::string, Entity::Property> props;
+            for (auto& [key, val] : jsonData.items()) {
+                if (key != "children") props[key].value = val.get<std::string>();
+            }
+            entity->Init(props);
+
+            Entity* rawPtr = entity.get();
+            parent->AddChild(std::move(entity));
+
+            if (jsonData.contains("children")) {
+                for (auto& childJson : jsonData["children"]) {
+                    deserialize(childJson, rawPtr);
                 }
             }
-            auto factory = Registry::GetAllTypes().find(jsonData["type"]);
-            if (factory != Registry::GetAllTypes().end()) {
-                std::unique_ptr<Entity> entity =
-                    Registry::CreateEntity(factory->first);
-
-                NEXT_ENTITY_ID = std::max(NEXT_ENTITY_ID, entity->GetId() + 1);
-
-                pendingInits.push_back({entity.get(), properties});
-
-                parent->AddChild(std::move(entity));
-
-                // The last added child is the one we just moved
-                Entity* childEntity = parent->GetChildren().back();
-
-                if (jsonData.contains("children")) {
-                    for (const auto& child : jsonData["children"]) {
-                        deserialize(child, childEntity);
-                    }
-                }
-            }
-        };
+        }
+    };
 
     try {
         if (json.contains("children")) {
@@ -91,7 +85,7 @@ bool JsonSceneSerializer::Save(const std::string& path, Scene* scene) {
     std::function<void(Entity*, nlohmann::json&)> serialize =
         [&serialize](Entity* entity, nlohmann::json& jsonOut) {
             const auto& properties = entity->GetProperties();
-            for (const auto& [key, prop] : properties) {
+            for (auto& [key, prop] : properties) {
                 jsonOut[key] = prop.value;
             }
 
@@ -100,7 +94,7 @@ bool JsonSceneSerializer::Save(const std::string& path, Scene* scene) {
                 nlohmann::json childrenArray = nlohmann::json::array();
                 for (const auto& child : children) {
                     nlohmann::json childJson;
-                    serialize(child, childJson);
+                    serialize(child.get(), childJson);
                     childrenArray.push_back(childJson);
                 }
                 jsonOut["children"] = childrenArray;

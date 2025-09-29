@@ -35,6 +35,9 @@ GameView::GameView(std::shared_ptr<Scene> scene, std::shared_ptr<Properties> pro
 }
 
 void GameView::OnUpdate() {
+    if (m_playing) {
+        m_scene->Tick();
+    }
     ImGuiIO& io = ImGui::GetIO();
     if (io.MouseWheel != 0.0f) {
         ImVec2 panelMin = ImGui::GetCursorScreenPos();
@@ -61,11 +64,14 @@ void GameView::OnRender(Renderer* renderer) {
             m_playing = !m_playing;
             if (m_playing) {
                 JsonSceneSerializer::Save(scenePath, m_scene.get());
+                m_runtimeScene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(scenePath, GET_RESMGR()));
             } else {
+                m_runtimeScene.reset();
                 m_properties->Clear();
                 m_scene = std::dynamic_pointer_cast<Scene>(SceneLoader().Load(scenePath, GET_RESMGR()));     
             }
         }
+
         ImGui::TableNextColumn();
         ImGui::Checkbox("Show Grid", &m_gridEnabled);
         ImGui::InputInt("Grid Size", &m_gridSize);
@@ -120,7 +126,7 @@ void GameView::OnRender(Renderer* renderer) {
         }
     }
     
-    m_scene->Render(renderer);
+    (m_playing ? m_runtimeScene : m_scene)->Render(renderer);
     renderer->RunRenderCommands();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

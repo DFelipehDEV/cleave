@@ -27,6 +27,7 @@ public:
     int GetGridSize() const;
     void SetGridSize(int size);
 private:
+    std::shared_ptr<Scene> m_runtimeScene;
     std::shared_ptr<Scene> m_scene;
     std::shared_ptr<Properties> m_properties;
     uint32_t m_frameBuffer;

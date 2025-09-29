@@ -78,13 +78,8 @@ void Entity::SetParent(Entity* parent) {
     }
 }
 
-std::vector<Entity*> Entity::GetChildren() const {
-    std::vector<Entity*> children;
-    children.reserve(m_children.size());
-    for (const auto& child_ptr : m_children) {
-        children.push_back(child_ptr.get());
-    }
-    return children;
+std::vector<std::unique_ptr<Entity>>& Entity::GetChildren() {
+    return m_children;
 }
 
 void Entity::AddChild(std::unique_ptr<Entity> child) {

@@ -29,6 +29,18 @@ public:
         return nullptr;
     }
 
+    template <typename T>
+    requires std::derived_from<T, Resource>
+    std::vector<std::shared_ptr<T>> GetAll() {
+        std::vector<std::shared_ptr<T>> result;
+        for (auto& [name, res] : m_resources) {
+            if (auto casted = std::dynamic_pointer_cast<T>(res)) {
+                result.push_back(casted);
+            }
+        }
+        return result;
+    }
+
     void ScanResources(const std::string& path = "res");
     void ReloadAll();
 

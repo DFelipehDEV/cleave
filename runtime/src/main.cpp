@@ -88,10 +88,6 @@ int main() {
             renderer->ClearColor(Color(100, 149, 237, 255));
             renderer->BeginFrame();
             input->Update();
-            // if (input->IsActionJustPressed("right")) {
-            //     audioManager->PlaySound(resourceManager->Get<Sound>("res/Jump.wav"));
-            //     std::cout << "right pressed!" << std::endl;
-            // }
 
             scene->Tick();
             scene->Render((Renderer*)renderer);

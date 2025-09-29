@@ -1,12 +1,46 @@
 #include "scene/Scene.hpp"
 
 #include "scene/JsonSceneSerializer.hpp"
+#include "Scene.hpp"
+#include "Log.hpp"
+#include "services/ResourceManager.hpp"
 
 namespace Cleave {
+std::shared_ptr<Scene> Scene::Instantiate() const {
+    return std::dynamic_pointer_cast<Scene>(SceneLoader().Load(GetPath(), GET_RESMGR()));
+}
+
 std::unique_ptr<Entity> Scene::ReleaseRoot() { return std::move(m_root); }
 
 Entity* Scene::GetRoot() const { return m_root.get(); }
 void Scene::SetRoot(std::unique_ptr<Entity> root) { m_root = std::move(root); }
+
+void Scene::AddSubScene(std::shared_ptr<Scene> subScene) {
+    if (!subScene || !subScene->GetRoot()) {
+        LOG_ERROR("Failed to load sub scene" << subScene->GetPath());
+        return;
+    }
+    subScene = subScene->Instantiate();
+
+    m_root->AddChild(subScene->ReleaseRoot());
+    ReassignEntityIDs();
+}
+
+void Scene::ReassignEntityIDs() {
+    if (!m_root) return;
+
+    auto reassignRecursive = [&](Entity* entity, auto&& self) -> void {
+        if (!entity) return;
+
+        //TODO: make ids consistent, might move to other method of assigning ids
+        entity->SetId(NEXT_ENTITY_ID++);
+        for (auto& child : entity->GetChildren()) {
+            self(child.get(), self);
+        }
+    };
+
+    reassignRecursive(m_root.get(), reassignRecursive);
+}
 
 void Scene::Clear() { m_root.release(); }
 

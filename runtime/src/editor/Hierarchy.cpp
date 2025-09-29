@@ -4,6 +4,7 @@
 
 #include "entities/Sprite.hpp"
 #include "imgui.h"
+#include "services/ResourceManager.hpp"
 
 namespace Cleave {
 namespace Editor {
@@ -17,14 +18,15 @@ void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
 
     std::string label = " ";
     label += entity->GetName().c_str();
+    label += " (" + std::to_string(entity->GetId()) + ")";
     bool opened = ImGui::TreeNodeEx(label.c_str(), flags);
     if (ImGui::IsItemClicked()) {
         selectedEntity = entity;
     }
 
     if (opened) {
-        for (Entity* child : entity->GetChildren()) {
-            ShowEntityHierarchy(child, selectedEntity);
+        for (auto& child : entity->GetChildren()) {
+            ShowEntityHierarchy(child.get(), selectedEntity);
         }
         ImGui::TreePop();
     }
@@ -46,6 +48,16 @@ void Hierarchy::OnRender(Scene* scene) {
                     entity->SetName(registry.first +
                                     std::to_string(entityCount++));
                     m_selectedEntity->AddChild(std::move(entity));
+                }
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Add Subscene")) {
+            for (auto& res : GET_RESMGR()->GetAll<Scene>()) {
+                const std::string& path = res->GetPath();
+                if (ImGui::Selectable(path.c_str())) {
+                    scene->AddSubScene(res);
                 }
             }
             ImGui::EndMenu();

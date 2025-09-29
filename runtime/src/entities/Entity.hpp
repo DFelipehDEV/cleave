@@ -107,7 +107,7 @@ public:
     Entity* GetParent() const;
     void SetParent(Entity* parent);
 
-    std::vector<Entity*> GetChildren() const;
+    std::vector<std::unique_ptr<Entity>>& GetChildren();
     void AddChild(std::unique_ptr<Entity> child);
     void RemoveChild(Entity* child);
 
