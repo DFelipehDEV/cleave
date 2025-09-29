@@ -116,8 +116,12 @@ void Properties::OnRender(Scene* scene) {
                             if (ids[i] == value) currentIndex = i;
                         }
 
+                        static std::vector<std::string> persistentOptions;
+                        persistentOptions.clear();
+                        persistentOptions = options;
+
                         std::vector<const char*> options_cstr;
-                        for (auto& s : options) {
+                        for (auto& s : persistentOptions) {
                             options_cstr.push_back(s.c_str());
                         }
 
