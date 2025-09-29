@@ -19,6 +19,7 @@ public:
     void EndFrame();
 
     uint32_t GetDrawCalls() const;
+    uint32_t GetTextureSwaps() const;
 
     int GetDepth() const;
     void SetDepth(int depth);
@@ -46,7 +47,10 @@ public:
 
     Renderer::TextureInfo CreateFallbackTexture();
     Renderer::TextureInfo CreateTexture(const std::string& path);
+    Vec2i GetTextureSize(TextureHandle handle) const;
+
     ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment);
+
     FontHandle CreateFont(const std::string& fontPath, int fontSize);
 
     const std::vector<std::unique_ptr<RenderCommand>>& GetRenderCommands() const;
@@ -54,14 +58,16 @@ public:
 
     void RunRenderCommands();
 
-    void ClearColor(int r, int g, int b, int a);
+    void ClearColor(Color color);
 
-    void DrawQuad(float x, float y, float w, float h,
+    void DrawQuad(Rect4f rect,
                   float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White());
-    void DrawQuad(float x, float y, float w, float h, float scaleX = 1.0f, float scaleY = 1.0f, float rotation = 0.0f, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White());
+    void DrawQuad(Rect4f rect, float scaleX = 1.0f, float scaleY = 1.0f, float rotation = 0.0f, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White());
+    void DrawSprite(Transform transform, TextureHandle texture, Color color = Color::White());
+
     void DrawLine(float x1, float y1, float x2, float y2, Color color);
-    void DrawRect(float x, float y, float w, float h, Color color);
-    void DrawRectOutline(float x, float y, float w, float h, Color color);
+    void DrawRect(Rect4f rect, Color color);
+    void DrawRectOutline(Rect4f rect, Color color);
     void DrawCircle(float x, float y, float radius, Color color, int segments = 16);
     void DrawText(const std::string& text, FontHandle fontHandle, 
                     float x, float y, float scale, Color color);
@@ -70,6 +76,7 @@ public:
 private:
     std::unordered_map<ShaderHandle, GLuint> m_shaders;
     std::unordered_map<TextureHandle, GLuint> m_textures;
+    std::unordered_map<TextureHandle, TextureInfo> m_textureInfos;
     std::unordered_map<FontHandle, std::unordered_map<char, Glyph>> m_fonts;
     std::vector<std::unique_ptr<RenderCommand>> m_renderCommands;
     int m_depth = 0;
@@ -78,6 +85,7 @@ private:
     BlendMode m_blendMode = BlendMode::NORMAL;
 
     uint32_t m_drawCalls = 0;
+    uint32_t m_textureSwaps = 0;
 
     FT_Library m_ftLibrary;
 

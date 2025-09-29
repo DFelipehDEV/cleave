@@ -16,7 +16,7 @@ class ResourceManager : public Service {
 public:
     void RegisterLoader(std::unique_ptr<ResourceLoader> loader);
 
-    static std::string GetTypeName() { return "cleave::ResourceManager"; }
+    static const char* GetTypeName() { return "cleave::ResourceManager"; }
 
     template <typename T>
     requires std::derived_from<T, Resource>

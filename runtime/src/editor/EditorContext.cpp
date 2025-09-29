@@ -113,7 +113,8 @@ void EditorContext::Run(Renderer* renderer) {
         if (elapsed >= 1.0f) {
             LOG_INFO("Frame Time: " << frameTimeMs 
                         << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) 
-                        << " DrawCalls:" << renderer->GetDrawCalls());
+                        << " DrawCalls:" << renderer->GetDrawCalls()
+                        << " TextureSwaps:" << renderer->GetTextureSwaps());
             lastPrintTime = end;
         }
         

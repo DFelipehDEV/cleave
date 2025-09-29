@@ -96,7 +96,7 @@ void GameView::OnRender(Renderer* renderer) {
 
     // Render scene to framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
-    renderer->ClearColor(100, 149, 237, 255);
+    renderer->ClearColor(Color(100, 149, 237, 255));
     glClear(GL_COLOR_BUFFER_BIT);
     if (m_gridEnabled) {
         ImVec2 contentSize = ImGui::GetContentRegionAvail();

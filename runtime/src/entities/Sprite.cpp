@@ -50,26 +50,25 @@ void Sprite::OnRender(Renderer* renderer) {
     if (!renderer) return;
 
     if (m_texture) {
-        Vec2f globalPosition = GetTransform().GetWorldPosition();
+        Transform transform = GetTransform().GetGlobalTransform();
+        Vec2f globalPosition = transform.GetWorldPosition();
         Vec2f offset = Vec2f(m_texture->GetWidth() * m_origin.x,
                             m_texture->GetHeight() * m_origin.y);
 
         auto resourceManager = GET_RESMGR();
         auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
 
-        renderer->SetTexture(m_texture->GetHandle());
         renderer->SetShader(shader->GetHandle());
         renderer->SetDepth(GetDepth());
-        renderer->DrawQuad(
-            globalPosition.x - offset.x,
-            globalPosition.y - offset.y,
-            static_cast<float>(m_texture->GetWidth()),
-            static_cast<float>(m_texture->GetHeight()),
-            GetTransform().GetWorldScale().x, 
-            GetTransform().GetWorldScale().y, 
-            GetTransform().GetWorldRotation(),
-            0.0f, 0.0f, 1.0f, 1.0f, Color::White()
-        );
+        // renderer->DrawQuad(
+        //     Rect4f(globalPosition.x - offset.x, globalPosition.y - offset.y, static_cast<float>(m_texture->GetWidth()), static_cast<float>(m_texture->GetHeight())),
+        //     GetTransform().GetWorldScale().x, 
+        //     GetTransform().GetWorldScale().y, 
+        //     GetTransform().GetWorldRotation(),
+        //     0.0f, 0.0f, 1.0f, 1.0f, Color::White()
+        // );
+
+        renderer->DrawSprite(transform.GetGlobalTransform(), m_texture->GetHandle());
     }
 
     Entity::OnRender(renderer);

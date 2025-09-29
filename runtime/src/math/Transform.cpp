@@ -91,6 +91,13 @@ void Transform::SetRotationDegrees(float degrees) {
     SetRotation(degrees * (M_PI / 180.0f));
 }
 
+Transform Transform::GetGlobalTransform() const {
+    Vec2f worldPos = GetWorldPosition();
+    Vec2f worldScale = GetWorldScale();
+    float worldRot = GetWorldRotation();
+    return Transform(worldPos, worldScale, worldRot);
+}
+
 Vec2f Transform::GetWorldPosition() const {
     if (m_parent)
         return m_parent->GetWorldPosition() + GetPosition();

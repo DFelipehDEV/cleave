@@ -23,7 +23,7 @@ void Camera::SetProperty(std::string_view name, const std::string& value) {
 Entity* Camera::Create() { return new Camera(); }
 
 void Camera::OnRender(Renderer* renderer) {
-    float aspect = renderer->GetViewPort().width / renderer->GetViewPort().height;
+    float aspect = renderer->GetViewPort().w / renderer->GetViewPort().h;
     Matrix4 projection = Matrix4::Ortho(
         -aspect * m_zoom, aspect * m_zoom,
         -m_zoom, m_zoom,

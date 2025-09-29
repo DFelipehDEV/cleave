@@ -47,6 +47,7 @@ public:
     virtual void EndFrame() = 0;
 
     virtual uint32_t GetDrawCalls() const = 0;
+    virtual uint32_t GetTextureSwaps() const = 0;
 
     virtual int GetDepth() const = 0;
     virtual void SetDepth(int depth) = 0;
@@ -80,6 +81,7 @@ public:
     };
     virtual TextureInfo CreateFallbackTexture() = 0;
     virtual TextureInfo CreateTexture(const std::string& path) = 0;
+    virtual Vec2i GetTextureSize(TextureHandle handle) const = 0;
 
     virtual ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment) = 0;
 
@@ -90,14 +92,16 @@ public:
 
     virtual void RunRenderCommands() = 0;
 
-    virtual void ClearColor(int r, int g, int b, int a) = 0;
+    virtual void ClearColor(Color color) = 0;
 
-    virtual void DrawQuad(float x, float y, float w, float h, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White()) = 0;
-    virtual void DrawQuad(float x, float y, float w, float h, float scaleX = 1.0f, float scaleY = 1.0f, float rotation = 0.0f, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White()) = 0;
+    virtual void DrawQuad(Rect4f rect, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White()) = 0;
+    virtual void DrawQuad(Rect4f rect, float scaleX = 1.0f, float scaleY = 1.0f, float rotation = 0.0f, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White()) = 0;
+
+    virtual void DrawSprite(Transform transform, TextureHandle texture, Color color = Color::White()) = 0;
     
     virtual void DrawLine(float x1, float y1, float x2, float y2, Color color) = 0;
-    virtual void DrawRect(float x, float y, float w, float h, Color color) = 0;
-    virtual void DrawRectOutline(float x, float y, float w, float h, Color color) = 0;
+    virtual void DrawRect(Rect4f rect, Color color) = 0;
+    virtual void DrawRectOutline(Rect4f rect, Color color) = 0;
     virtual void DrawCircle(float x, float y, float radius, Color color, int segments = 16) = 0;
     virtual void DrawText(const std::string& text, FontHandle font, float x, float y, float scale, Color color) = 0;
 
@@ -121,18 +125,19 @@ struct RenderCommand {
 };
 
 struct RenderQuadCommand : RenderCommand {
-    float x, y, w, h, scaleX, scaleY, rotation;
+    Rect4f rect;
+    float scaleX, scaleY, rotation;
     float u0 = 0.0f, v0 = 0.0f, u1 = 1.0f, v1 = 1.0f;
     Color color = Color::White();
 
-    RenderQuadCommand(float _x, float _y, float _w, float _h,
+    RenderQuadCommand(Rect4f _rect,
             float _scaleX = 1.0f, float _scaleY = 1.0f, float _rotation = 0.0f, 
             TextureHandle _texture = -1, ShaderHandle _shader = -1, 
             int _depth = 0, 
             float _u0 = 0.0f, float _v0 = 0.0f, 
             float _u1 = 1.0f, float _v1 = 1.0f,
             Color _color = Color::White())
-            : RenderCommand(_depth, _texture, _shader), x(_x), y(_y), w(_w), h(_h), 
+            : RenderCommand(_depth, _texture, _shader), rect(_rect), 
             scaleX(_scaleX), scaleY(_scaleY), rotation(_rotation),
             u0(_u0), v0(_v0), u1(_u1), v1(_v1), color(_color) {
             type = Type::Quad;
@@ -165,12 +170,12 @@ struct RenderLineCommand : RenderCommand {
 };
 
 struct RenderRectCommand : RenderCommand {
-    float x, y, w, h;
+    Rect4f rect;
     Color color;
 
-    RenderRectCommand(float _x, float _y, float _w, float _h, Color _color, 
+    RenderRectCommand(Rect4f _rect, Color _color, 
                      ShaderHandle _shader = -1, int _depth = 0)
-        : RenderCommand(_depth, -1, _shader), x(_x), y(_y), w(_w), h(_h), color(_color) {
+        : RenderCommand(_depth, -1, _shader), rect(_rect), color(_color) {
             type = Type::Rect;
         }
 };

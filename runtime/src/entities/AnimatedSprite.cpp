@@ -89,10 +89,12 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
     renderer->SetShader(shader->GetHandle());
     renderer->SetDepth(GetDepth());
     renderer->DrawQuad(
-        globalPosition.x,
-        globalPosition.y,
-        static_cast<float>(m_frameSize.x),
-        static_cast<float>(m_frameSize.y),
+        Rect4f {
+            .x = globalPosition.x,
+            .y = globalPosition.y,
+            .w = static_cast<float>(m_frameSize.x),
+            .h = static_cast<float>(m_frameSize.y),
+        },
         u0, v0, u1, v1, Color::White()
     );
     

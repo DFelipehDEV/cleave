@@ -16,7 +16,7 @@ struct InputAction {
 
 class InputManager : public Service {
 public:
-    static std::string GetTypeName() { return "cleave::InputManager"; }
+    static const char* GetTypeName() { return "cleave::InputManager"; }
     void AddAction(const std::string& actionName, int key);
     
     float GetActionState(const std::string& actionName) const;

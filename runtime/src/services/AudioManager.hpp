@@ -40,7 +40,7 @@ public:
     };
     ~AudioManager() = default;
 
-    static std::string GetTypeName() { return "cleave::AudioManager"; }
+    static const char* GetTypeName() { return "cleave::AudioManager"; }
 
     SoundHandle PlaySound(std::shared_ptr<Sound> sound);
     void StopSound(SoundHandle handle);

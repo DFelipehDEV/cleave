@@ -28,6 +28,7 @@ public:
     void SetRotation(float radians);
     void SetRotationDegrees(float degrees);
 
+    Transform GetGlobalTransform() const;
     Vec2f GetWorldPosition() const;
     Vec2f GetWorldScale() const;
     float GetWorldRotation() const;
