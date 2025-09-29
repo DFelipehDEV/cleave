@@ -23,6 +23,8 @@ private:
     EditorContext* m_editorContext;
     std::filesystem::path m_directory;
     std::filesystem::path m_selectedDirectory;
+    bool m_isRenaming = false;
+    std::string m_renameBuffer;
 };
 }  // namespace Editor
 }  // namespace Cleave

@@ -65,6 +65,19 @@ void FileExplorer::OnRender() {
                                               "New Folder");
         }
 
+        if (ImGui::MenuItem("New Scene")) {
+            std::ofstream ofs(m_selectedDirectory / "New Scene.jscn");
+            ofs << R"({
+            "id": "0",
+            "name": "root",
+            "position": "0.000000,0.000000",
+            "rotation": "0.000000",
+            "scale": "1.000000,1.000000",
+            "type": "cleave::Entity"
+        })";
+            ofs.close();
+        }
+
 // TODO: add other platforms
 #ifdef _WIN32
         if (ImGui::MenuItem("Reveal in File Explorer")) {
@@ -77,6 +90,8 @@ void FileExplorer::OnRender() {
 #endif
 
         if (ImGui::MenuItem("Rename")) {
+            m_isRenaming = true;
+            m_renameBuffer = m_selectedDirectory.filename().string();
         }
 
         if (ImGui::MenuItem("Delete")) {
@@ -101,6 +116,62 @@ void FileExplorer::OnRender() {
             ImGui::SetClipboardText(path.c_str());
         }
 
+        ImGui::EndPopup();
+    }
+
+    if (m_isRenaming) {
+        ImGui::OpenPopup("RenameDialog");
+    }
+    
+    if (ImGui::BeginPopupModal("RenameDialog", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Rename:");
+        ImGui::Separator();
+        
+        if (m_isRenaming && ImGui::IsWindowAppearing()) {
+            ImGui::SetKeyboardFocusHere();
+        }
+        
+        char buffer[256];
+        strncpy(buffer, m_renameBuffer.c_str(), sizeof(buffer) - 1);
+        buffer[sizeof(buffer) - 1] = '\0';
+        
+        if (ImGui::InputText("##rename", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+            m_renameBuffer = buffer;
+            if (!m_renameBuffer.empty() && m_renameBuffer != m_selectedDirectory.filename().string()) {
+                try {
+                    std::filesystem::path newPath = m_selectedDirectory.parent_path() / m_renameBuffer;
+                    std::filesystem::rename(m_selectedDirectory, newPath);
+                    m_selectedDirectory = newPath;
+                } catch (const std::exception& e) {
+                    LOG_ERROR("Failed to rename: " << e.what());
+                }
+            }
+            m_isRenaming = false;
+            ImGui::CloseCurrentPopup();
+        }
+        
+        m_renameBuffer = buffer;
+        
+        ImGui::Separator();
+        if (ImGui::Button("OK", ImVec2(120, 0))) {
+            if (!m_renameBuffer.empty() && m_renameBuffer != m_selectedDirectory.filename().string()) {
+                try {
+                    std::filesystem::path newPath = m_selectedDirectory.parent_path() / m_renameBuffer;
+                    std::filesystem::rename(m_selectedDirectory, newPath);
+                    m_selectedDirectory = newPath;
+                } catch (const std::exception& e) {
+                    LOG_ERROR("Failed to rename: " << e.what());
+                }
+            }
+            m_isRenaming = false;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+            m_isRenaming = false;
+            ImGui::CloseCurrentPopup();
+        }
+        
         ImGui::EndPopup();
     }
 

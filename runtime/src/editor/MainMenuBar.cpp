@@ -11,6 +11,7 @@
 #include "platform/MessageBox.hpp"
 
 #include "editor/EditorContext.hpp"
+#include "scene/JsonSceneSerializer.hpp"
 
 namespace Cleave {
 namespace Editor {
@@ -23,6 +24,14 @@ void MainMenuBar::OnRender() {
             }
 
             if (ImGui::MenuItem("Save", "Ctrl+S")) {
+                auto currentGameView = m_editor->GetCurrentGameView();
+                if (currentGameView && currentGameView->GetScene()) {
+                    Scene* scene = currentGameView->GetScene();
+                    if (!scene->GetPath().empty()) {
+                        JsonSceneSerializer::Save(scene->GetPath(), scene);
+                        LOG_INFO("Saved scene: " << scene->GetPath());
+                    }
+                }
             }
 
             if (ImGui::MenuItem("Save as..")) {
