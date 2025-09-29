@@ -23,23 +23,6 @@ void Scene::AddSubScene(std::shared_ptr<Scene> subScene) {
     subScene = subScene->Instantiate();
 
     m_root->AddChild(subScene->ReleaseRoot());
-    ReassignEntityIDs();
-}
-
-void Scene::ReassignEntityIDs() {
-    if (!m_root) return;
-
-    auto reassignRecursive = [&](Entity* entity, auto&& self) -> void {
-        if (!entity) return;
-
-        //TODO: make ids consistent, might move to other method of assigning ids
-        entity->SetId(NEXT_ENTITY_ID++);
-        for (auto& child : entity->GetChildren()) {
-            self(child.get(), self);
-        }
-    };
-
-    reassignRecursive(m_root.get(), reassignRecursive);
 }
 
 void Scene::Clear() { m_root.release(); }

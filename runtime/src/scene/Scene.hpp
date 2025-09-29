@@ -20,8 +20,6 @@ public:
 
     void AddSubScene(std::shared_ptr<Scene> subScene);
 
-    void ReassignEntityIDs();
-
     void Clear();
 
     void Tick();

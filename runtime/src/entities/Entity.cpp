@@ -24,7 +24,7 @@ void Entity::OnRender(Renderer* renderer) {
 const Entity::PropertyMap Entity::GetProperties() const {
     PropertyMap properties;
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
-    properties["id"] = {std::to_string(m_id), Property::Types::Hidden};
+    properties["id"] = {m_id, Property::Types::Hidden};
     properties["name"] = {m_name, Property::Types::String};
     properties["position"] = {m_transform.GetPosition().ToString(), Property::Types::Vec2f};
     properties["scale"] = {m_transform.GetScale().ToString(), Property::Types::Vec2f};
@@ -35,7 +35,7 @@ const Entity::PropertyMap Entity::GetProperties() const {
 
 void Entity::SetProperty(std::string_view name, const std::string& value) {
     if (name == "id") {
-        SetId(std::stoi(value));
+        SetId(value);
     } else if (name == "name") {
         SetName(value);
     } else if (name == "position") {
@@ -54,9 +54,6 @@ Entity* Entity::Create() { return new Entity(); }
 EntityId Entity::GetId() const { return m_id; }
 void Entity::SetId(EntityId id) {
     m_id = id;
-    if (id >= NEXT_ENTITY_ID) {
-        NEXT_ENTITY_ID = id + 1;
-    }
 }
 
 std::string Entity::GetName() const { return m_name; }

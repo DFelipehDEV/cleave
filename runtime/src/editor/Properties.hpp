@@ -17,7 +17,7 @@ public:
     void Clear();
 
 private:
-    EntityId m_entityId = 0;
+    EntityId m_entityId = "";
 };
 }  // namespace Editor
 }  // namespace Cleave

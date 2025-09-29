@@ -8,16 +8,15 @@
 #include "math/Transform.hpp"
 #include "math/Vec2.hpp"
 #include "rendering/Renderer.hpp"
+#include "UUID.hpp"
 
-
-typedef uint64_t EntityId;
-static EntityId NEXT_ENTITY_ID = 0;
+typedef std::string EntityId;
 
 namespace Cleave {
 class Entity {
 public:
     Entity(Transform transform = Transform(), const std::string& name = "")
-        : m_transform(transform), m_name(name), m_id(NEXT_ENTITY_ID++) {}
+        : m_transform(transform), m_name(name), m_id(GenerateUUID()) {}
 
     Entity(const Entity& other) = delete;
     Entity& operator=(const Entity& other) = delete;
@@ -33,7 +32,7 @@ public:
                 child->m_parent = this;
             }
         }
-        other.m_id = 0;
+        other.m_id = "";
         other.m_parent = nullptr;
     }
 
@@ -57,7 +56,7 @@ public:
                     child->m_parent = this;
                 }
             }
-            other.m_id = 0;
+            other.m_id = "";
             other.m_parent = nullptr;
         }
         return *this;
@@ -67,6 +66,7 @@ public:
 
     struct Property {
         enum class Types {
+            Hidden,
             Int,
             Float,
             Double,
@@ -74,7 +74,7 @@ public:
             String,
             Vec2f,
             FilePath,
-            Hidden,
+            EntityId,
         };
         std::string value;
         Types type = Types::Hidden;
@@ -119,10 +119,10 @@ public:
 
 private:
     EntityId m_id;
+    std::string m_name = "";
     int m_depth = 0;
     Transform m_transform;
     Entity* m_parent = nullptr;
-    std::string m_name = "";
     std::vector<std::unique_ptr<Entity>> m_children;
 };
 }  // namespace Cleave

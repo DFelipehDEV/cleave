@@ -18,7 +18,7 @@ void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
 
     std::string label = " ";
     label += entity->GetName().c_str();
-    label += " (" + std::to_string(entity->GetId()) + ")";
+    label += " (" + entity->GetId() + ")";
     bool opened = ImGui::TreeNodeEx(label.c_str(), flags);
     if (ImGui::IsItemClicked()) {
         selectedEntity = entity;

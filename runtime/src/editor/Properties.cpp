@@ -4,6 +4,7 @@
 #include <regex>
 #include <sstream>
 #include <filesystem>
+#include <functional>
 
 #include "platform/FileDialog.hpp"
 
@@ -97,6 +98,35 @@ void Properties::OnRender(Scene* scene) {
                         ImGui::EndPopup();
                     }
                     break;
+                case Entity::Property::Types::EntityId: {
+                        EntityId value = prop.value;
+                        std::vector<std::string> options;
+                        std::vector<EntityId> ids;
+
+                        // gather all entities
+                        std::function<void(Entity*)> gather = [&](Entity* e) {
+                            ids.push_back(e->GetId());
+                            options.push_back(e->GetName());
+                            for (auto& c : e->GetChildren()) gather(c.get());
+                        };
+                        gather(scene->GetRoot());
+
+                        int currentIndex = 0;
+                        for (int i = 0; i < ids.size(); ++i) {
+                            if (ids[i] == value) currentIndex = i;
+                        }
+
+                        std::vector<const char*> options_cstr;
+                        for (auto& s : options) {
+                            options_cstr.push_back(s.c_str());
+                        }
+
+                        if (ImGui::Combo(displayName.c_str(), &currentIndex, options_cstr.data(), (int)options_cstr.size())) {
+                            newValue = ids[currentIndex];
+                            changed = true;
+                        }
+                        break;
+                    }
                 default: {
                     char buffer[256];
                     strncpy_s(buffer, prop.value.c_str(), sizeof(buffer));
@@ -115,6 +145,6 @@ void Properties::OnRender(Scene* scene) {
 EntityId Properties::GetEntityId() const { return m_entityId; }
 void Properties::SetEntityId(EntityId id) { m_entityId = id; }
 
-void Properties::Clear() { m_entityId = 0; }
+void Properties::Clear() { m_entityId = ""; }
 }  // namespace Editor
 }  // namespace Cleave

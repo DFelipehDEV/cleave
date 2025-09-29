@@ -34,6 +34,7 @@ set(SOURCES
 set(HEADERS
 	services/InputManager.hpp
 	Log.hpp
+	UUID.hpp
 	services/Service.hpp
 	services/Services.hpp
 	Window.hpp

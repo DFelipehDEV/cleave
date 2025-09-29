@@ -36,8 +36,6 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
         if (typeIt != Registry::GetAllTypes().end()) {
             std::unique_ptr<Entity> entity = Registry::CreateEntity(typeIt->first);
 
-            NEXT_ENTITY_ID = std::max(NEXT_ENTITY_ID, entity->GetId() + 1);
-
             std::unordered_map<std::string, Entity::Property> props;
             for (auto& [key, val] : jsonData.items()) {
                 if (key != "children") props[key].value = val.get<std::string>();
