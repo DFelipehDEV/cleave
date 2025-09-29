@@ -5,8 +5,7 @@ namespace Cleave {
 float Camera::GetZoom() const { return m_zoom; }
 void Camera::SetZoom(float zoom) { m_zoom = zoom; }
 
-const std::unordered_map<std::string, Entity::Property> Camera::GetProperties()
-    const {
+const Entity::PropertyMap Camera::GetProperties() const {
     auto properties = Entity::GetProperties();
     properties["type"] = {GetTypeName(), Entity::Property::Types::Hidden};
     properties["zoom"] = {std::to_string(m_zoom), Entity::Property::Types::Float};

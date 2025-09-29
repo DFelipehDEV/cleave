@@ -79,15 +79,16 @@ public:
         std::string value;
         Types type = Types::Hidden;
     };
+    using PropertyMap = std::unordered_map<std::string, Property>;
 
-    void Init(const std::unordered_map<std::string, Property> properties);
+    void Init(const PropertyMap properties);
 
     virtual void OnTick(float deltaTime);
     virtual void OnRender(Renderer* renderer);
 
     static const char* GetTypeName() { return "cleave::Entity"; }
 
-    virtual const std::unordered_map<std::string, Property> GetProperties() const;
+    virtual const PropertyMap GetProperties() const;
     virtual void SetProperty(std::string_view name, const std::string& value);
 
     static Entity* Create();

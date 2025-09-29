@@ -3,7 +3,7 @@
 namespace Cleave {
 Entity::~Entity() {}
 
-void Entity::Init(const std::unordered_map<std::string, Property> properties) {
+void Entity::Init(const PropertyMap properties) {
     for (const auto& [name, prop] : properties) {
         SetProperty(name, prop.value);
     }
@@ -21,8 +21,8 @@ void Entity::OnRender(Renderer* renderer) {
     }
 }
 
-const std::unordered_map<std::string, Entity::Property> Entity::GetProperties() const {
-    std::unordered_map<std::string, Property> properties;
+const Entity::PropertyMap Entity::GetProperties() const {
+    PropertyMap properties;
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
     properties["id"] = {std::to_string(m_id), Property::Types::Hidden};
     properties["name"] = {m_name, Property::Types::String};

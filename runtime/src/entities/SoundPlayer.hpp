@@ -11,7 +11,7 @@ public:
     
     static const char* GetTypeName() { return "cleave::SoundPlayer"; }
 
-    const std::unordered_map<std::string, Property> GetProperties() const override;
+    const PropertyMap GetProperties() const override;
     void SetProperty(std::string_view name, const std::string& value) override;
 
     static Entity* Create();

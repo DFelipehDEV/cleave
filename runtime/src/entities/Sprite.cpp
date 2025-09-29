@@ -10,7 +10,7 @@ Sprite::Sprite(Transform transform, std::shared_ptr<Texture> texture,
                Vec2f origin)
     : Entity(transform), m_texture(texture), m_origin(origin) {}
 
-const std::unordered_map<std::string, Entity::Property> Sprite::GetProperties() const {
+const Entity::PropertyMap Sprite::GetProperties() const {
     auto properties = Entity::GetProperties();
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
     properties["origin"] = {GetOrigin().ToString(), Property::Types::Vec2f};

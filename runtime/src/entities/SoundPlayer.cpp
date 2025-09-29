@@ -3,7 +3,7 @@
 #include "Log.hpp"
 
 namespace Cleave {
-const std::unordered_map<std::string, Entity::Property> SoundPlayer::GetProperties() const {
+const Entity::PropertyMap SoundPlayer::GetProperties() const {
     auto properties = Entity::GetProperties();
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
     std::string soundPath;

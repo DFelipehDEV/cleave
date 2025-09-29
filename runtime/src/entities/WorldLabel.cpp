@@ -5,7 +5,7 @@
 namespace Cleave {
 WorldLabel::Entity* WorldLabel::Create() { return new WorldLabel(); }
 
-const std::unordered_map<std::string, Entity::Property> WorldLabel::GetProperties() const {
+const Entity::PropertyMap WorldLabel::GetProperties() const {
     auto properties = Entity::GetProperties();
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
     properties["text"] = {m_text, Property::Types::String};

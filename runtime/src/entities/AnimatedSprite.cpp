@@ -7,7 +7,7 @@
 #include "entities/Entity.hpp"
 
 namespace Cleave {
-const std::unordered_map<std::string, Entity::Property> AnimatedSprite::GetProperties() const {
+const Entity::PropertyMap AnimatedSprite::GetProperties() const {
     auto properties = Sprite::GetProperties();
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
     properties["playing"] = {std::to_string(IsPlaying()), Property::Types::Bool};
