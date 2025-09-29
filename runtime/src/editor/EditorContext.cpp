@@ -94,7 +94,7 @@ void EditorContext::Run(Renderer* renderer) {
                     for (const std::shared_ptr<GameView>& gameView : m_gameViews) {
                         std::string tabName = gameView->GetScene()->GetPath();
                         if (ImGui::BeginTabItem(tabName.c_str())) {
-                            m_currentGameView = &gameView - &m_gameViews[0];
+                            m_currentGameView = static_cast<int>(&gameView - &m_gameViews[0]);
                             ImGui::EndTabItem();
                         }
                     }
