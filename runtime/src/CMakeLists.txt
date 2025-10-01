@@ -23,6 +23,7 @@ set(SOURCES
 	platform/${PLATFORM}/FileDialog.cpp
 	platform/${PLATFORM}/MessageBox.cpp
 	rendering/OpenGLRenderer.cpp
+	rendering/RenderTarget.cpp
 	resources/Resource.cpp
 	resources/Font.cpp
 	services/ResourceManager.cpp	
@@ -55,9 +56,15 @@ set(HEADERS
 	entities/WorldLabel.hpp
 	platform/FileDialog.hpp
 	platform/MessageBox.hpp
+	rendering/Color.hpp
+	rendering/FontHandle.hpp
 	rendering/OpenGLRenderer.hpp
 	rendering/Renderer.hpp
+	rendering/RenderTarget.hpp
+	rendering/RenderTargetHandle.hpp
+	rendering/ShaderHandle.hpp
 	rendering/TextureFormat.hpp
+	rendering/TextureHandle.hpp
 	resources/Resource.hpp
 	resources/Font.hpp
 	services/ResourceManager.hpp

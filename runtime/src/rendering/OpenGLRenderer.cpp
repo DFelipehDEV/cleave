@@ -397,12 +397,81 @@ FontHandle OpenGLRenderer::CreateFont(const std::string& fontPath, int fontSize)
     return handle;
 }
 
+RenderTargetHandle OpenGLRenderer::CreateRenderTarget(int width, int height) {
+    RenderTargetData data;
+    glGenFramebuffers(1, &data.frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, data.frameBuffer);
+    
+    GLuint textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+    
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        LOG_ERROR("Framebuffer is not complete!");
+    }
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    TextureHandle texHandle = NEXT_TEXTURE_HANDLE++;
+    m_textures[texHandle] = textureId;
+    
+    TextureInfo texInfo;
+    texInfo.handle = texHandle;
+    texInfo.width = width;
+    texInfo.height = height;
+    texInfo.format = TextureFormat::RGBA;
+    m_textureInfos[texHandle] = texInfo;
+    
+    RenderTargetHandle rtHandle = NEXT_RENDERTARGET_HANDLE++;
+    data.target.SetHandle(rtHandle);
+    data.target.SetTexture(texHandle);
+    data.target.SetWidth(width);
+    data.target.SetHeight(height);
+    m_renderTargets[rtHandle] = data;
+    return rtHandle;
+}
+
+void OpenGLRenderer::SetRenderTarget(RenderTargetHandle handle) {
+    m_currentRenderTarget = handle;
+}
+
+void OpenGLRenderer::UseRenderTarget(RenderTargetHandle handle) {
+    SetRenderTarget(handle);
+    if (handle != 0) {
+        auto it = m_renderTargets.find(handle);
+        if (it != m_renderTargets.end()) {
+            glBindFramebuffer(GL_FRAMEBUFFER, it->second.frameBuffer);
+            glViewport(0, 0, it->second.target.GetWidth(), it->second.target.GetHeight());
+        } else {
+            LOG_WARN("Invalid render target handle: " << handle);
+        }
+    } else {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(static_cast<GLsizei>(m_viewport.x), 
+                static_cast<GLsizei>(m_viewport.y), 
+                static_cast<GLsizei>(m_viewport.w), 
+                static_cast<GLsizei>(m_viewport.h));
+    }
+}
+
+void OpenGLRenderer::ClearRenderTarget() {
+    UseRenderTarget(0);
+}
+
 const std::vector<std::unique_ptr<RenderCommand>>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }
 void OpenGLRenderer::AddRenderCommand(std::unique_ptr<RenderCommand> command) { m_renderCommands.push_back(std::move(command)); }
 
 void OpenGLRenderer::RunRenderCommands() {
     std::stable_sort(m_renderCommands.begin(), m_renderCommands.end(),
         [](const auto& a, const auto& b) {
+            if (a->renderTarget != b->renderTarget) return a->renderTarget < b->renderTarget;
             if (a->depth != b->depth) return a->depth < b->depth;
             if (a->texture != b->texture) return a->texture < b->texture;
             if (a->shader != b->shader) return a->shader < b->shader;
@@ -412,6 +481,11 @@ void OpenGLRenderer::RunRenderCommands() {
     for (auto& command : m_renderCommands) {
         if (!command) continue;
         RenderCommand* rawCmd = command.get();
+
+        if (command->renderTarget != m_currentRenderTarget) {
+            UseRenderTarget(command->renderTarget);
+        }
+
         Transform transform = Transform();
         switch (rawCmd->type) {
             case RenderCommand::Type::Quad: {
@@ -421,7 +495,7 @@ void OpenGLRenderer::RunRenderCommands() {
                 transform.SetPosition({rect.x, rect.y});
                 transform.SetRotation(quadCmd->rotation);
                 transform.SetScale({quadCmd->scaleX, quadCmd->scaleY});
-                if (quadCmd->shader != -1) {
+                if (quadCmd->shader != 0) {
                     UseShader(quadCmd->shader);
                     SetShaderUniformInt("tex", 0);
                     SetShaderUniformMatrix4("projection", GetProjection());
@@ -429,9 +503,10 @@ void OpenGLRenderer::RunRenderCommands() {
                     SetShaderUniformVector4f("color", quadCmd->color.r / 255.0f, quadCmd->color.g / 255.0f, quadCmd->color.b / 255.0f, quadCmd->color.a / 255.0f);
                 }
 
-                if (quadCmd->texture != -1) {
+                if (quadCmd->texture != 0) {
                     UseTexture(quadCmd->texture);
                 }
+
                 glBindVertexArray(m_quadVAO);
 
                 float vertices[] = {
@@ -455,11 +530,12 @@ void OpenGLRenderer::RunRenderCommands() {
                 RenderLineCommand* lineCmd = dynamic_cast<RenderLineCommand*>(rawCmd);
                 if (!lineCmd) break;
 
-                if (rawCmd->shader != -1) { 
-                    UseShader(rawCmd->shader);
+                if (lineCmd->shader != 0) { 
+                    UseShader(lineCmd->shader);
                     SetShaderUniformMatrix4("projection", GetProjection());
                     //SetShaderUniformMatrix4("transform", transform);
                 }
+
                 glBindTexture(GL_TEXTURE_2D, 0);
                 float vertices[] = {
                     lineCmd->x1, lineCmd->y1, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f,
@@ -500,11 +576,12 @@ void OpenGLRenderer::RunRenderCommands() {
                 RenderRectCommand* rectCmd = dynamic_cast<RenderRectCommand*>(rawCmd);
                 if (!rectCmd) break;
                 Rect4f rect = rectCmd->rect;
-                if (rawCmd->shader != -1) { 
-                    UseShader(rawCmd->shader);
+                if (rectCmd->shader != 0) { 
+                    UseShader(rectCmd->shader);
                     SetShaderUniformMatrix4("projection", GetProjection());
                     //SetShaderUniformMatrix4("transform", transform);
                 }
+
                 glBindTexture(GL_TEXTURE_2D, 0);
 
                 float vertices[] = {
@@ -549,7 +626,7 @@ void OpenGLRenderer::RunRenderCommands() {
             case RenderCommand::Type::Circle: {
                 RenderCircleCommand* circleCmd = dynamic_cast<RenderCircleCommand*>(rawCmd);
                 if (!circleCmd) break;
-                if (rawCmd->shader != -1) { 
+                if (rawCmd->shader != 0) { 
                     UseShader(rawCmd->shader);
                     SetShaderUniformMatrix4("projection", GetProjection());
                     //SetShaderUniformMatrix4("transform", transform);
@@ -612,7 +689,7 @@ void OpenGLRenderer::DrawQuad(Rect4f rect, float u0, float v0, float u1, float v
         std::make_unique<RenderQuadCommand>(
             rect, 1.0f, 1.0f, 
             0.0f, m_currentTexture, m_currentShader, 
-            m_depth, u0, v0, u1, v1, color
+            m_depth, u0, v0, u1, v1, color, m_currentRenderTarget
         )
     );
 }
@@ -622,7 +699,7 @@ void OpenGLRenderer::DrawQuad(Rect4f rect, float scaleX, float scaleY, float rot
         std::make_unique<RenderQuadCommand>(
             rect, scaleX, scaleY, 
             rotation, m_currentTexture, m_currentShader, 
-            m_depth, u0, v0, u1, v1, color
+            m_depth, u0, v0, u1, v1, color, m_currentRenderTarget
         )
     );
 }
@@ -639,11 +716,11 @@ void OpenGLRenderer::DrawSprite(Transform transform, TextureHandle texture, Colo
 }
 
 void OpenGLRenderer::DrawLine(float x1, float y1, float x2, float y2, Color color) {
-    AddRenderCommand(std::make_unique<RenderLineCommand>(x1, y1, x2, y2, color, m_currentShader, m_depth));
+    AddRenderCommand(std::make_unique<RenderLineCommand>(x1, y1, x2, y2, color, m_currentShader, m_depth, m_currentRenderTarget));
 }
 
 void OpenGLRenderer::DrawRect(Rect4f rect, Color color) {
-    AddRenderCommand(std::make_unique<RenderRectCommand>(rect, color, m_currentShader, m_depth));
+    AddRenderCommand(std::make_unique<RenderRectCommand>(rect, color, m_currentShader, m_depth, m_currentRenderTarget));
 }
 
 void OpenGLRenderer::DrawRectOutline(Rect4f rect, Color color) {
@@ -654,7 +731,7 @@ void OpenGLRenderer::DrawRectOutline(Rect4f rect, Color color) {
 }
 
 void OpenGLRenderer::DrawCircle(float x, float y, float radius, Color color, int segments) {
-    AddRenderCommand(std::make_unique<RenderCircleCommand>(x, y, radius, color, segments, m_currentShader, m_depth));
+    AddRenderCommand(std::make_unique<RenderCircleCommand>(x, y, radius, color, segments, m_currentShader, m_depth, m_currentRenderTarget));
 }
 
 const Glyph* OpenGLRenderer::GetGlyph(FontHandle fontHandle, char c) {

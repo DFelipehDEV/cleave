@@ -1,5 +1,6 @@
 #pragma once
 #include "rendering/Renderer.hpp"
+#include "rendering/RenderTarget.hpp"
 #include <unordered_map>
 #include <GL/glew.h>
 #include <ft2build.h>
@@ -53,6 +54,11 @@ public:
 
     FontHandle CreateFont(const std::string& fontPath, int fontSize);
 
+    RenderTargetHandle CreateRenderTarget(int width, int height);
+    void SetRenderTarget(RenderTargetHandle handle);
+    void UseRenderTarget(RenderTargetHandle handle);
+    void ClearRenderTarget();
+
     const std::vector<std::unique_ptr<RenderCommand>>& GetRenderCommands() const;
     void AddRenderCommand(std::unique_ptr<RenderCommand> command);
 
@@ -74,10 +80,16 @@ public:
 
     const Glyph* GetGlyph(FontHandle fontHandle, char c);
 private:
+    struct RenderTargetData {
+        RenderTarget target;
+        GLuint frameBuffer = 0;
+    };
+
     std::unordered_map<ShaderHandle, GLuint> m_shaders;
     std::unordered_map<TextureHandle, GLuint> m_textures;
     std::unordered_map<TextureHandle, TextureInfo> m_textureInfos;
     std::unordered_map<FontHandle, std::unordered_map<char, Glyph>> m_fonts;
+    std::unordered_map<RenderTargetHandle, RenderTargetData> m_renderTargets;
     std::vector<std::unique_ptr<RenderCommand>> m_renderCommands;
     int m_depth = 0;
     Matrix4 m_projection;
@@ -91,6 +103,7 @@ private:
 
     TextureHandle m_currentTexture = 0;
     ShaderHandle m_currentShader = 0;
+    RenderTargetHandle m_currentRenderTarget = -1;
     GLuint m_quadVAO = 0;
     GLuint m_quadVBO = 0;
     GLuint m_quadEBO = 0;
