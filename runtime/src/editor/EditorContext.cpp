@@ -1,26 +1,28 @@
 #include "EditorContext.hpp"
 
+#include <chrono>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include <fstream>
-#include <functional>
 #include <nlohmann/json.hpp>
 
-#include "services/Services.hpp"
-#include "imgui.h"
+#include "Log.hpp"
+#include "Window.hpp"
+#include "rendering/Renderer.hpp"
 #include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
-#include "scene/JsonSceneSerializer.hpp"
+#include "editor/FileExplorer.hpp"
+#include "editor/GameView.hpp"
+#include "editor/Hierarchy.hpp"
+#include "editor/MainMenuBar.hpp"
+#include "editor/Properties.hpp"
 
 namespace Cleave {
 namespace Editor {
-EditorContext::EditorContext(Window* window) : m_window(window) {
-    m_properties = std::make_shared<Properties>();
+EditorContext::EditorContext(Window* window) : m_window(window), m_properties(std::make_shared<Properties>()), m_currentGameView(0) {
     m_gameViews.push_back(std::make_shared<GameView>(std::make_shared<Scene>(
-        std::make_unique<Entity>(Transform({0, 0}), "root")), m_properties));
-    m_currentGameView = 0;
+        std::make_unique<Entity>(Transform({0, 0}))), m_properties));
     m_hierarchy = std::make_shared<Hierarchy>(GetCurrentGameView()->GetScene()->GetRoot());
     m_fileExplorer =
         std::make_shared<FileExplorer>(std::filesystem::current_path(), this);

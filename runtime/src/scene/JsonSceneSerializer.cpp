@@ -28,7 +28,7 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
     std::vector<
         std::pair<Entity*, std::unordered_map<std::string, Entity::Property>>>
         pendingInits;
-    auto scene = std::make_shared<Scene>(std::make_unique<Entity>(Transform(), "root"));
+    auto scene = std::make_shared<Scene>(std::make_unique<Entity>(Transform()));
 
     std::function<void(const nlohmann::json&, Entity*)> deserialize;
     deserialize = [&](const nlohmann::json& jsonData, Entity* parent) {

@@ -64,9 +64,9 @@ void MainMenuBar::OnRender() {
         }
         if (ImGui::BeginMenu("Help")) {
             if (ImGui::MenuItem("About", "F1")) {
-                std::string specs =
+                const std::string_view specs =
                     "Cleave\nVersion: 0.0.1\nBuild date: " __DATE__ __TIME__;
-                MessageBox::Show("About Cleave", specs.c_str());
+                MessageBox::Show("About Cleave", specs.data());
             }
             ImGui::EndMenu();
         }

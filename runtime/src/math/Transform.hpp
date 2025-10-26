@@ -11,7 +11,7 @@ public:
     ~Transform() = default;
 
     Transform* GetParent() const;
-    void SetParent(Transform* transform);
+    void SetParent(Transform* parent);
 
     void Translate(Vec2f translation);
     void Scale(Vec2f scale);
@@ -33,7 +33,7 @@ public:
     Vec2f GetWorldScale() const;
     float GetWorldRotation() const;
 
-    Matrix4 GetMatrix() const;
+    const Matrix4& GetMatrix() const;
 private:
     Transform* m_parent;
     Matrix4 m_matrix;

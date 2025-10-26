@@ -8,7 +8,6 @@ public:
     Sprite(Transform transform = Transform(),
            std::shared_ptr<Texture> texture = nullptr,
            Vec2f origin = {0.5f, 0.5f});
-    ~Sprite() = default;
 
     void OnRender(Renderer* renderer) override;
 

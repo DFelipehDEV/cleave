@@ -105,7 +105,7 @@ void Properties::OnRender(Scene* scene) {
                         std::function<void(Entity*)> gather = [&](Entity* e) {
                             if (!e) return;
                             ids.push_back(e->GetId());
-                            options.push_back(e->GetName());
+                            options.push_back(e->GetId() + " (" + e->GetTypeName() + ")");
                             for (auto& c : e->GetChildren())
                                 gather(c.get());
                         };
@@ -118,7 +118,7 @@ void Properties::OnRender(Scene* scene) {
                                 currentIndex = static_cast<int>(std::distance(ids.begin(), it));
 
                             std::vector<const char*> options_cstr;
-                            for (auto& s : options)
+                            for (const auto& s : options)
                                 options_cstr.push_back(s.c_str());
 
                             if (ImGui::Combo(displayName.c_str(), &currentIndex, options_cstr.data(), (int)options_cstr.size())) {

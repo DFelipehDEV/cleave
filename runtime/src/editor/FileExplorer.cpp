@@ -1,19 +1,19 @@
 #include "FileExplorer.hpp"
+#include <filesystem>
+#include <fstream>
 
 #include <imgui.h>
 
-#include <fstream>
+#include "services/ResourceManager.hpp"
+#include "editor/EditorContext.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-#include "editor/EditorContext.hpp"
-#include "services/ResourceManager.hpp"
-
 namespace Cleave {
 namespace Editor {
-void FileExplorer::ShowDirectory(std::filesystem::path dir) {
+void FileExplorer::ShowDirectory(const std::filesystem::path& dir) {
     for (const auto& file : std::filesystem::directory_iterator(dir)) {
         const auto& path = file.path();
         auto fileName = file.path().filename().string();
@@ -179,8 +179,8 @@ void FileExplorer::OnRender() {
     ShowDirectory(m_directory);
 }
 
-std::filesystem::path FileExplorer::GetDirectory() const { return m_directory; }
-void FileExplorer::SetDirectory(std::filesystem::path directory) {
+const std::filesystem::path& FileExplorer::GetDirectory() const { return m_directory; }
+void FileExplorer::SetDirectory(const std::filesystem::path& directory) {
     m_directory = directory;
     m_selectedDirectory = "";
 }

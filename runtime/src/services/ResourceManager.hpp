@@ -41,16 +41,12 @@ public:
         return result;
     }
 
-    void ScanResources(const std::string& path = "res");
+    void ScanResources(const std::string_view path = "res");
     void ReloadAll();
-
-    std::filesystem::path GetResourceRoot() const;
-    void SetResourceRoot(const std::filesystem::path& path);
 
     Renderer* GetRenderer() const;
     void SetRenderer(Renderer* renderer);
 private:
-    std::filesystem::path m_resourceRoot;
     std::unordered_map<std::string, std::shared_ptr<Resource>> m_resources;
     std::vector<std::unique_ptr<ResourceLoader>> m_loaders;
     Renderer* m_renderer;

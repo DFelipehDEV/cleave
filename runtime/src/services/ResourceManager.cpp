@@ -11,14 +11,11 @@ void ResourceManager::RegisterLoader(std::unique_ptr<ResourceLoader> loader) {
     }
 }
 
-void ResourceManager::ScanResources(const std::string& path) {
-    m_resourceRoot = path;
-
+void ResourceManager::ScanResources(const std::string_view path) {
     for (const auto& entry :
-         std::filesystem::recursive_directory_iterator(m_resourceRoot)) {
+         std::filesystem::recursive_directory_iterator(path)) {
         if (entry.is_regular_file()) {
             std::string extension = entry.path().extension().string();
-
             for (const auto& loader : m_loaders) {
                 if (loader->CanLoad(extension)) {
                     auto resource = loader->Load(entry.path().generic_string(), this);
@@ -33,9 +30,6 @@ void ResourceManager::ScanResources(const std::string& path) {
         }
     }
 }
-
-std::filesystem::path ResourceManager::GetResourceRoot() const { return m_resourceRoot; }
-void ResourceManager::SetResourceRoot(const std::filesystem::path& path) { m_resourceRoot = path; }
 
 Renderer* ResourceManager::GetRenderer() const { return m_renderer; }
 void ResourceManager::SetRenderer(Renderer* renderer) { m_renderer = renderer; }

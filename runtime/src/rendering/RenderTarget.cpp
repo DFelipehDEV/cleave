@@ -2,9 +2,7 @@
 
 namespace Cleave {
 RenderTarget::RenderTarget(int width, int height)
-    : m_width(width), m_height(height), m_texture(0), m_handle(0) {}
-
-RenderTarget::~RenderTarget() {}
+    : m_width(width), m_height(height) {}
 
 RenderTargetHandle RenderTarget::GetHandle() const { return m_handle; }
 void RenderTarget::SetHandle(RenderTargetHandle handle) { m_handle = handle; }

@@ -9,7 +9,7 @@ class RenderTarget {
 public:
     RenderTarget() = default;
     RenderTarget(int width, int height);
-    ~RenderTarget();
+    ~RenderTarget() = default;
 
     RenderTargetHandle GetHandle() const;
     void SetHandle(RenderTargetHandle handle);

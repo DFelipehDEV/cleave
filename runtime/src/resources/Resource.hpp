@@ -11,8 +11,8 @@ public:
 
     virtual std::string GetTypeName() const = 0;
 
-    std::string GetPath() const;
-    void SetPath(const std::string path);
+    const std::string& GetPath() const;
+    void SetPath(const std::string& path);
 
     uint32_t GetId() const;
     void SetId(uint32_t id);
@@ -26,7 +26,7 @@ class ResourceLoader {
 public:
     virtual ~ResourceLoader() = default;
     virtual std::shared_ptr<Resource> Load(const std::string& path, ResourceManager* resourceManager) = 0;
-    virtual bool CanLoad(const std::string& extension) const = 0;
+    virtual bool CanLoad(const std::string_view extension) const = 0;
 };
 
 }  // namespace Cleave

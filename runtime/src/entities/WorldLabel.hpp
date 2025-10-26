@@ -17,7 +17,7 @@ public:
 
     static Entity* Create();
 
-    const std::string GetText() const;
+    const std::string& GetText() const;
     void SetText(const std::string& text);
 
     std::shared_ptr<Font> GetFont() const;

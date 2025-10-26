@@ -8,8 +8,8 @@ namespace Cleave {
 typedef uint32_t TextureHandle;
 class Texture : public Resource {
 public:
-    Texture() : m_width(1), m_height(1) {};
-    ~Texture() = default;
+    Texture() : m_width(1), m_height(1), m_format(TextureFormat::RGB) {};
+    ~Texture() override = default;
 
     std::string GetTypeName() const override { return "cleave::Texture"; }
 
@@ -34,7 +34,7 @@ class TextureLoader : public ResourceLoader {
 public:
     std::shared_ptr<Resource> Load(const std::string& path, ResourceManager* resourceManager) override;
 
-    bool CanLoad(const std::string& extension) const override {
+    bool CanLoad(const std::string_view extension) const override {
         return extension == ".png" || extension == ".jpg" ||
                extension == ".jpeg" || extension == ".bmp" ||
                extension == ".tga" || extension == ".gif" ||

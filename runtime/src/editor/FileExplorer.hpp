@@ -12,12 +12,12 @@ public:
         : m_directory(directory), m_editorContext(editorContext) {}
     ~FileExplorer() = default;
 
-    void ShowDirectory(std::filesystem::path dir);
+    void ShowDirectory(const std::filesystem::path& dir);
 
     void OnRender();
 
-    std::filesystem::path GetDirectory() const;
-    void SetDirectory(std::filesystem::path directory);
+    const std::filesystem::path& GetDirectory() const;
+    void SetDirectory(const std::filesystem::path& directory);
 
 private:
     EditorContext* m_editorContext;

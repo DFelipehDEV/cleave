@@ -21,7 +21,7 @@ class SoundLoader : public ResourceLoader {
 public:
     std::shared_ptr<Resource> Load(const std::string& path, ResourceManager* resourceManager) override;
 
-    bool CanLoad(const std::string& extension) const override {
+    bool CanLoad(const std::string_view extension) const override {
         return extension == ".wav" || extension == ".mp3" ||
                extension == ".ogg" || extension == ".flac";
     }

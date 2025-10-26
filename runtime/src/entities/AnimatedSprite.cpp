@@ -1,6 +1,6 @@
 #include "AnimatedSprite.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"

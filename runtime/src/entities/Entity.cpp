@@ -1,9 +1,7 @@
 #include "Entity.hpp"
 
 namespace Cleave {
-Entity::~Entity() {}
-
-void Entity::Init(const PropertyMap properties) {
+void Entity::Init(const PropertyMap& properties) {
     for (const auto& [name, prop] : properties) {
         SetProperty(name, prop.value);
     }
@@ -25,7 +23,6 @@ const Entity::PropertyMap Entity::GetProperties() const {
     PropertyMap properties;
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
     properties["id"] = {m_id, Property::Types::Hidden};
-    properties["name"] = {m_name, Property::Types::String};
     properties["position"] = {m_transform.GetPosition().ToString(), Property::Types::Vec2f};
     properties["scale"] = {m_transform.GetScale().ToString(), Property::Types::Vec2f};
     properties["rotation"] = {std::to_string(m_transform.GetRotationDegrees()), Property::Types::Float};
@@ -36,8 +33,6 @@ const Entity::PropertyMap Entity::GetProperties() const {
 void Entity::SetProperty(std::string_view name, const std::string& value) {
     if (name == "id") {
         SetId(value);
-    } else if (name == "name") {
-        SetName(value);
     } else if (name == "position") {
         m_transform.SetPosition(Vec2f::FromString(value));
     } else if (name == "scale") {
@@ -55,9 +50,6 @@ EntityId Entity::GetId() const { return m_id; }
 void Entity::SetId(EntityId id) {
     m_id = id;
 }
-
-std::string Entity::GetName() const { return m_name; }
-void Entity::SetName(std::string_view name) { m_name = name; }
 
 Transform& Entity::GetTransform() { return m_transform; }
 void Entity::SetTransform(Transform& transform) { m_transform = transform; }
@@ -98,20 +90,6 @@ void Entity::RemoveChild(Entity* child) {
                            return ptr.get() == child;
                        }),
         m_children.end());
-}
-
-Entity* Entity::GetChild(std::string_view name, bool recursive) const {
-    for (const auto& child : m_children) {
-        if (child->m_name == name) {
-            return child.get();
-        }
-        if (recursive) {
-            if (Entity* found = child->GetChild(name, true)) {
-                return found;
-            }
-        }
-    }
-    return nullptr;
 }
 
 Entity* Entity::GetChild(EntityId id, bool recursive) const {

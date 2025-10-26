@@ -58,7 +58,7 @@ void WorldLabel::OnRender(Renderer* renderer) {
     Entity::OnRender(renderer);
 }
 
-const std::string WorldLabel::GetText() const { return m_text; }
+const std::string& WorldLabel::GetText() const { return m_text; }
 void WorldLabel::SetText(const std::string& text) { m_text = text; }
 
 std::shared_ptr<Font> WorldLabel::GetFont() const { return m_font; }

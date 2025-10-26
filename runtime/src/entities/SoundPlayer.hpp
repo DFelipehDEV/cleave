@@ -27,9 +27,9 @@ public:
     void SetLoop(bool loop);
 private:
     std::shared_ptr<Sound> m_sound;
-    SoundHandle m_soundHandle;
-    bool m_playing;
-    bool m_loop;
-    float m_volume;
+    SoundHandle m_soundHandle = 0;
+    bool m_playing = false;
+    bool m_loop = false;
+    float m_volume = 1.0f;
 };
 } // namespace Cleave

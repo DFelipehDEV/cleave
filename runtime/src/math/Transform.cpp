@@ -119,5 +119,5 @@ float Transform::GetWorldRotation() const {
         return GetRotation();
 }
 
-Matrix4 Transform::GetMatrix() const { return m_matrix; }
+const Matrix4& Transform::GetMatrix() const { return m_matrix; }
 }  // namespace Cleave

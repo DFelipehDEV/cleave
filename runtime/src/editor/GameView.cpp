@@ -44,7 +44,7 @@ void GameView::OnUpdate() {
         ImVec2 mousePosInPanel =
             ImVec2(io.MousePos.x - panelMin.x, io.MousePos.y - panelMin.y);
 
-        float oldZoom = m_zoom;
+        const float oldZoom = m_zoom;
         m_zoom /= 1.0f - io.MouseWheel * 0.1f;
         SetZoom(m_zoom);  // this is to clamp the value
 
@@ -109,7 +109,7 @@ void GameView::OnRender(Renderer* renderer) {
         float width = contentSize.x / m_zoom;
         float height = contentSize.y / m_zoom;
 
-        Color color = {128, 128, 128, 255};
+        const Color color = {128, 128, 128, 255};
 
         int numX = static_cast<int>(width / m_gridSize) + 2;
         int numY = static_cast<int>(height / m_gridSize) + 2;
