@@ -7,6 +7,7 @@ template<typename T>
 struct Vec2 {
     T x, y;
 
+    Vec2() : x(T(0)), y(T(0)) {}
     Vec2(T _x, T _y) : x(_x), y(_y) {}
 
     static Vec2<T> Zero() { return {T(0), T(0)}; }

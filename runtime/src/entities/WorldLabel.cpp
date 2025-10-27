@@ -1,6 +1,9 @@
 #include "entities/WorldLabel.hpp"
+
 #include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
+#include "rendering/Color.hpp"
+#include "rendering/Renderer.hpp"
 
 namespace Cleave {
 WorldLabel::Entity* WorldLabel::Create() { return new WorldLabel(); }

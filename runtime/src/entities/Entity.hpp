@@ -6,13 +6,12 @@
 #include <vector>
 
 #include "math/Transform.hpp"
-#include "math/Vec2.hpp"
-#include "rendering/Renderer.hpp"
 #include "UUID.hpp"
 
 typedef std::string EntityId;
 
 namespace Cleave {
+class Renderer;
 class Entity {
 public:
     Entity(Transform transform = Transform())

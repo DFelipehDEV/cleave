@@ -1,7 +1,8 @@
 #include "Camera.hpp"
 
-namespace Cleave {
+#include "rendering/Renderer.hpp"
 
+namespace Cleave {
 float Camera::GetZoom() const { return m_zoom; }
 void Camera::SetZoom(float zoom) { m_zoom = zoom; }
 

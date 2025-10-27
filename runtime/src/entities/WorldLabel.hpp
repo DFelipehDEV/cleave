@@ -2,6 +2,7 @@
 
 #include "Entity.hpp"
 #include "resources/Font.hpp"
+#include "rendering/Color.hpp"
 
 namespace Cleave {
 class WorldLabel : public Entity {

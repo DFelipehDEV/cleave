@@ -8,13 +8,35 @@
 #include "Log.hpp"
 #include "Window.hpp"
 #include "rendering/RenderCommand.hpp"
+#include "rendering/Material.hpp"
 
 namespace Cleave {
 OpenGLRenderer::~OpenGLRenderer() { Terminate(); }
 
+void OpenGLRenderer::ApplyMaterialUniforms(const Material& material) const {
+    for (const auto& kv : material.intUniforms) {
+        SetShaderUniformInt(kv.first, kv.second);
+    }
+
+    for (const auto& kv : material.floatUniforms) {
+        SetShaderUniformFloat(kv.first, kv.second);
+    }
+
+    for (const auto& kv : material.vec2fUniforms) {
+        const Vec2f& v = kv.second;
+        SetShaderUniformVector2f(kv.first, v.x, v.y);
+    }
+
+    for (const auto& kv : material.matrix4Uniforms) {
+        SetShaderUniformMatrix4(kv.first, kv.second);
+    }
+}
+
+
 void OpenGLRenderer::Initialize(Window& window) {
     glfwMakeContextCurrent(window.getGLFWwindow());
     glewInit();
+    LOG_INFO("OpenGL version:" << glGetString(GL_VERSION));
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -71,8 +93,8 @@ void OpenGLRenderer::EndFrame() {
         [](const auto& a, const auto& b) {
             if (a->renderTarget != b->renderTarget) return a->renderTarget < b->renderTarget;
             if (a->depth != b->depth) return a->depth < b->depth;
-            if (a->texture != b->texture) return a->texture < b->texture;
-            if (a->shader != b->shader) return a->shader < b->shader;
+            if (a->material.texture != b->material.texture) return a->material.texture < b->material.texture;
+            if (a->material.shader != b->material.shader) return a->material.shader < b->material.shader;
             return false;
         });
 
@@ -93,16 +115,29 @@ void OpenGLRenderer::EndFrame() {
                 transform.SetPosition({rect.x, rect.y});
                 transform.SetRotation(quadCmd->rotation);
                 transform.SetScale({quadCmd->scaleX, quadCmd->scaleY});
-                if (quadCmd->shader != 0) {
-                    UseShader(quadCmd->shader);
-                    SetShaderUniformInt("tex", 0);
-                    SetShaderUniformMatrix4("projection", GetProjection());
-                    SetShaderUniformMatrix4("model", transform.GetMatrix());
-                    SetShaderUniformVector4f("color", quadCmd->color.r / 255.0f, quadCmd->color.g / 255.0f, quadCmd->color.b / 255.0f, quadCmd->color.a / 255.0f);
+                auto shader = quadCmd->material.shader;
+                if (shader) {
+                    if (m_currentShader != shader->GetHandle()) {
+                        UseShader(shader->GetHandle());
+                        SetShaderUniformInt("tex", 0);
+                        SetShaderUniformMatrix4("projection", GetProjection());
+                        SetShaderUniformMatrix4("model", transform.GetMatrix());
+                        SetShaderUniformVector4f("color", 
+                            quadCmd->color.r / 255.0f, 
+                            quadCmd->color.g / 255.0f, 
+                            quadCmd->color.b / 255.0f, 
+                            quadCmd->color.a / 255.0f);
+                        ApplyMaterialUniforms(quadCmd->material);
+                    }
                 }
 
-                if (quadCmd->texture != 0) {
-                    UseTexture(quadCmd->texture);
+                SetBlendMode(quadCmd->material.blendMode);
+
+                auto texture = quadCmd->material.texture;
+                if (texture) {
+                    if (m_currentTexture != texture->GetHandle()) {
+                        UseTexture(texture->GetHandle());
+                    }
                 }
 
                 glBindVertexArray(m_quadVAO);
@@ -128,10 +163,9 @@ void OpenGLRenderer::EndFrame() {
                 RenderLineCommand* lineCmd = static_cast<RenderLineCommand*>(rawCmd);
                 if (!lineCmd) break;
 
-                if (lineCmd->shader != 0) { 
-                    UseShader(lineCmd->shader);
+                if (lineCmd->material.shader) { 
+                    UseShader(lineCmd->material.shader->GetHandle());
                     SetShaderUniformMatrix4("projection", GetProjection());
-                    //SetShaderUniformMatrix4("transform", transform);
                 }
 
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -174,10 +208,9 @@ void OpenGLRenderer::EndFrame() {
                 RenderRectCommand* rectCmd = static_cast<RenderRectCommand*>(rawCmd);
                 if (!rectCmd) break;
                 Rect4f rect = rectCmd->rect;
-                if (rectCmd->shader != 0) { 
-                    UseShader(rectCmd->shader);
+                if (rectCmd->material.shader) { 
+                    UseShader(rectCmd->material.shader->GetHandle());
                     SetShaderUniformMatrix4("projection", GetProjection());
-                    //SetShaderUniformMatrix4("transform", transform);
                 }
 
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -224,10 +257,9 @@ void OpenGLRenderer::EndFrame() {
             case RenderCommand::Type::Circle: {
                 RenderCircleCommand* circleCmd = static_cast<RenderCircleCommand*>(rawCmd);
                 if (!circleCmd) break;
-                if (rawCmd->shader != 0) { 
-                    UseShader(rawCmd->shader);
+                if (rawCmd->material.shader) { 
+                    UseShader(rawCmd->material.shader->GetHandle());
                     SetShaderUniformMatrix4("projection", GetProjection());
-                    //SetShaderUniformMatrix4("transform", transform);
                 }
                 std::vector<float> vertices;
                 vertices.insert(vertices.end(), {circleCmd->x, circleCmd->y, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
@@ -334,6 +366,56 @@ void OpenGLRenderer::SetBlendMode(BlendMode mode) {
             glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
             break;
     }
+}
+
+ShaderHandle OpenGLRenderer::CreateShader(const std::string_view vertex, const std::string_view fragment) {
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    const char* vertexSource = vertex.data();
+    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
+    glCompileShader(vertexShader);
+
+    GLint success;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+        LOG_ERROR("Vertex shader compilation failed: " << infoLog);
+        return -1;
+    }
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    const char* fragmentSource = fragment.data();
+    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
+    glCompileShader(fragmentShader);
+
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+        LOG_ERROR("Fragment shader compilation failed: " << infoLog);
+        return -1;
+    }
+
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+        LOG_ERROR("Shader program linking failed: " << infoLog);
+        return -1;
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    ShaderHandle handle = NEXT_SHADER_HANDLE++;
+    m_shaders[handle] = shaderProgram;
+
+    return handle;
 }
 
 void OpenGLRenderer::SetShader(ShaderHandle handle) {
@@ -504,55 +586,7 @@ Vec2i OpenGLRenderer::GetTextureSize(TextureHandle handle) const {
     return {0, 0};
 }
 
-ShaderHandle OpenGLRenderer::CreateShader(const std::string_view vertex, const std::string_view fragment) {
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const char* vertexSource = vertex.data();
-    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
-    glCompileShader(vertexShader);
-
-    GLint success;
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        LOG_ERROR("Vertex shader compilation failed: " << infoLog);
-        return -1;
-    }
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char* fragmentSource = fragment.data();
-    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        LOG_ERROR("Fragment shader compilation failed: " << infoLog);
-        return -1;
-    }
-
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        LOG_ERROR("Shader program linking failed: " << infoLog);
-        return -1;
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    ShaderHandle handle = NEXT_SHADER_HANDLE++;
-    m_shaders[handle] = shaderProgram;
-
-    return handle;
-}
+void OpenGLRenderer::SetMaterial(Material material) { m_currentMaterial = material; }
 
 FontHandle OpenGLRenderer::CreateFont(const std::string_view path, int size) {
     FT_Face face;
@@ -686,7 +720,7 @@ void OpenGLRenderer::DrawQuad(Rect4f rect, float u0, float v0, float u1, float v
     AddRenderCommand(
         std::make_unique<RenderQuadCommand>(
             rect, 1.0f, 1.0f, 
-            0.0f, m_currentTexture, m_currentShader, 
+            0.0f, m_currentMaterial,
             m_depth, u0, v0, u1, v1, color, m_currentRenderTarget
         )
     );
@@ -696,29 +730,29 @@ void OpenGLRenderer::DrawQuad(Rect4f rect, float scaleX, float scaleY, float rot
     AddRenderCommand(
         std::make_unique<RenderQuadCommand>(
             rect, scaleX, scaleY, 
-            rotation, m_currentTexture, m_currentShader, 
+            rotation, m_currentMaterial, 
             m_depth, u0, v0, u1, v1, color, m_currentRenderTarget
         )
     );
 }
 
-void OpenGLRenderer::DrawSprite(Transform transform, TextureHandle texture, Color color) {
-    SetTexture(texture);
-    Vec2i size = GetTextureSize(texture);
-
+void OpenGLRenderer::DrawSprite(Transform transform, Material material) {
+    Vec2i size = GetTextureSize(material.texture->GetHandle());
+    SetMaterial(material);
     DrawQuad(
         Rect4f(transform.GetPosition().x, transform.GetPosition().y, static_cast<float>(size.x), static_cast<float>(size.y)),
         transform.GetScale().x, transform.GetScale().y, transform.GetRotation(),
-        0.0f, 0.0f, 1.0f, 1.0f, color
+        0.0f, 0.0f, 1.0f, 1.0f, Color::White()
     );
+    LOG_INFO("Using material texture handle: " << material.texture->GetHandle());
 }
 
 void OpenGLRenderer::DrawLine(float x1, float y1, float x2, float y2, Color color) {
-    AddRenderCommand(std::make_unique<RenderLineCommand>(x1, y1, x2, y2, color, m_currentShader, m_depth, m_currentRenderTarget));
+    AddRenderCommand(std::make_unique<RenderLineCommand>(x1, y1, x2, y2, color, m_currentMaterial, m_depth, m_currentRenderTarget));
 }
 
 void OpenGLRenderer::DrawRect(Rect4f rect, Color color) {
-    AddRenderCommand(std::make_unique<RenderRectCommand>(rect, color, m_currentShader, m_depth, m_currentRenderTarget));
+    AddRenderCommand(std::make_unique<RenderRectCommand>(rect, color, m_currentMaterial, m_depth, m_currentRenderTarget));
 }
 
 void OpenGLRenderer::DrawRectOutline(Rect4f rect, Color color) {
@@ -729,7 +763,7 @@ void OpenGLRenderer::DrawRectOutline(Rect4f rect, Color color) {
 }
 
 void OpenGLRenderer::DrawCircle(float x, float y, float radius, Color color, int segments) {
-    AddRenderCommand(std::make_unique<RenderCircleCommand>(x, y, radius, color, segments, m_currentShader, m_depth, m_currentRenderTarget));
+    AddRenderCommand(std::make_unique<RenderCircleCommand>(x, y, radius, color, segments, m_currentMaterial, m_depth, m_currentRenderTarget));
 }
 
 const Glyph* OpenGLRenderer::GetGlyph(FontHandle font, char c) {

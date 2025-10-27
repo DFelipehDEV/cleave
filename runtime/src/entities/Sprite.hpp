@@ -1,12 +1,12 @@
 #pragma once
 #include "Entity.hpp"
-#include "resources/Texture.hpp"
+#include "rendering/Material.hpp"
 
 namespace Cleave {
 class Sprite : public Entity {
 public:
     Sprite(Transform transform = Transform(),
-           std::shared_ptr<Texture> texture = nullptr,
+           Material material = Material(),
            Vec2f origin = {0.5f, 0.5f});
 
     void OnRender(Renderer* renderer) override;
@@ -18,14 +18,14 @@ public:
 
     static Entity* Create();
 
-    std::shared_ptr<Texture> GetTexture() const;
-    void SetTexture(std::shared_ptr<Texture> texture);
+    Material GetMaterial() const;
+    void SetMaterial(Material texture);
 
     Vec2f GetOrigin() const;
     void SetOrigin(Vec2f origin);
 
 private:
-    std::shared_ptr<Texture> m_texture;
+    Material m_material;
     Vec2f m_origin;
 };
 }  // namespace Cleave

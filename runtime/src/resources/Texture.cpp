@@ -5,6 +5,7 @@
 #include "thirdparty/stb_image.h"
 
 #include "services/ResourceManager.hpp"
+#include "rendering/Renderer.hpp"
 
 namespace Cleave {
 int Texture::GetWidth() const { return m_width; }

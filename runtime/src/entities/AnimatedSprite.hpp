@@ -7,9 +7,9 @@ class AnimatedSprite : public Sprite {
 public:
     AnimatedSprite() = default;
     AnimatedSprite(Transform transform,
-                   std::shared_ptr<Texture> texture,
+                   Material material,
                    Vec2i frameSize, int frameCount)
-        : Sprite(transform, texture),
+        : Sprite(transform, material),
           m_frameSize(frameSize),
           m_frameCount(frameCount) {}
 

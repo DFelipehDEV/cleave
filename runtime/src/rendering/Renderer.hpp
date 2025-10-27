@@ -13,8 +13,16 @@
 #include "math/Matrix4.hpp"
 #include "math/Transform.hpp"
 #include "math/Rect4.hpp"
+#ifdef DrawText
+#undef DrawText
+#endif
+
+#ifdef CreateFont
+#undef CreateFont
+#endif
 
 namespace Cleave {
+struct Material;
 class Window;
 
 struct Glyph {
@@ -53,6 +61,7 @@ public:
     virtual BlendMode GetBlendMode() const = 0;
     virtual void SetBlendMode(BlendMode mode) = 0;
 
+    virtual ShaderHandle CreateShader(const std::string_view vertex, const std::string_view fragment) = 0;
     virtual void SetShader(ShaderHandle handle) = 0;
     virtual void UseShader(ShaderHandle shader) = 0;
     virtual void SetShaderUniformInt(const std::string_view name, int value) const = 0;
@@ -62,9 +71,6 @@ public:
     virtual void SetShaderUniformVector4f(const std::string_view name, float x, float y, float z, float w) const = 0;
     virtual void SetShaderUniformMatrix4(const std::string_view name, Matrix4 matrix) const = 0;
 
-    virtual void SetTexture(TextureHandle handle) = 0;
-    virtual void UseTexture(TextureHandle texture) = 0;
-
     struct TextureInfo {
         TextureHandle handle = 0;
         int width = 0;
@@ -73,9 +79,11 @@ public:
     };
     virtual TextureInfo CreateFallbackTexture() = 0;
     virtual TextureInfo CreateTexture(const std::string_view path) = 0;
+    virtual void SetTexture(TextureHandle handle) = 0;
+    virtual void UseTexture(TextureHandle texture) = 0;
     virtual Vec2i GetTextureSize(TextureHandle handle) const = 0;
 
-    virtual ShaderHandle CreateShader(const std::string_view vertex, const std::string_view fragment) = 0;
+    virtual void SetMaterial(Material material) = 0;
 
     virtual FontHandle CreateFont(const std::string_view path, int size = 48) = 0;
 
@@ -91,7 +99,7 @@ public:
     virtual void DrawQuad(Rect4f rect, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White()) = 0;
     virtual void DrawQuad(Rect4f rect, float scaleX = 1.0f, float scaleY = 1.0f, float rotation = 0.0f, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White()) = 0;
 
-    virtual void DrawSprite(Transform transform, TextureHandle texture, Color color = Color::White()) = 0;
+    virtual void DrawSprite(Transform transform, Material material) = 0;
     
     virtual void DrawLine(float x1, float y1, float x2, float y2, Color color) = 0;
     virtual void DrawRect(Rect4f rect, Color color) = 0;

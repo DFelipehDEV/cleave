@@ -41,6 +41,7 @@ public:
     BlendMode GetBlendMode() const;
     void SetBlendMode(BlendMode mode);
 
+    ShaderHandle CreateShader(const std::string_view vertex, const std::string_view fragment);
     void SetShader(ShaderHandle handle);
     void UseShader(ShaderHandle handle);
     void SetShaderUniformInt(const std::string_view name, int value) const;
@@ -52,12 +53,11 @@ public:
 
     void SetTexture(TextureHandle handle);
     void UseTexture(TextureHandle handle);
-
     Renderer::TextureInfo CreateFallbackTexture();
     Renderer::TextureInfo CreateTexture(const std::string_view path);
     Vec2i GetTextureSize(TextureHandle handle) const;
-
-    ShaderHandle CreateShader(const std::string_view vertex, const std::string_view fragment);
+    
+    void SetMaterial(Material material);
 
     FontHandle CreateFont(const std::string_view path, int size);
 
@@ -73,7 +73,7 @@ public:
     void DrawQuad(Rect4f rect,
                   float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White());
     void DrawQuad(Rect4f rect, float scaleX = 1.0f, float scaleY = 1.0f, float rotation = 0.0f, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White());
-    void DrawSprite(Transform transform, TextureHandle texture, Color color = Color::White());
+    void DrawSprite(Transform transform, Material material);
 
     void DrawLine(float x1, float y1, float x2, float y2, Color color);
     void DrawRect(Rect4f rect, Color color);
@@ -83,6 +83,7 @@ public:
 
     const Glyph* GetGlyph(FontHandle font, char c);
 private:
+    void ApplyMaterialUniforms(const Material& material) const;
     struct RenderTargetData {
         RenderTarget target;
         GLuint frameBuffer = 0;
@@ -104,6 +105,7 @@ private:
 
     FT_Library m_ftLibrary;
 
+    Material m_currentMaterial;
     TextureHandle m_currentTexture = 0;
     ShaderHandle m_currentShader = 0;
     RenderTargetHandle m_currentRenderTarget = -1;

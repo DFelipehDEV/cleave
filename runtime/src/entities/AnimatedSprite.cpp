@@ -5,6 +5,8 @@
 #include "services/ResourceManager.hpp"
 #include "resources/Shader.hpp"
 #include "entities/Entity.hpp"
+#include "rendering/Color.hpp"
+#include "rendering/Renderer.hpp"
 
 namespace Cleave {
 const Entity::PropertyMap AnimatedSprite::GetProperties() const {
@@ -37,7 +39,7 @@ void AnimatedSprite::SetProperty(const std::string_view name, const std::string&
 Entity* AnimatedSprite::Create() { return new AnimatedSprite(); }
 
 void AnimatedSprite::OnTick(float deltaTime) {
-    if (!m_playing || !GetTexture() || m_frameDuration <= 0) return;
+    if (!m_playing || !GetMaterial().texture || m_frameDuration <= 0) return;
     
     m_time += deltaTime;
     
@@ -57,7 +59,7 @@ void AnimatedSprite::OnTick(float deltaTime) {
 }
 
 void AnimatedSprite::OnRender(Renderer* renderer) {
-    if (!GetTexture() || !renderer) return;
+    if (!GetMaterial().texture || !renderer) return;
     
     Vec2f globalPosition = GetTransform().GetWorldPosition();
     float rotation = GetTransform().GetWorldRotation();
@@ -77,16 +79,15 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
 
     Vec2i framePos = GetFramePosition(m_frame);
 
-    float texWidth = static_cast<float>(GetTexture()->GetWidth());
-    float texHeight = static_cast<float>(GetTexture()->GetHeight());
+    float texWidth = static_cast<float>(GetMaterial().texture->GetWidth());
+    float texHeight = static_cast<float>(GetMaterial().texture->GetHeight());
     
     const float u0 = framePos.x / texWidth;
     const float v0 = framePos.y / texHeight;
     const float u1 = (framePos.x + m_frameSize.x) / texWidth;
     const float v1 = (framePos.y + m_frameSize.y) / texHeight;
     
-    renderer->SetTexture(GetTexture()->GetHandle());
-    renderer->SetShader(shader->GetHandle());
+    renderer->SetMaterial(GetMaterial());
     renderer->SetDepth(GetDepth());
     renderer->DrawQuad(
         Rect4f {
