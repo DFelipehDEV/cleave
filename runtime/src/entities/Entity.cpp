@@ -7,17 +7,24 @@ void Entity::Init(const PropertyMap& properties) {
     }
 }
 
-void Entity::OnTick(float deltaTime) {
+void Entity::Tick(float deltaTime) {
+    OnTick(deltaTime);
+
     for (const auto& child : m_children) {
-        child->OnTick(deltaTime);
+        child->Tick(deltaTime);
     }
 }
 
-void Entity::OnRender(Renderer* renderer) {
+void Entity::Render(Renderer* renderer) {
+    OnRender(renderer);
+
     for (const auto& child : m_children) {
-        child->OnRender(renderer);
+        child->Render(renderer);
     }
 }
+
+void Entity::OnTick(float deltaTime) {}
+void Entity::OnRender(Renderer* renderer) {}
 
 const Entity::PropertyMap Entity::GetProperties() const {
     PropertyMap properties;

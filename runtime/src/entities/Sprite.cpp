@@ -70,7 +70,5 @@ void Sprite::OnRender(Renderer* renderer) {
 
         renderer->DrawSprite(transform.GetGlobalTransform(), m_texture->GetHandle());
     }
-
-    Entity::OnRender(renderer);
 }
 }  // namespace Cleave

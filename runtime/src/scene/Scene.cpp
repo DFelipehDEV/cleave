@@ -28,14 +28,13 @@ void Scene::AddSubScene(std::shared_ptr<Scene> subScene) {
 void Scene::Clear() { m_root.release(); }
 
 void Scene::Tick() {
-    
     if (m_root) {
-        m_root->OnTick(16.6666f);
+        m_root->Tick(16.6666f);
     }
 }
 void Scene::Render(Renderer* renderer) {
     if (m_root) {
-        m_root->OnRender(renderer);
+        m_root->Render(renderer);
     }
 }
 

@@ -97,8 +97,6 @@ void AnimatedSprite::OnRender(Renderer* renderer) {
         },
         u0, v0, u1, v1, Color::White()
     );
-    
-    Entity::OnRender(renderer);
 }
 
 int AnimatedSprite::GetFrame() const { return m_frame; }

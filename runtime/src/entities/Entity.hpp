@@ -82,6 +82,9 @@ public:
 
     void Init(const PropertyMap& properties);
 
+    void Tick(float deltaTime);
+    void Render(Renderer* renderer);
+
     virtual void OnTick(float deltaTime);
     virtual void OnRender(Renderer* renderer);
 

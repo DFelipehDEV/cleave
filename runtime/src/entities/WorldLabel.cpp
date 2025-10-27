@@ -54,8 +54,6 @@ void WorldLabel::OnRender(Renderer* renderer) {
         1.0f,
         Color::White()
     );
-
-    Entity::OnRender(renderer);
 }
 
 const std::string& WorldLabel::GetText() const { return m_text; }
