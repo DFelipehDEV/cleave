@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <filesystem>
 
+#include "rendering/Renderer.hpp"
+
 namespace Cleave {
 
 void ResourceManager::RegisterLoader(std::unique_ptr<ResourceLoader> loader) {

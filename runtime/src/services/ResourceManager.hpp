@@ -8,9 +8,8 @@
 #include "resources/Resource.hpp"
 #include "services/Services.hpp"
 
-#include "rendering/Renderer.hpp"
-
 namespace Cleave {
+class Renderer;
 #define GET_RESMGR() Services::Get<ResourceManager>()
 class ResourceManager : public Service {
 public:
@@ -27,6 +26,16 @@ public:
         }
         LOG_ERROR("Resource not found: " << name);
         return nullptr;
+    }
+
+    template <typename T>
+    requires std::derived_from<T, Resource>
+    bool Exists(const std::string& name) {
+        auto it = m_resources.find(name);
+        if (it != m_resources.end()) {
+            return true;
+        }
+        return false;
     }
 
     template <typename T>
