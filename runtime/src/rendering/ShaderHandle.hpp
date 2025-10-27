@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include <cstdint>
 
 namespace Cleave {
 typedef uint32_t ShaderHandle;

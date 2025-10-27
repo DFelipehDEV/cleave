@@ -2,8 +2,7 @@
 
 #include <vector>
 #include <algorithm>
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include <numbers>
 #include "thirdparty/stb_image.h"
 #include "Log.hpp"
 
@@ -231,7 +230,7 @@ void OpenGLRenderer::EndFrame() {
                 vertices.insert(vertices.end(), {circleCmd->x, circleCmd->y, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
 
                 for (int i = 0; i <= circleCmd->segments; i++) {
-                    float angle = 2.0f * (float)M_PI * i / circleCmd->segments;
+                    float angle = 2.0f * (float)std::numbers::pi * i / circleCmd->segments;
                     float px = circleCmd->x + circleCmd->radius * cos(angle);
                     float py = circleCmd->y + circleCmd->radius * sin(angle);
 
