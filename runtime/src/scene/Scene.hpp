@@ -10,7 +10,7 @@ public:
     Scene(std::unique_ptr<Entity> root = nullptr) : m_root(std::move(root)) {}
     ~Scene() = default;
 
-    std::string GetTypeName() const override { return "cleave::Scene"; }
+    std::string_view GetTypeName() const override { return "cleave::Scene"; }
 
     std::shared_ptr<Scene> Instantiate() const;
 

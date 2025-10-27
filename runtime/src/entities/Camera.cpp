@@ -11,7 +11,7 @@ const Entity::PropertyMap Camera::GetProperties() const {
     properties["zoom"] = {std::to_string(m_zoom), Entity::Property::Types::Float};
     return properties;
 }
-void Camera::SetProperty(std::string_view name, const std::string& value) {
+void Camera::SetProperty(const std::string_view name, const std::string& value) {
     if (name == "zoom") {
         m_zoom = std::stof(value);
     } else {

@@ -15,7 +15,6 @@ public:
     void SetEntityId(EntityId id);
 
     void Clear();
-
 private:
     EntityId m_entityId = "";
 };

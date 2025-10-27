@@ -10,8 +10,8 @@
 #include "Log.hpp"
 
 namespace Cleave {
-std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
-    std::ifstream file(path);
+std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string_view path) {
+    std::ifstream file(path.data());
     if (!file.is_open()) {
         LOG_ERROR("Failed to open: " << path);
         return nullptr;
@@ -71,8 +71,8 @@ std::shared_ptr<Scene> JsonSceneSerializer::Load(const std::string& path) {
     return scene;
 }
 
-bool JsonSceneSerializer::Save(const std::string& path, Scene* scene) {
-    std::ofstream file(path);
+bool JsonSceneSerializer::Save(const std::string_view path, Scene* scene) {
+    std::ofstream file(path.data());
     if (!file.is_open()) {
         LOG_ERROR("Failed to open file for writing: " << path);
         return false;

@@ -18,7 +18,7 @@ const Entity::PropertyMap WorldLabel::GetProperties() const {
     return properties;
 }
 
-void WorldLabel::SetProperty(std::string_view name, const std::string& value) {
+void WorldLabel::SetProperty(const std::string_view name, const std::string& value) {
     if (name == "text") {
         m_text = value;
     } else if (name == "font") {

@@ -9,7 +9,7 @@ public:
     Sound() : m_data(nullptr) {};
     ~Sound() = default;
 
-    std::string GetTypeName() const override { return "cleave::Sound"; }
+    std::string_view GetTypeName() const override { return "cleave::Sound"; }
 
     void* GetData() const;
     void SetData(void* data);

@@ -13,7 +13,7 @@ public:
     Font() {}
     ~Font() = default;
 
-    std::string GetTypeName() const override { return "cleave::Font"; }
+    std::string_view GetTypeName() const override { return "cleave::Font"; }
     FontHandle GetHandle() const { return m_handle; }
     void SetHandle(FontHandle handle) { m_handle = handle; }
     

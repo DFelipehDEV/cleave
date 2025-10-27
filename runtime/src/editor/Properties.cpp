@@ -105,7 +105,7 @@ void Properties::OnRender(Scene* scene) {
                         std::function<void(Entity*)> gather = [&](Entity* e) {
                             if (!e) return;
                             ids.push_back(e->GetId());
-                            options.push_back(e->GetId() + " (" + e->GetTypeName() + ")");
+                            options.push_back(e->GetName());
                             for (auto& c : e->GetChildren())
                                 gather(c.get());
                         };

@@ -1,5 +1,6 @@
 #include "platform/MessageBox.hpp"
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #undef MessageBox

@@ -1,28 +1,26 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <algorithm>
 
-#include "services/Services.hpp"
 #include "Window.hpp"
+#include "audio/SoLoudBackend.hpp"
 #include "entities/AnimatedSprite.hpp"
 #include "entities/Camera.hpp"
-#include "entities/Sprite.hpp"
 #include "entities/SoundPlayer.hpp"
+#include "entities/Sprite.hpp"
 #include "entities/WorldLabel.hpp"
 #include "rendering/OpenGLRenderer.hpp"
-
-#include "services/ResourceManager.hpp"
-#include "resources/Shader.hpp"
-#include "resources/Texture.hpp"
-#include "resources/Sound.hpp"
 #include "resources/Font.hpp"
-
-#include "services/AudioManager.hpp"
-#include "audio/SoLoudBackend.hpp"
-
+#include "resources/Shader.hpp"
+#include "resources/Sound.hpp"
+#include "resources/Texture.hpp"
 #include "scene/EntityRegistry.hpp"
 #include "scene/Scene.hpp"
-#include "thirdparty/stb_image.h"
+#include "services/AudioManager.hpp"
 #include "services/InputManager.hpp"
+#include "services/ResourceManager.hpp"
+#include "services/Services.hpp"
+#include "thirdparty/stb_image.h"
+
 
 using namespace Cleave;
 
@@ -34,23 +32,23 @@ using namespace Cleave::Editor;
 #endif
 
 namespace Config {
-    constexpr int WINDOW_WIDTH = 512;
-    constexpr int WINDOW_HEIGHT = 288;
-    constexpr const char* WINDOW_TITLE = "CleaveRT!";
-    constexpr const char* START_SCENE_PATH = "res/scenes/TestScene.jscn";
-    using AudioBackendType = SoLoudBackend;
+constexpr int WINDOW_WIDTH = 512;
+constexpr int WINDOW_HEIGHT = 288;
+constexpr const char* WINDOW_TITLE = "CleaveRT!";
+constexpr const char* START_SCENE_PATH = "res/scenes/TestScene.jscn";
+using AudioBackendType = SoLoudBackend;
 
-    constexpr bool USE_EDITOR = true;
-}
+constexpr bool USE_EDITOR = true;
+}  // namespace Config
 
 int main() {
     Window* window = new Window(Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT, Config::WINDOW_TITLE);
 
-    OpenGLRenderer* renderer = new OpenGLRenderer();
+    Renderer* renderer = static_cast<Renderer*>(new OpenGLRenderer());
     renderer->Initialize(*window);
 
     ResourceManager* resourceManager = new ResourceManager();
-    resourceManager->SetRenderer((Renderer*)renderer);
+    resourceManager->SetRenderer(renderer);
 
     resourceManager->RegisterLoader(std::make_unique<TextureLoader>());
     resourceManager->RegisterLoader(std::make_unique<ShaderLoader>());
@@ -76,9 +74,9 @@ int main() {
 #ifdef CLEAVE_EDITOR_ENABLED
     if (Config::USE_EDITOR) {
         Cleave::Editor::EditorContext editor = Cleave::Editor::EditorContext(window);
-        editor.Run((Renderer*)renderer);
-    } else 
-#endif 
+        editor.Run(renderer);
+    } else
+#endif
     {
         audioManager->PlayMusic(resourceManager->Get<Sound>("res/GMate.ogg"));
         Scene* scene = resourceManager->Get<Scene>(Config::START_SCENE_PATH).get();
@@ -90,7 +88,7 @@ int main() {
             input->Update();
 
             scene->Tick();
-            scene->Render((Renderer*)renderer);
+            scene->Render(renderer);
 
             renderer->EndFrame();
             window->swapBuffers();
@@ -99,10 +97,10 @@ int main() {
             float frameTimeMs = std::chrono::duration<float, std::milli>(end - now).count();
             float elapsed = std::chrono::duration<float>(end - lastPrintTime).count();
             if (elapsed >= 1.0f) {
-                LOG_INFO("Frame Time: " << frameTimeMs 
-                            << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f) 
-                            << " DrawCalls:" << renderer->GetDrawCalls()
-                            << " TextureSwaps:" << renderer->GetTextureSwaps());
+                LOG_INFO("Frame Time: " << frameTimeMs
+                                        << " FPS:" << (frameTimeMs > 0.0f ? 1000.0f / frameTimeMs : 0.0f)
+                                        << " DrawCalls:" << renderer->GetDrawCalls()
+                                        << " TextureSwaps:" << renderer->GetTextureSwaps());
                 lastPrintTime = end;
             }
         }

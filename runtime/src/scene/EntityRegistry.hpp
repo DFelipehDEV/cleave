@@ -27,8 +27,6 @@ public:
         return it != factories.end() ? it->second() : nullptr;
     }
 
-    static const std::unordered_map<std::string, EntityFactory>& GetAllTypes() {
-        return GetFactories();
-    }
+    static const std::unordered_map<std::string, EntityFactory>& GetAllTypes() { return GetFactories(); }
 };
 }  // namespace Cleave

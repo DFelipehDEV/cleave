@@ -18,7 +18,7 @@ const Entity::PropertyMap SoundPlayer::GetProperties() const {
     return properties;
 }
 
-void SoundPlayer::SetProperty(std::string_view name, const std::string& value) {
+void SoundPlayer::SetProperty(const std::string_view name, const std::string& value) {
     if (name == "sound") {
         auto sound = GET_RESMGR()->Get<Sound>(value);
         if (sound) {

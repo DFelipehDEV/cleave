@@ -12,7 +12,7 @@ public:
     Shader() {}
     ~Shader() = default;
 
-    std::string GetTypeName() const override { return "cleave::Shader"; }
+    std::string_view GetTypeName() const override { return "cleave::Shader"; }
 
     ShaderHandle GetHandle() const;
     void SetHandle(ShaderHandle handle);

@@ -18,7 +18,7 @@ const Entity::PropertyMap AnimatedSprite::GetProperties() const {
     return properties;
 }
 
-void AnimatedSprite::SetProperty(std::string_view name, const std::string& value) {
+void AnimatedSprite::SetProperty(const std::string_view name, const std::string& value) {
     if (name == "playing") {
         m_playing = std::stoi(value);
     } else if (name == "frameSize") {

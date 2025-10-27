@@ -23,7 +23,9 @@ public:
 
     Entity(Entity&& other) noexcept
         : m_id(other.m_id),
+          m_name(std::move(other.m_name)),
           m_transform(std::move(other.m_transform)),
+          m_parent(other.GetParent()),
           m_children(std::move(other.m_children)) {
         for (const auto& child : m_children) {
             if (child) {
@@ -86,12 +88,15 @@ public:
     static const char* GetTypeName() { return "cleave::Entity"; }
 
     virtual const PropertyMap GetProperties() const;
-    virtual void SetProperty(std::string_view name, const std::string& value);
+    virtual void SetProperty(const std::string_view name, const std::string& value);
 
     static Entity* Create();
 
     EntityId GetId() const;
     void SetId(EntityId id);
+
+    const std::string& GetName() const;
+    void SetName(const std::string& name);
 
     Transform& GetTransform();
     void SetTransform(Transform& transform);
@@ -112,6 +117,7 @@ public:
 
 private:
     EntityId m_id;
+    std::string m_name;
     int m_depth = 0;
     Transform m_transform;
     Entity* m_parent = nullptr;

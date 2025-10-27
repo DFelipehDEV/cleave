@@ -17,7 +17,7 @@ void ShowEntityHierarchy(Entity* entity, Entity*& selectedEntity) {
     }
 
     std::string label = " ";
-    label += entity->GetTypeName();
+    label += entity->GetName().c_str();
     label += " (" + entity->GetId() + ")";
     bool opened = ImGui::TreeNodeEx(label.c_str(), flags);
     if (ImGui::IsItemClicked()) {
@@ -46,6 +46,8 @@ void Hierarchy::OnRender(Scene* scene) {
                 if (ImGui::Selectable(("New " + registry.first).c_str())) {
                     std::unique_ptr<Entity> entity =
                         Registry::CreateEntity(registry.first);
+                    entity->SetName(registry.first +
+                                    std::to_string(entityCount++));
                     m_selectedEntity->AddChild(std::move(entity));
                 }
             }
@@ -54,8 +56,7 @@ void Hierarchy::OnRender(Scene* scene) {
 
         if (ImGui::BeginMenu("Add Subscene")) {
             for (auto& res : GET_RESMGR()->GetAll<Scene>()) {
-                const std::string& path = res->GetPath();
-                if (ImGui::Selectable(path.c_str())) {
+                if (ImGui::Selectable(res->GetPath().c_str())) {
                     scene->AddSubScene(res);
                 }
             }

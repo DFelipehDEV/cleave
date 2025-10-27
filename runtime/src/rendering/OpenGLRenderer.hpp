@@ -5,9 +5,16 @@
 #include <GL/glew.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H  
+#ifdef DrawText
+#undef DrawText
+#endif
+
+#ifdef CreateFont
+#undef CreateFont
+#endif
 
 namespace Cleave {
-class OpenGLRenderer : Renderer {
+class OpenGLRenderer : public Renderer {
 public:
     OpenGLRenderer()
         : m_projection(Matrix4::Ortho(0.0f, 512.0f, 288.0f, 0.0f, -1.0f, 1.0f)),
@@ -36,23 +43,23 @@ public:
 
     void SetShader(ShaderHandle handle);
     void UseShader(ShaderHandle handle);
-    void SetShaderUniformInt(const std::string& name, int value) const;
-    void SetShaderUniformFloat(const std::string& name, float value) const;
-    void SetShaderUniformVector2f(const std::string& name, float x, float y) const;
-    void SetShaderUniformVector3f(const std::string& name, float x, float y, float z) const;
-    void SetShaderUniformVector4f(const std::string& name, float x, float y, float z, float w) const;
-    void SetShaderUniformMatrix4(const std::string& name, Matrix4 matrix) const;
+    void SetShaderUniformInt(const std::string_view name, int value) const;
+    void SetShaderUniformFloat(const std::string_view name, float value) const;
+    void SetShaderUniformVector2f(const std::string_view name, float x, float y) const;
+    void SetShaderUniformVector3f(const std::string_view name, float x, float y, float z) const;
+    void SetShaderUniformVector4f(const std::string_view name, float x, float y, float z, float w) const;
+    void SetShaderUniformMatrix4(const std::string_view name, Matrix4 matrix) const;
 
     void SetTexture(TextureHandle handle);
     void UseTexture(TextureHandle handle);
 
     Renderer::TextureInfo CreateFallbackTexture();
-    Renderer::TextureInfo CreateTexture(const std::string& path);
+    Renderer::TextureInfo CreateTexture(const std::string_view path);
     Vec2i GetTextureSize(TextureHandle handle) const;
 
-    ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment);
+    ShaderHandle CreateShader(const std::string_view vertex, const std::string_view fragment);
 
-    FontHandle CreateFont(const std::string& fontPath, int fontSize);
+    FontHandle CreateFont(const std::string_view path, int size);
 
     RenderTargetHandle CreateRenderTarget(int width, int height);
     void SetRenderTarget(RenderTargetHandle handle);
@@ -75,10 +82,9 @@ public:
     void DrawRect(Rect4f rect, Color color);
     void DrawRectOutline(Rect4f rect, Color color);
     void DrawCircle(float x, float y, float radius, Color color, int segments = 16);
-    void DrawText(const std::string& text, FontHandle fontHandle, 
-                    float x, float y, float scale, Color color);
+    void DrawText(const std::string_view text, FontHandle font, float x, float y, float scale, Color color);
 
-    const Glyph* GetGlyph(FontHandle fontHandle, char c);
+    const Glyph* GetGlyph(FontHandle font, char c);
 private:
     struct RenderTargetData {
         RenderTarget target;

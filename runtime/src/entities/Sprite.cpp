@@ -23,7 +23,7 @@ const Entity::PropertyMap Sprite::GetProperties() const {
     return properties;
 }
 
-void Sprite::SetProperty(std::string_view name, const std::string& value) {
+void Sprite::SetProperty(const std::string_view name, const std::string& value) {
     if (name == "origin") {
         m_origin = Vec2f::FromString(value);
     } else if (name == "texture") {

@@ -134,8 +134,8 @@ void OpenGLRenderer::UseShader(ShaderHandle handle) {
     SetShader(handle);
 }
 
-void OpenGLRenderer::SetShaderUniformInt(const std::string& name, int value) const {
-    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
+void OpenGLRenderer::SetShaderUniformInt(const std::string_view name, int value) const {
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.data());
     if (location == -1) {
         LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
@@ -143,8 +143,8 @@ void OpenGLRenderer::SetShaderUniformInt(const std::string& name, int value) con
     glUniform1i(location, value);
 }
 
-void OpenGLRenderer::SetShaderUniformFloat(const std::string& name, float value) const {
-    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
+void OpenGLRenderer::SetShaderUniformFloat(const std::string_view name, float value) const {
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.data());
     if (location == -1) {
         LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
@@ -152,9 +152,9 @@ void OpenGLRenderer::SetShaderUniformFloat(const std::string& name, float value)
     glUniform1f(location, value);
 }
 
-void OpenGLRenderer::SetShaderUniformVector2f(const std::string& name, float x,
+void OpenGLRenderer::SetShaderUniformVector2f(const std::string_view name, float x,
                                 float y) const {
-    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.data());
     if (location == -1) {
         LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
@@ -162,9 +162,9 @@ void OpenGLRenderer::SetShaderUniformVector2f(const std::string& name, float x,
     glUniform2f(location, x, y);
 }
 
-void OpenGLRenderer::SetShaderUniformVector3f(const std::string& name, float x, float y,
+void OpenGLRenderer::SetShaderUniformVector3f(const std::string_view name, float x, float y,
                                 float z) const {
-    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.data());
     if (location == -1) {
         LOG_WARN("Shader: " << m_currentShader << " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
@@ -172,9 +172,9 @@ void OpenGLRenderer::SetShaderUniformVector3f(const std::string& name, float x, 
     glUniform3f(location, x, y, z);
 }
 
-void OpenGLRenderer::SetShaderUniformVector4f(const std::string& name, float x, float y,
+void OpenGLRenderer::SetShaderUniformVector4f(const std::string_view name, float x, float y,
                                 float z, float w) const {
-    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.data());
     if (location == -1) {
         LOG_WARN("Shader: " << m_currentShader <<  " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
@@ -182,9 +182,9 @@ void OpenGLRenderer::SetShaderUniformVector4f(const std::string& name, float x, 
     glUniform4f(location, x, y, z, w);
 }
 
-void OpenGLRenderer::SetShaderUniformMatrix4(const std::string& name,
+void OpenGLRenderer::SetShaderUniformMatrix4(const std::string_view name,
                                Matrix4 matrix) const {
-    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.c_str());
+    GLint location = glGetUniformLocation(m_shaders.at(m_currentShader), name.data());
     if (location == -1) {
         LOG_WARN("Shader: " << m_currentShader <<  " ERROR::SHADER::UNIFORM_NOT_FOUND (" << name << ")");
         return;
@@ -232,7 +232,7 @@ Renderer::TextureInfo OpenGLRenderer::CreateFallbackTexture() {
     return info;
 }
 
-Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
+Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string_view path) {
     Renderer::TextureInfo info;
     GLuint glHandle;
 
@@ -245,7 +245,7 @@ Renderer::TextureInfo OpenGLRenderer::CreateTexture(const std::string& path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     int channels;
-    unsigned char* data = stbi_load(path.c_str(), &info.width, &info.height, &channels, STBI_rgb_alpha);
+    unsigned char* data = stbi_load(path.data(), &info.width, &info.height, &channels, STBI_rgb_alpha);
     if (!data) {
         LOG_ERROR("Failed to load texture from file: " << path);
         return CreateFallbackTexture();
@@ -293,9 +293,9 @@ Vec2i OpenGLRenderer::GetTextureSize(TextureHandle handle) const {
     return {0, 0};
 }
 
-ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::string& fragment) {
+ShaderHandle OpenGLRenderer::CreateShader(const std::string_view vertex, const std::string_view fragment) {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const char* vertexSource = vertex.c_str();
+    const char* vertexSource = vertex.data();
     glShaderSource(vertexShader, 1, &vertexSource, nullptr);
     glCompileShader(vertexShader);
 
@@ -309,7 +309,7 @@ ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::
     }
 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char* fragmentSource = fragment.c_str();
+    const char* fragmentSource = fragment.data();
     glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
     glCompileShader(fragmentShader);
 
@@ -343,14 +343,14 @@ ShaderHandle OpenGLRenderer::CreateShader(const std::string& vertex, const std::
     return handle;
 }
 
-FontHandle OpenGLRenderer::CreateFont(const std::string& fontPath, int fontSize) {
+FontHandle OpenGLRenderer::CreateFont(const std::string_view path, int size) {
     FT_Face face;
-    if (FT_New_Face(m_ftLibrary, fontPath.c_str(), 0, &face)) {
-        LOG_ERROR("Failed to load font: " << fontPath);
+    if (FT_New_Face(m_ftLibrary, path.data(), 0, &face)) {
+        LOG_ERROR("Failed to load font: " << path);
         return 0;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, fontSize);
+    FT_Set_Pixel_Sizes(face, 0, size);
     
     FontHandle handle = NEXT_FONT_HANDLE++;
     std::unordered_map<char, Glyph> glyphs;
@@ -734,8 +734,8 @@ void OpenGLRenderer::DrawCircle(float x, float y, float radius, Color color, int
     AddRenderCommand(std::make_unique<RenderCircleCommand>(x, y, radius, color, segments, m_currentShader, m_depth, m_currentRenderTarget));
 }
 
-const Glyph* OpenGLRenderer::GetGlyph(FontHandle fontHandle, char c) {
-    auto fontIt = m_fonts.find(fontHandle);
+const Glyph* OpenGLRenderer::GetGlyph(FontHandle font, char c) {
+    auto fontIt = m_fonts.find(font);
     if (fontIt == m_fonts.end())
         return nullptr;
 
@@ -747,14 +747,13 @@ const Glyph* OpenGLRenderer::GetGlyph(FontHandle fontHandle, char c) {
     return &glyphIt->second;
 }
 
-void OpenGLRenderer::DrawText(const std::string& text, FontHandle fontHandle, 
-                              float x, float y, float scale, Color color) {
+void OpenGLRenderer::DrawText(const std::string_view text, FontHandle font, float x, float y, float scale, Color color) {
     const Glyph* glyph;
     float cursorX = x;
     float cursorY = y;
 
     for (char c : text) {
-        glyph = GetGlyph(fontHandle, c);
+        glyph = GetGlyph(font, c);
         if (!glyph || glyph->texture == -1) {
             cursorX += 8 * scale;
             continue;

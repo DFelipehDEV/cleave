@@ -11,7 +11,7 @@ public:
     Texture() : m_width(1), m_height(1), m_format(TextureFormat::RGB) {};
     ~Texture() override = default;
 
-    std::string GetTypeName() const override { return "cleave::Texture"; }
+    std::string_view GetTypeName() const override { return "cleave::Texture"; }
 
     TextureHandle GetHandle() const;
     void SetHandle(TextureHandle handle);

@@ -23,6 +23,7 @@ const Entity::PropertyMap Entity::GetProperties() const {
     PropertyMap properties;
     properties["type"] = {GetTypeName(), Property::Types::Hidden};
     properties["id"] = {m_id, Property::Types::Hidden};
+    properties["name"] = {m_name, Property::Types::String};
     properties["position"] = {m_transform.GetPosition().ToString(), Property::Types::Vec2f};
     properties["scale"] = {m_transform.GetScale().ToString(), Property::Types::Vec2f};
     properties["rotation"] = {std::to_string(m_transform.GetRotationDegrees()), Property::Types::Float};
@@ -30,9 +31,11 @@ const Entity::PropertyMap Entity::GetProperties() const {
     return properties;
 }
 
-void Entity::SetProperty(std::string_view name, const std::string& value) {
+void Entity::SetProperty(const std::string_view name, const std::string& value) {
     if (name == "id") {
         SetId(value);
+    } else if (name == "name") {
+        SetName(value);
     } else if (name == "position") {
         m_transform.SetPosition(Vec2f::FromString(value));
     } else if (name == "scale") {
@@ -47,9 +50,10 @@ void Entity::SetProperty(std::string_view name, const std::string& value) {
 Entity* Entity::Create() { return new Entity(); }
 
 EntityId Entity::GetId() const { return m_id; }
-void Entity::SetId(EntityId id) {
-    m_id = id;
-}
+void Entity::SetId(EntityId id) { m_id = id; }
+
+const std::string& Entity::GetName() const { return m_name; }
+void Entity::SetName(const std::string& name) { m_name = name; }
 
 Transform& Entity::GetTransform() { return m_transform; }
 void Entity::SetTransform(Transform& transform) { m_transform = transform; }

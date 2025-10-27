@@ -64,12 +64,12 @@ public:
 
     virtual void SetShader(ShaderHandle handle) = 0;
     virtual void UseShader(ShaderHandle shader) = 0;
-    virtual void SetShaderUniformInt(const std::string& name, int value) const = 0;
-    virtual void SetShaderUniformFloat(const std::string& name, float value) const = 0;
-    virtual void SetShaderUniformVector2f(const std::string& name, float x, float y) const = 0;
-    virtual void SetShaderUniformVector3f(const std::string& name, float x, float y, float z) const = 0;
-    virtual void SetShaderUniformVector4f(const std::string& name, float x, float y, float z, float w) const = 0;
-    virtual void SetShaderUniformMatrix4(const std::string& name, Matrix4 matrix) const = 0;
+    virtual void SetShaderUniformInt(const std::string_view name, int value) const = 0;
+    virtual void SetShaderUniformFloat(const std::string_view name, float value) const = 0;
+    virtual void SetShaderUniformVector2f(const std::string_view name, float x, float y) const = 0;
+    virtual void SetShaderUniformVector3f(const std::string_view name, float x, float y, float z) const = 0;
+    virtual void SetShaderUniformVector4f(const std::string_view name, float x, float y, float z, float w) const = 0;
+    virtual void SetShaderUniformMatrix4(const std::string_view name, Matrix4 matrix) const = 0;
 
     virtual void SetTexture(TextureHandle handle) = 0;
     virtual void UseTexture(TextureHandle texture) = 0;
@@ -81,12 +81,12 @@ public:
         TextureFormat format = TextureFormat::RGBA;
     };
     virtual TextureInfo CreateFallbackTexture() = 0;
-    virtual TextureInfo CreateTexture(const std::string& path) = 0;
+    virtual TextureInfo CreateTexture(const std::string_view path) = 0;
     virtual Vec2i GetTextureSize(TextureHandle handle) const = 0;
 
-    virtual ShaderHandle CreateShader(const std::string& vertex, const std::string& fragment) = 0;
+    virtual ShaderHandle CreateShader(const std::string_view vertex, const std::string_view fragment) = 0;
 
-    virtual FontHandle CreateFont(const std::string& path, int size = 48) = 0;
+    virtual FontHandle CreateFont(const std::string_view path, int size = 48) = 0;
 
     virtual RenderTargetHandle CreateRenderTarget(int width, int height) = 0;
     virtual void SetRenderTarget(RenderTargetHandle handle) = 0;
@@ -109,9 +109,9 @@ public:
     virtual void DrawRect(Rect4f rect, Color color) = 0;
     virtual void DrawRectOutline(Rect4f rect, Color color) = 0;
     virtual void DrawCircle(float x, float y, float radius, Color color, int segments = 16) = 0;
-    virtual void DrawText(const std::string& text, FontHandle font, float x, float y, float scale, Color color) = 0;
+    virtual void DrawText(const std::string_view text, FontHandle font, float x, float y, float scale, Color color) = 0;
 
-    virtual const Glyph* GetGlyph(FontHandle fontHandle, char c) = 0;
+    virtual const Glyph* GetGlyph(FontHandle font, char c) = 0;
 };
 
 struct RenderCommand {

@@ -9,7 +9,7 @@ class Resource {
 public:
     virtual ~Resource() = default;
 
-    virtual std::string GetTypeName() const = 0;
+    virtual std::string_view GetTypeName() const = 0;
 
     const std::string& GetPath() const;
     void SetPath(const std::string& path);

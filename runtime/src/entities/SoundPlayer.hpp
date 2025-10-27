@@ -12,7 +12,7 @@ public:
     static const char* GetTypeName() { return "cleave::SoundPlayer"; }
 
     const PropertyMap GetProperties() const override;
-    void SetProperty(std::string_view name, const std::string& value) override;
+    void SetProperty(const std::string_view name, const std::string& value) override;
 
     static Entity* Create();
 

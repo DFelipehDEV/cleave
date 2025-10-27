@@ -28,6 +28,7 @@ void Scene::AddSubScene(std::shared_ptr<Scene> subScene) {
 void Scene::Clear() { m_root.release(); }
 
 void Scene::Tick() {
+    
     if (m_root) {
         m_root->OnTick(16.6666f);
     }
