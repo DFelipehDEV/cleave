@@ -3,8 +3,11 @@
 #include <vector>
 #include <algorithm>
 #include <numbers>
+
 #include "thirdparty/stb_image.h"
 #include "Log.hpp"
+#include "Window.hpp"
+#include "rendering/RenderCommand.hpp"
 
 namespace Cleave {
 OpenGLRenderer::~OpenGLRenderer() { Terminate(); }
@@ -673,7 +676,6 @@ void OpenGLRenderer::ClearRenderTarget() {
     UseRenderTarget(0);
 }
 
-const std::vector<std::unique_ptr<RenderCommand>>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }
 void OpenGLRenderer::AddRenderCommand(std::unique_ptr<RenderCommand> command) { m_renderCommands.push_back(std::move(command)); }
 
 void OpenGLRenderer::ClearColor(Color color) {

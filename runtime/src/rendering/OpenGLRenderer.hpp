@@ -66,7 +66,6 @@ public:
     void UseRenderTarget(RenderTargetHandle handle);
     void ClearRenderTarget();
 
-    const std::vector<std::unique_ptr<RenderCommand>>& GetRenderCommands() const;
     void AddRenderCommand(std::unique_ptr<RenderCommand> command);
 
     void ClearColor(Color color);
