@@ -108,7 +108,6 @@ void EditorContext::Run(Renderer* renderer) {
                 ImGui::EndChild();
             }
         }
-        renderer->EndFrame();
         auto end = std::chrono::high_resolution_clock::now();
         float frameTimeMs = std::chrono::duration<float, std::milli>(end - now).count();
         float elapsed = std::chrono::duration<float>(end - lastPrintTime).count();

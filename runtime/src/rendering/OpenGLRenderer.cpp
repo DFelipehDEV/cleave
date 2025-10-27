@@ -65,6 +65,215 @@ void OpenGLRenderer::BeginFrame() {
 }
 
 void OpenGLRenderer::EndFrame() {
+    std::stable_sort(m_renderCommands.begin(), m_renderCommands.end(),
+        [](const auto& a, const auto& b) {
+            if (a->renderTarget != b->renderTarget) return a->renderTarget < b->renderTarget;
+            if (a->depth != b->depth) return a->depth < b->depth;
+            if (a->texture != b->texture) return a->texture < b->texture;
+            if (a->shader != b->shader) return a->shader < b->shader;
+            return false;
+        });
+
+    for (auto& command : m_renderCommands) {
+        if (!command) continue;
+        RenderCommand* rawCmd = command.get();
+
+        if (command->renderTarget != m_currentRenderTarget) {
+            UseRenderTarget(command->renderTarget);
+        }
+
+        Transform transform = Transform();
+        switch (rawCmd->type) {
+            case RenderCommand::Type::Quad: {
+                RenderQuadCommand* quadCmd = static_cast<RenderQuadCommand*>(rawCmd);
+                if (!quadCmd) break;
+                Rect4f rect = quadCmd->rect;
+                transform.SetPosition({rect.x, rect.y});
+                transform.SetRotation(quadCmd->rotation);
+                transform.SetScale({quadCmd->scaleX, quadCmd->scaleY});
+                if (quadCmd->shader != 0) {
+                    UseShader(quadCmd->shader);
+                    SetShaderUniformInt("tex", 0);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    SetShaderUniformMatrix4("model", transform.GetMatrix());
+                    SetShaderUniformVector4f("color", quadCmd->color.r / 255.0f, quadCmd->color.g / 255.0f, quadCmd->color.b / 255.0f, quadCmd->color.a / 255.0f);
+                }
+
+                if (quadCmd->texture != 0) {
+                    UseTexture(quadCmd->texture);
+                }
+
+                glBindVertexArray(m_quadVAO);
+
+                float vertices[] = {
+                    // x, y, u, v
+                    rect.x, rect.y + rect.h, quadCmd->u0, quadCmd->v1,     // top-left
+                    rect.x + rect.w, rect.y + rect.h, quadCmd->u1, quadCmd->v1,   // top-right
+                    rect.x + rect.w, rect.y, quadCmd->u1, quadCmd->v0,     // bottom-right
+                    rect.x, rect.y, quadCmd->u0, quadCmd->v0             // bottom-left
+                };
+
+                glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+                glBindVertexArray(0);
+                break;
+            }
+
+            case RenderCommand::Type::Line: {
+                RenderLineCommand* lineCmd = static_cast<RenderLineCommand*>(rawCmd);
+                if (!lineCmd) break;
+
+                if (lineCmd->shader != 0) { 
+                    UseShader(lineCmd->shader);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    //SetShaderUniformMatrix4("transform", transform);
+                }
+
+                glBindTexture(GL_TEXTURE_2D, 0);
+                float vertices[] = {
+                    lineCmd->x1, lineCmd->y1, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f,
+                    lineCmd->x2, lineCmd->y2, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f};
+                unsigned int indices[] = {0, 1};
+
+                unsigned int VAO, VBO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+                // Position
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(0);
+
+                // Color
+                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+                glEnableVertexAttribArray(1);
+
+                glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+
+                glDeleteVertexArrays(1, &VAO);
+                glDeleteBuffers(1, &VBO);
+                glDeleteBuffers(1, &EBO);
+                break;
+            }
+
+            case RenderCommand::Type::Rect: {
+                RenderRectCommand* rectCmd = static_cast<RenderRectCommand*>(rawCmd);
+                if (!rectCmd) break;
+                Rect4f rect = rectCmd->rect;
+                if (rectCmd->shader != 0) { 
+                    UseShader(rectCmd->shader);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    //SetShaderUniformMatrix4("transform", transform);
+                }
+
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                float vertices[] = {
+                    // Position        // Color
+                    rect.x, rect.y + rect.h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
+                    rect.x + rect.w, rect.y + rect.h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
+                    rect.x + rect.w, rect.y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
+                    rect.x, rect.y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f};
+
+                unsigned int indices[] = {0, 1, 2, 0, 2, 3};
+
+                unsigned int VAO, VBO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+                // Position attribute
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(0);
+
+                // Color attribute
+                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+                glEnableVertexAttribArray(1);
+
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+
+                glDeleteVertexArrays(1, &VAO);
+                glDeleteBuffers(1, &VBO);
+                glDeleteBuffers(1, &EBO);
+                break;
+            }
+
+            case RenderCommand::Type::Circle: {
+                RenderCircleCommand* circleCmd = static_cast<RenderCircleCommand*>(rawCmd);
+                if (!circleCmd) break;
+                if (rawCmd->shader != 0) { 
+                    UseShader(rawCmd->shader);
+                    SetShaderUniformMatrix4("projection", GetProjection());
+                    //SetShaderUniformMatrix4("transform", transform);
+                }
+                std::vector<float> vertices;
+                vertices.insert(vertices.end(), {circleCmd->x, circleCmd->y, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
+
+                for (int i = 0; i <= circleCmd->segments; i++) {
+                    float angle = 2.0f * (float)M_PI * i / circleCmd->segments;
+                    float px = circleCmd->x + circleCmd->radius * cos(angle);
+                    float py = circleCmd->y + circleCmd->radius * sin(angle);
+
+                    vertices.insert(vertices.end(), {px, py, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
+                }
+
+                std::vector<uint32_t> indices;
+                for (int i = 0; i < circleCmd->segments; i++) {
+                    indices.insert(indices.end(), {0, (uint32_t)(i + 1), (uint32_t)(i + 2)});
+                }
+
+                unsigned int VAO, VBO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
+
+                // Position attribute
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(0);
+
+                // Color attribute
+                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+                glEnableVertexAttribArray(1);
+
+                glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+                m_drawCalls++;
+
+                glDeleteVertexArrays(1, &VAO);
+                glDeleteBuffers(1, &VBO);
+                glDeleteBuffers(1, &EBO);
+                break;
+            }
+        }
+    }
 }
 
 uint32_t OpenGLRenderer::GetDrawCalls() const { return m_drawCalls; }
@@ -467,218 +676,6 @@ void OpenGLRenderer::ClearRenderTarget() {
 
 const std::vector<std::unique_ptr<RenderCommand>>& OpenGLRenderer::GetRenderCommands() const { return m_renderCommands; }
 void OpenGLRenderer::AddRenderCommand(std::unique_ptr<RenderCommand> command) { m_renderCommands.push_back(std::move(command)); }
-
-void OpenGLRenderer::RunRenderCommands() {
-    std::stable_sort(m_renderCommands.begin(), m_renderCommands.end(),
-        [](const auto& a, const auto& b) {
-            if (a->renderTarget != b->renderTarget) return a->renderTarget < b->renderTarget;
-            if (a->depth != b->depth) return a->depth < b->depth;
-            if (a->texture != b->texture) return a->texture < b->texture;
-            if (a->shader != b->shader) return a->shader < b->shader;
-            return false;
-        });
-
-    for (auto& command : m_renderCommands) {
-        if (!command) continue;
-        RenderCommand* rawCmd = command.get();
-
-        if (command->renderTarget != m_currentRenderTarget) {
-            UseRenderTarget(command->renderTarget);
-        }
-
-        Transform transform = Transform();
-        switch (rawCmd->type) {
-            case RenderCommand::Type::Quad: {
-                RenderQuadCommand* quadCmd = dynamic_cast<RenderQuadCommand*>(rawCmd);
-                if (!quadCmd) break;
-                Rect4f rect = quadCmd->rect;
-                transform.SetPosition({rect.x, rect.y});
-                transform.SetRotation(quadCmd->rotation);
-                transform.SetScale({quadCmd->scaleX, quadCmd->scaleY});
-                if (quadCmd->shader != 0) {
-                    UseShader(quadCmd->shader);
-                    SetShaderUniformInt("tex", 0);
-                    SetShaderUniformMatrix4("projection", GetProjection());
-                    SetShaderUniformMatrix4("model", transform.GetMatrix());
-                    SetShaderUniformVector4f("color", quadCmd->color.r / 255.0f, quadCmd->color.g / 255.0f, quadCmd->color.b / 255.0f, quadCmd->color.a / 255.0f);
-                }
-
-                if (quadCmd->texture != 0) {
-                    UseTexture(quadCmd->texture);
-                }
-
-                glBindVertexArray(m_quadVAO);
-
-                float vertices[] = {
-                    // x, y, u, v
-                    rect.x, rect.y + rect.h, quadCmd->u0, quadCmd->v1,     // top-left
-                    rect.x + rect.w, rect.y + rect.h, quadCmd->u1, quadCmd->v1,   // top-right
-                    rect.x + rect.w, rect.y, quadCmd->u1, quadCmd->v0,     // bottom-right
-                    rect.x, rect.y, quadCmd->u0, quadCmd->v0             // bottom-left
-                };
-
-                glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
-                glBindVertexArray(0);
-                break;
-            }
-
-            case RenderCommand::Type::Line: {
-                RenderLineCommand* lineCmd = dynamic_cast<RenderLineCommand*>(rawCmd);
-                if (!lineCmd) break;
-
-                if (lineCmd->shader != 0) { 
-                    UseShader(lineCmd->shader);
-                    SetShaderUniformMatrix4("projection", GetProjection());
-                    //SetShaderUniformMatrix4("transform", transform);
-                }
-
-                glBindTexture(GL_TEXTURE_2D, 0);
-                float vertices[] = {
-                    lineCmd->x1, lineCmd->y1, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f,
-                    lineCmd->x2, lineCmd->y2, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f};
-                unsigned int indices[] = {0, 1};
-
-                unsigned int VAO, VBO, EBO;
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                glGenBuffers(1, &EBO);
-
-                glBindVertexArray(VAO);
-
-                glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-                // Position
-                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
-
-                // Color
-                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-                glEnableVertexAttribArray(1);
-
-                glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
-
-                glDeleteVertexArrays(1, &VAO);
-                glDeleteBuffers(1, &VBO);
-                glDeleteBuffers(1, &EBO);
-                break;
-            }
-
-            case RenderCommand::Type::Rect: {
-                RenderRectCommand* rectCmd = dynamic_cast<RenderRectCommand*>(rawCmd);
-                if (!rectCmd) break;
-                Rect4f rect = rectCmd->rect;
-                if (rectCmd->shader != 0) { 
-                    UseShader(rectCmd->shader);
-                    SetShaderUniformMatrix4("projection", GetProjection());
-                    //SetShaderUniformMatrix4("transform", transform);
-                }
-
-                glBindTexture(GL_TEXTURE_2D, 0);
-
-                float vertices[] = {
-                    // Position        // Color
-                    rect.x, rect.y + rect.h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
-                    rect.x + rect.w, rect.y + rect.h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
-                    rect.x + rect.w, rect.y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
-                    rect.x, rect.y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f};
-
-                unsigned int indices[] = {0, 1, 2, 0, 2, 3};
-
-                unsigned int VAO, VBO, EBO;
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                glGenBuffers(1, &EBO);
-
-                glBindVertexArray(VAO);
-
-                glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-                // Position attribute
-                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
-
-                // Color attribute
-                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-                glEnableVertexAttribArray(1);
-
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
-
-                glDeleteVertexArrays(1, &VAO);
-                glDeleteBuffers(1, &VBO);
-                glDeleteBuffers(1, &EBO);
-                break;
-            }
-
-            case RenderCommand::Type::Circle: {
-                RenderCircleCommand* circleCmd = dynamic_cast<RenderCircleCommand*>(rawCmd);
-                if (!circleCmd) break;
-                if (rawCmd->shader != 0) { 
-                    UseShader(rawCmd->shader);
-                    SetShaderUniformMatrix4("projection", GetProjection());
-                    //SetShaderUniformMatrix4("transform", transform);
-                }
-                std::vector<float> vertices;
-                vertices.insert(vertices.end(), {circleCmd->x, circleCmd->y, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
-
-                for (int i = 0; i <= circleCmd->segments; i++) {
-                    float angle = 2.0f * (float)M_PI * i / circleCmd->segments;
-                    float px = circleCmd->x + circleCmd->radius * cos(angle);
-                    float py = circleCmd->y + circleCmd->radius * sin(angle);
-
-                    vertices.insert(vertices.end(), {px, py, circleCmd->color.r / 255.0f, circleCmd->color.g / 255.0f, circleCmd->color.b / 255.0f, circleCmd->color.a / 255.0f});
-                }
-
-                std::vector<uint32_t> indices;
-                for (int i = 0; i < circleCmd->segments; i++) {
-                    indices.insert(indices.end(), {0, (uint32_t)(i + 1), (uint32_t)(i + 2)});
-                }
-
-                unsigned int VAO, VBO, EBO;
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                glGenBuffers(1, &EBO);
-
-                glBindVertexArray(VAO);
-
-                glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
-
-                // Position attribute
-                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
-
-                // Color attribute
-                glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-                glEnableVertexAttribArray(1);
-
-                glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
-
-                glDeleteVertexArrays(1, &VAO);
-                glDeleteBuffers(1, &VBO);
-                glDeleteBuffers(1, &EBO);
-                break;
-            }
-        }
-    }
-}
 
 void OpenGLRenderer::ClearColor(Color color) {
     glClearColor(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);

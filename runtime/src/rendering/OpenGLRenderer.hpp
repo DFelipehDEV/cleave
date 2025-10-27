@@ -69,8 +69,6 @@ public:
     const std::vector<std::unique_ptr<RenderCommand>>& GetRenderCommands() const;
     void AddRenderCommand(std::unique_ptr<RenderCommand> command);
 
-    void RunRenderCommands();
-
     void ClearColor(Color color);
 
     void DrawQuad(Rect4f rect,

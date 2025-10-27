@@ -96,8 +96,6 @@ public:
     virtual const std::vector<std::unique_ptr<RenderCommand>>& GetRenderCommands() const = 0;
     virtual void AddRenderCommand(std::unique_ptr<RenderCommand> command) = 0;
 
-    virtual void RunRenderCommands() = 0;
-
     virtual void ClearColor(Color color) = 0;
 
     virtual void DrawQuad(Rect4f rect, float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f, Color color = Color::White()) = 0;
@@ -128,7 +126,6 @@ struct RenderCommand {
     RenderTargetHandle renderTarget = 0;
     BlendMode blendMode = BlendMode::NORMAL;
     RenderCommand(int _depth, TextureHandle _texture, ShaderHandle _shader, RenderTargetHandle _renderTarget) : depth(_depth), texture(_texture), shader(_shader), renderTarget(_renderTarget) {}
-    virtual ~RenderCommand() = default;
 };
 
 struct RenderQuadCommand : RenderCommand {

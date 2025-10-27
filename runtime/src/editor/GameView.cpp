@@ -127,7 +127,7 @@ void GameView::OnRender(Renderer* renderer) {
     }
     
     (m_playing ? m_runtimeScene : m_scene)->Render(renderer);
-    renderer->RunRenderCommands();
+    renderer->EndFrame();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
