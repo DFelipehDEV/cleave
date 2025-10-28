@@ -20,14 +20,14 @@ const Entity::PropertyMap Sprite::GetProperties() const {
         texturePath = m_material.texture->GetPath();
     else
         texturePath = "";
-    properties["texture"] = {texturePath, Entity::Property::Types::String};
+    properties["texture"] = {texturePath, Entity::Property::Types::FilePath};
 
     std::string shaderPath;
     if (m_material.shader)
         shaderPath = m_material.shader->GetPath();
     else
         shaderPath = "";
-    properties["shader"] = {shaderPath, Entity::Property::Types::String};
+    properties["shader"] = {shaderPath, Entity::Property::Types::FilePath};
     return properties;
 }
 
@@ -37,7 +37,8 @@ void Sprite::SetProperty(const std::string_view name, const std::string& value) 
     } else if (name == "texture") {
         if (!value.empty() && GET_RESMGR()->Exists<Texture>(value)) {
             auto tex = GET_RESMGR()->Get<Texture>(value);
-            m_material.texture = tex ? tex : nullptr; // Only assign if valid, else clear
+            if (tex)
+                m_material.texture = tex;
             LOG_INFO("Set texture to " << tex->GetHandle());
         } else {
             m_material.texture = nullptr;
@@ -45,8 +46,8 @@ void Sprite::SetProperty(const std::string_view name, const std::string& value) 
     } else if (name == "shader") {
         if (!value.empty() && GET_RESMGR()->Exists<Shader>(value)) {
             auto shader = GET_RESMGR()->Get<Shader>(value);
-            m_material.shader = shader ? shader : nullptr; // Only assign if valid, else clear
-            LOG_INFO("Set shader to " << shader->GetHandle());
+            if (shader)
+                m_material.shader = shader;
         } else {
             m_material.shader = nullptr;
         }
@@ -72,11 +73,8 @@ void Sprite::OnRender(Renderer* renderer) {
         auto tex = m_material.texture;
         Vec2f offset = Vec2f(tex->GetWidth() * m_origin.x,
                             tex->GetHeight() * m_origin.y);
-
-        auto resourceManager = GET_RESMGR();
-        auto shader = resourceManager->Get<Shader>("res/shaders/sprite.vert");
-
-        renderer->SetShader(shader->GetHandle());
+                            
+        renderer->SetMaterial(m_material);
         renderer->SetDepth(GetDepth());
         renderer->DrawSprite(transform.GetGlobalTransform(), m_material);
     }

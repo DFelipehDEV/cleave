@@ -54,7 +54,6 @@ void EditorContext::Run(Renderer* renderer) {
         auto resourceManager = GET_RESMGR();
         auto shader = resourceManager->Get<Shader>("res/shaders/main.vert");
         renderer->UseShader(shader->GetHandle());
-        renderer->SetShaderUniformInt("tex", 0);
         renderer->SetShaderUniformMatrix4("projection", renderer->GetProjection());
         renderer->BeginFrame();
         // Clear

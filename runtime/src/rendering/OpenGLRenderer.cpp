@@ -119,7 +119,6 @@ void OpenGLRenderer::EndFrame() {
                 if (shader) {
                     if (m_currentShader != shader->GetHandle()) {
                         UseShader(shader->GetHandle());
-                        SetShaderUniformInt("tex", 0);
                         SetShaderUniformMatrix4("projection", GetProjection());
                         SetShaderUniformMatrix4("model", transform.GetMatrix());
                         SetShaderUniformVector4f("color", 
@@ -152,9 +151,7 @@ void OpenGLRenderer::EndFrame() {
 
                 glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-
                 glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
                 glBindVertexArray(0);
                 break;
             }
@@ -171,20 +168,21 @@ void OpenGLRenderer::EndFrame() {
                 glBindTexture(GL_TEXTURE_2D, 0);
                 float vertices[] = {
                     lineCmd->x1, lineCmd->y1, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f,
-                    lineCmd->x2, lineCmd->y2, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f};
-                unsigned int indices[] = {0, 1};
+                    lineCmd->x2, lineCmd->y2, lineCmd->color.r / 255.0f, lineCmd->color.g / 255.0f, lineCmd->color.b / 255.0f, lineCmd->color.a / 255.0f
+                };
+                GLubyte indices[] = {0, 1};
 
-                unsigned int VAO, VBO, EBO;
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                glGenBuffers(1, &EBO);
+                unsigned int vao, vbo, ebo;
+                glGenVertexArrays(1, &vao);
+                glGenBuffers(1, &vbo);
+                glGenBuffers(1, &ebo);
 
-                glBindVertexArray(VAO);
+                glBindVertexArray(vao);
 
-                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBindBuffer(GL_ARRAY_BUFFER, vbo);
                 glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
                 // Position
@@ -195,12 +193,11 @@ void OpenGLRenderer::EndFrame() {
                 glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
                 glEnableVertexAttribArray(1);
 
-                glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
+                glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, 0);
 
-                glDeleteVertexArrays(1, &VAO);
-                glDeleteBuffers(1, &VBO);
-                glDeleteBuffers(1, &EBO);
+                glDeleteVertexArrays(1, &vao);
+                glDeleteBuffers(1, &vbo);
+                glDeleteBuffers(1, &ebo);
                 break;
             }
 
@@ -220,7 +217,8 @@ void OpenGLRenderer::EndFrame() {
                     rect.x, rect.y + rect.h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
                     rect.x + rect.w, rect.y + rect.h, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
                     rect.x + rect.w, rect.y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f,
-                    rect.x, rect.y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f};
+                    rect.x, rect.y, rectCmd->color.r / 255.0f, rectCmd->color.g / 255.0f, rectCmd->color.b / 255.0f, rectCmd->color.a / 255.0f
+                };
 
                 unsigned int indices[] = {0, 1, 2, 0, 2, 3};
 
@@ -246,7 +244,6 @@ void OpenGLRenderer::EndFrame() {
                 glEnableVertexAttribArray(1);
 
                 glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
 
                 glDeleteVertexArrays(1, &VAO);
                 glDeleteBuffers(1, &VBO);
@@ -299,7 +296,6 @@ void OpenGLRenderer::EndFrame() {
                 glEnableVertexAttribArray(1);
 
                 glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-                m_drawCalls++;
 
                 glDeleteVertexArrays(1, &VAO);
                 glDeleteBuffers(1, &VBO);
@@ -307,6 +303,7 @@ void OpenGLRenderer::EndFrame() {
                 break;
             }
         }
+        m_drawCalls++;
     }
 }
 
@@ -744,7 +741,7 @@ void OpenGLRenderer::DrawSprite(Transform transform, Material material) {
         transform.GetScale().x, transform.GetScale().y, transform.GetRotation(),
         0.0f, 0.0f, 1.0f, 1.0f, Color::White()
     );
-    LOG_INFO("Using material texture handle: " << material.texture->GetHandle());
+    // LOG_INFO("Using material texture handle: " << material.texture->GetHandle());
 }
 
 void OpenGLRenderer::DrawLine(float x1, float y1, float x2, float y2, Color color) {
