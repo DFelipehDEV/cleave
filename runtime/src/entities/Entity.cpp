@@ -65,6 +65,15 @@ void Entity::SetName(const std::string& name) { m_name = name; }
 Transform& Entity::GetTransform() { return m_transform; }
 void Entity::SetTransform(Transform& transform) { m_transform = transform; }
 
+Vec2f Entity::GetPosition() { return m_transform.GetPosition(); }
+void Entity::SetPosition(const Vec2f& position) { m_transform.SetPosition(position); }
+
+Vec2f Entity::GetScale() { return m_transform.GetScale(); }
+void Entity::SetScale(const Vec2f& scale) { m_transform.SetScale(scale); }
+
+float Entity::GetRotation() { return m_transform.GetRotationDegrees(); }
+void Entity::SetRotation(const float rotation) { m_transform.SetRotationDegrees(rotation); }
+
 int Entity::GetDepth() { return m_depth; }
 void Entity::SetDepth(int depth) { m_depth = depth; }
 

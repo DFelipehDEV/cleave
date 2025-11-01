@@ -7,6 +7,7 @@
 #include "entities/Camera.hpp"
 #include "entities/SoundPlayer.hpp"
 #include "entities/Sprite.hpp"
+#include "entities/Tilemap.hpp"
 #include "entities/WorldLabel.hpp"
 #include "rendering/OpenGLRenderer.hpp"
 #include "resources/Font.hpp"
@@ -20,7 +21,6 @@
 #include "services/ResourceManager.hpp"
 #include "services/Services.hpp"
 #include "thirdparty/stb_image.h"
-
 
 using namespace Cleave;
 
@@ -69,6 +69,7 @@ int main() {
     Registry::RegisterType<Camera>();
     Registry::RegisterType<Sprite>();
     Registry::RegisterType<SoundPlayer>();
+    Registry::RegisterType<Tilemap>();
     Registry::RegisterType<WorldLabel>();
 
 #ifdef CLEAVE_EDITOR_ENABLED

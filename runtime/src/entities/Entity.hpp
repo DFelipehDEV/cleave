@@ -103,6 +103,15 @@ public:
     Transform& GetTransform();
     void SetTransform(Transform& transform);
 
+    Vec2f GetPosition();
+    void SetPosition(const Vec2f& position);
+
+    Vec2f GetScale();
+    void SetScale(const Vec2f& scale);
+
+    float GetRotation();
+    void SetRotation(float rotation);
+
     int GetDepth();
     void SetDepth(int depth);
 

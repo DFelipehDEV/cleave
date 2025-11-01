@@ -19,6 +19,7 @@ set(SOURCES
 	entities/Entity.cpp
 	entities/SoundPlayer.cpp
 	entities/Sprite.cpp
+	entities/Tilemap.cpp
 	entities/WorldLabel.cpp
 	platform/${PLATFORM}/FileDialog.cpp
 	platform/${PLATFORM}/MessageBox.cpp
@@ -53,6 +54,7 @@ set(HEADERS
 	entities/Entity.hpp
 	entities/SoundPlayer.hpp
 	entities/Sprite.hpp
+	entities/Tilemap.hpp
 	entities/WorldLabel.hpp
 	platform/FileDialog.hpp
 	platform/MessageBox.hpp
